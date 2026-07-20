@@ -1,0 +1,686 @@
+{
+  "collections": [
+    {
+      "id": "core",
+      "name": "Bundled",
+      "short": "Bundled with SysBot",
+      "repo": "syan-dev/sysbot",
+      "path": "tools",
+      "platform": "all",
+      "accent": "sky",
+      "description": "Ships inside the SysBot package itself. These are available the moment you finish the installer — nothing to install, nothing to pin. They stay deliberately dependency-light so a fresh install is useful on any OS.",
+      "install": null
+    },
+    {
+      "id": "linux",
+      "name": "Linux",
+      "short": "Official Linux collection",
+      "repo": "syan-dev/sysbot-linux-tools-official",
+      "path": "tools",
+      "platform": "linux",
+      "accent": "amber",
+      "description": "Tools that lean on Linux-specific interfaces — hwmon sysfs, the RTC wake alarm, and the Unix flavour of the standard network utilities. The network package also runs on macOS.",
+      "install": "sysbot tools install syan-dev/sysbot-linux-tools-official"
+    },
+    {
+      "id": "macos",
+      "name": "macOS",
+      "short": "Official macOS collection",
+      "repo": "syan-dev/sysbot-macos-tools-official",
+      "path": "tools",
+      "platform": "macos",
+      "accent": "violet",
+      "description": "Tools built on macOS power management and sensor interfaces — pmset, powermetrics, and the SMC. For networking, install the Linux collection's network package: its Unix commands work on macOS as-is.",
+      "install": "sysbot tools install syan-dev/sysbot-macos-tools-official"
+    },
+    {
+      "id": "windows",
+      "name": "Windows",
+      "short": "Official Windows collection",
+      "repo": "syan-dev/sysbot-windows-tools-official",
+      "path": "tools",
+      "platform": "windows",
+      "accent": "emerald",
+      "description": "Tools built on Windows interfaces — WMI thermal zones, Task Scheduler wake timers, and the Windows flavour of ping, nslookup, and tracert.",
+      "install": "sysbot tools install syan-dev/sysbot-windows-tools-official"
+    }
+  ],
+
+  "packages": [
+    {
+      "slug": "system-info",
+      "name": "system-info",
+      "collection": "core",
+      "summary": "Basic machine information and free disk space.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "get_system_info",
+          "kind": "python",
+          "summary": "Report OS, hostname, architecture, CPU count, memory, and uptime for the machine SysBot runs on.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "disk_usage",
+          "kind": "python",
+          "summary": "Report total, used, and free space for the machine's filesystems.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Pure Python and standard library only — works on every supported OS with no extra install."
+      ]
+    },
+    {
+      "slug": "date-time",
+      "name": "date-time",
+      "collection": "core",
+      "version": "1.0.0",
+      "summary": "Current date, time, and timezone information.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "get_datetime",
+          "kind": "python",
+          "summary": "Return the current date and time, either in the machine's local timezone or in any IANA timezone you name.",
+          "params": [
+            {
+              "name": "timezone",
+              "type": "str",
+              "required": false,
+              "default": "local",
+              "description": "IANA timezone name such as Asia/Ho_Chi_Minh or America/New_York. Omit for the machine's local time."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Standard library only — timezone data comes from Python's zoneinfo."
+      ]
+    },
+    {
+      "slug": "power",
+      "name": "power",
+      "collection": "core",
+      "summary": "Reboot or power off the machine, scheduled a minute out and cancellable.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": [],
+      "danger": true,
+      "tools": [
+        {
+          "name": "reboot",
+          "kind": "python",
+          "summary": "Restart the machine one minute from now.",
+          "params": [],
+          "confirm": true,
+          "privileged": true
+        },
+        {
+          "name": "power_off",
+          "kind": "python",
+          "summary": "Shut the machine down one minute from now.",
+          "params": [],
+          "confirm": true,
+          "privileged": true
+        },
+        {
+          "name": "cancel_shutdown",
+          "kind": "python",
+          "summary": "Cancel a pending reboot or shutdown before the timer expires.",
+          "params": [],
+          "confirm": false,
+          "privileged": true
+        }
+      ],
+      "notes": [
+        "The one-minute delay is deliberate: it gives the chat reply time to reach you before the machine goes down, and it leaves a window to run cancel_shutdown if you change your mind.",
+        "The right command is selected per OS. Depending on your setup, powering off may require sudo (Linux and macOS) or an Administrator context (Windows).",
+        "cancel_shutdown does not know about wake alarms. If you powered the machine off with shutdown_and_wake, use that package's cancel_wake instead so the alarm is disarmed too."
+      ]
+    },
+    {
+      "slug": "cpu-temp",
+      "name": "cpu-temp",
+      "collection": "core",
+      "summary": "CPU temperature from Linux thermal sensors.",
+      "platforms": ["linux"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "cpu_temp",
+          "kind": "python",
+          "summary": "Report current CPU temperature — the hottest sensor plus a per-sensor breakdown.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Reads Linux /sys thermal sensors directly, so there is nothing to install.",
+        "On Linux the official Linux collection's temperature package is a superset of this one — it adds GPU readings and a wider set of sensor chips."
+      ]
+    },
+    {
+      "slug": "gpu-temp",
+      "name": "gpu-temp",
+      "collection": "core",
+      "summary": "NVIDIA GPU temperature via nvidia-smi.",
+      "platforms": ["linux", "windows"],
+      "requires": ["nvidia-smi"],
+      "deps": [],
+      "tools": [
+        {
+          "name": "gpu_temp",
+          "kind": "python",
+          "summary": "Report the current temperature of each NVIDIA GPU in the machine.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Requires the NVIDIA driver's nvidia-smi to be on PATH. AMD and Intel GPUs are not covered here — on Linux, use the Linux collection's temperature package, which reads amdgpu, radeon, nouveau, i915, and xe through hwmon."
+      ]
+    },
+    {
+      "slug": "speedtest",
+      "name": "speedtest",
+      "collection": "core",
+      "summary": "Measure internet download speed and latency.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "speedtest",
+          "kind": "python",
+          "summary": "Download a test payload from Cloudflare and report throughput and latency.",
+          "params": [
+            {
+              "name": "size_mb",
+              "type": "float",
+              "required": false,
+              "default": "10.0",
+              "description": "Size of the test download in megabytes. Larger samples are more accurate on fast links; smaller ones finish sooner on slow ones."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Uses speed.cloudflare.com over the standard library — no speedtest binary and no pip dependency.",
+        "This is the same measurement the optional startup notice can run when SysBot boots. See the startup_notice block in Configuration."
+      ]
+    },
+    {
+      "slug": "web",
+      "name": "web",
+      "collection": "core",
+      "summary": "Fetch a URL and return its text content.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": ["httpx"],
+      "tools": [
+        {
+          "name": "fetch_url",
+          "kind": "python",
+          "summary": "Retrieve a URL and hand its text body back to the model.",
+          "params": [
+            {
+              "name": "url",
+              "type": "str",
+              "required": true,
+              "description": "The URL to fetch."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Requires the httpx pip package, declared in the package's requirements.txt.",
+        "Content fetched from the web is fed straight into the model's context. Treat this the way you would treat any untrusted input to an assistant that can also run tools on your machine — see Security."
+      ]
+    },
+    {
+      "slug": "remote-dashboard",
+      "name": "remote-dashboard",
+      "collection": "core",
+      "version": "1.2.0",
+      "summary": "A passcode-gated web dashboard with a public share link.",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": [],
+      "deps": ["gradio"],
+      "danger": true,
+      "tools": [
+        {
+          "name": "start_dashboard",
+          "kind": "python",
+          "summary": "Launch the Gradio dashboard and return a public share link plus its passcode.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "stop_dashboard",
+          "kind": "python",
+          "summary": "Shut the dashboard down and invalidate the share link.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "dashboard_status",
+          "kind": "python",
+          "summary": "Report whether the dashboard is running and, if so, its current link.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Requires the gradio pip package. State is kept in ~/.sysbot/remote_dashboard.json and the log in ~/.sysbot/logs/remote-dashboard.log.",
+        "The share link is a public *.gradio.live URL — anyone who has the link and the passcode reaches your machine from the open internet. Stop the dashboard when you are done rather than leaving the link live.",
+        "This is distinct from the built-in local dashboard described in the Dashboard guide, which binds to 127.0.0.1 and is not exposed publicly."
+      ]
+    },
+
+    {
+      "slug": "network",
+      "name": "network",
+      "collection": "linux",
+      "version": "1.0.0",
+      "summary": "Ping, DNS lookup, and traceroute using Unix syntax.",
+      "platforms": ["linux", "macos"],
+      "requires": ["ping", "nslookup", "traceroute"],
+      "deps": [],
+      "tools": [
+        {
+          "name": "ping",
+          "kind": "cli",
+          "command": "ping -c 3 {host}",
+          "timeout": "15s",
+          "summary": "Send three ICMP echo requests to a host and report the replies.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to ping."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "dns_lookup",
+          "kind": "cli",
+          "command": "nslookup {domain}",
+          "summary": "Resolve a domain name and report the answering nameserver.",
+          "params": [
+            {
+              "name": "domain",
+              "type": "str",
+              "required": true,
+              "description": "Domain name to resolve."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "traceroute",
+          "kind": "cli",
+          "command": "traceroute -m 15 {host}",
+          "timeout": "60s",
+          "summary": "Trace the network path to a host, up to 15 hops.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to trace."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Each tool is gated independently on its own binary, so a machine without traceroute installed still gets working ping and dns_lookup.",
+        "macOS users want this package too — its Unix commands run on macOS unchanged, which is why it declares both platforms and why the macOS collection ships no network package of its own.",
+        "Do not install this alongside the Windows collection's network package. Both use the folder name network and the same tool names, so whichever you install second replaces the first."
+      ]
+    },
+    {
+      "slug": "temperature",
+      "name": "temperature",
+      "collection": "linux",
+      "version": "1.0.0",
+      "summary": "CPU and GPU temperatures from hwmon and nvidia-smi.",
+      "platforms": ["linux"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "temperature",
+          "kind": "python",
+          "summary": "Report every CPU and GPU temperature the machine exposes, in one reading.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Reads /sys/class/hwmon directly — CPU sensors coretemp, k10temp, zenpower, and cpu_thermal; GPU sensors amdgpu, radeon, nouveau, i915, and xe — then appends nvidia-smi readings if that binary is on PATH.",
+        "Per-core temperatures are compacted into a single min–max range so a 16-core CPU does not produce sixteen lines. Chip-level readings are listed individually.",
+        "If no sensors are found the tool explains that rather than failing, which is the common outcome inside containers and some virtual machines."
+      ]
+    },
+    {
+      "slug": "shutdown-wake",
+      "name": "shutdown-wake",
+      "collection": "linux",
+      "version": "1.0.0",
+      "summary": "Power off now and have the machine turn itself back on later, via the RTC wake alarm.",
+      "platforms": ["linux"],
+      "requires": ["rtcwake"],
+      "deps": [],
+      "danger": true,
+      "tools": [
+        {
+          "name": "shutdown_and_wake",
+          "kind": "python",
+          "summary": "Arm the real-time clock wake alarm, then power the machine off — it starts itself again after the delay you gave.",
+          "params": [
+            {
+              "name": "minutes",
+              "type": "int",
+              "required": false,
+              "default": "60",
+              "description": "How long the machine should stay off, counted from the moment it powers down."
+            }
+          ],
+          "confirm": true,
+          "confirmText": "⚠️ This will POWER OFF the machine in 1 minute and auto-start it again later. Proceed?",
+          "privileged": true
+        },
+        {
+          "name": "cancel_wake",
+          "kind": "python",
+          "summary": "Cancel the pending shutdown and disarm the wake alarm.",
+          "params": [],
+          "confirm": true,
+          "confirmText": "Cancel the pending shutdown and disarm the wake alarm?",
+          "privileged": true
+        }
+      ],
+      "notes": [
+        "The wake delay counts from the power-off, not from the moment you ask. Because shutdown is scheduled one minute out, shutdown_and_wake(60) brings the machine back roughly 61 minutes from now.",
+        "The shutdown is deliberately scheduled a minute ahead so the chat reply reaches you before the link drops, and a heads-up notification fires about ten seconds before the machine goes down.",
+        "Armed state is read back from /sys/class/rtc/rtc0/wakealarm, so SysBot still knows the alarm is set after a restart. If that sysfs node is missing the tool refuses to act rather than powering off a machine it cannot wake.",
+        "Arming the RTC needs root. The package tries the plain command, retries under sudo -n, and if both fail points you at its bundled setup-sudoers.sh, which grants exactly one NOPASSWD entry for rtcwake and validates the result with visudo -cf."
+      ],
+      "troubleshooting": [
+        {
+          "symptom": "The alarm arms, the machine powers off, but it never wakes.",
+          "cause": "Firmware is ignoring the RTC alarm in S5 (full soft-off). This is a BIOS setting, not a SysBot problem — the alarm is still sitting in the RTC registers when you power on by hand, which proves the software side worked.",
+          "fix": "In the BIOS, disable ErP Ready (on ASUS boards: Advanced → APM Configuration → ErP Ready = Disabled). ErP caps standby power below what the RTC alarm circuit needs. Also confirm the PSU switch is on and the machine still has mains power — cutting either blocks wake regardless of the alarm.",
+          "verify": "sudo rtcwake -m no -t $(date -d '+3 minutes' +%s) && systemctl poweroff"
+        }
+      ]
+    },
+
+    {
+      "slug": "battery",
+      "name": "battery",
+      "collection": "macos",
+      "version": "1.0.0",
+      "summary": "Battery charge, power source, and time remaining.",
+      "platforms": ["macos"],
+      "requires": ["pmset"],
+      "deps": [],
+      "tools": [
+        {
+          "name": "battery",
+          "kind": "cli",
+          "command": "pmset -g batt",
+          "summary": "Report charge percentage, whether the Mac is on AC or battery, and the estimated time remaining.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Needs no root and no confirmation. On a desktop Mac it reports that there are no batteries rather than failing."
+      ]
+    },
+    {
+      "slug": "temperature",
+      "name": "temperature",
+      "collection": "macos",
+      "version": "1.0.0",
+      "summary": "CPU and GPU temperature, or thermal pressure on Apple Silicon.",
+      "platforms": ["macos"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "temperature",
+          "kind": "python",
+          "summary": "Report the machine's thermal state — a die temperature where the hardware exposes one, otherwise a thermal pressure level.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Tries osx-cpu-temp first, which needs no root and works on Intel Macs. Install it with brew install osx-cpu-temp.",
+        "Apple Silicon exposes no die temperature to userspace. There the tool falls back to sudo -n powermetrics and reports a pressure level — Nominal, Moderate, or Heavy — which is the honest answer rather than a fabricated number.",
+        "The powermetrics path needs passwordless sudo. It is optional: without it you still get readings on Intel hardware.",
+        "osx-cpu-temp printing 0.0°C means the SMC key is unsupported on that model, so the tool treats it as no reading rather than reporting freezing."
+      ]
+    },
+    {
+      "slug": "shutdown-wake",
+      "name": "shutdown-wake",
+      "collection": "macos",
+      "version": "1.0.0",
+      "summary": "Power off now and auto-wake later via a pmset scheduled wake.",
+      "platforms": ["macos"],
+      "requires": ["pmset"],
+      "deps": [],
+      "danger": true,
+      "tools": [
+        {
+          "name": "shutdown_and_wake",
+          "kind": "python",
+          "summary": "Schedule a pmset wake, then power the Mac off — it starts itself again after the delay you gave.",
+          "params": [
+            {
+              "name": "minutes",
+              "type": "int",
+              "required": false,
+              "default": "60",
+              "description": "How long the machine should stay off, counted from the moment it powers down."
+            }
+          ],
+          "confirm": true,
+          "confirmText": "⚠️ This will POWER OFF the machine in 1 minute and auto-start it again later. Proceed?",
+          "privileged": true
+        },
+        {
+          "name": "cancel_wake",
+          "kind": "python",
+          "summary": "Cancel the pending shutdown and clear the scheduled wake.",
+          "params": [],
+          "confirm": true,
+          "confirmText": "Cancel the pending shutdown and clear the scheduled wake?",
+          "privileged": true
+        }
+      ],
+      "notes": [
+        "cancel_wake runs pmset schedule cancelall, which clears every scheduled pmset event — including wake or power events you set up yourself outside SysBot. There is no per-event cancel in pmset.",
+        "BSD shutdown has no -c flag, so the pending shutdown is cancelled with killall shutdown rather than the Linux syntax.",
+        "pmset schedule, shutdown, and killall shutdown all need root. Every privileged call tries plain first, then sudo -n. The bundled setup-sudoers.sh grants exactly those three commands and nothing else.",
+        "Armed state is read back from pmset -g sched, which needs no root.",
+        "On recent laptops a scheduled wake only fires on AC power. Leave the Mac plugged in if you are relying on it."
+      ]
+    },
+
+    {
+      "slug": "network",
+      "name": "network",
+      "collection": "windows",
+      "version": "1.0.0",
+      "summary": "Ping, DNS lookup, and tracert using Windows syntax.",
+      "platforms": ["windows"],
+      "requires": ["ping", "nslookup", "tracert"],
+      "deps": [],
+      "tools": [
+        {
+          "name": "ping",
+          "kind": "cli",
+          "command": "ping -n 3 {host}",
+          "timeout": "15s",
+          "summary": "Send three ICMP echo requests to a host and report the replies.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to ping."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "dns_lookup",
+          "kind": "cli",
+          "command": "nslookup {domain}",
+          "summary": "Resolve a domain name and report the answering nameserver.",
+          "params": [
+            {
+              "name": "domain",
+              "type": "str",
+              "required": true,
+              "description": "Domain name to resolve."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "traceroute",
+          "kind": "cli",
+          "command": "tracert -h 15 -w 1000 {host}",
+          "timeout": "120s",
+          "summary": "Trace the network path to a host, up to 15 hops with a one-second per-hop timeout.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to trace."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "The tool names match the Linux collection's network package exactly, and so does the folder name. That is deliberate — you install whichever one suits the machine, and they never coexist. Installing both means the second overwrites the first in ~/.sysbot/tools/.",
+        "The longer traceroute timeout reflects tracert's behaviour on unresponsive hops, which is slower to give up than the Unix tool."
+      ]
+    },
+    {
+      "slug": "temperature",
+      "name": "temperature",
+      "collection": "windows",
+      "version": "1.0.0",
+      "summary": "Thermal zone and GPU temperatures via WMI and nvidia-smi.",
+      "platforms": ["windows"],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "temperature",
+          "kind": "python",
+          "summary": "Report ACPI thermal zone temperatures and any NVIDIA GPU readings.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Queries MSAcpi_ThermalZoneTemperature in the root/wmi namespace through PowerShell, converts tenths of a kelvin to Celsius, and discards zones reporting implausible values.",
+        "Output is grouped as Thermal zones and GPU rather than CPU and GPU — ACPI zones are board-level and do not map cleanly onto CPU cores.",
+        "Many consumer motherboards leave the ACPI thermal zones empty, or expose them only to Administrators. When that happens the tool explains the situation and points at LibreHardwareMonitor rather than reporting a failure."
+      ]
+    },
+    {
+      "slug": "shutdown-wake",
+      "name": "shutdown-wake",
+      "collection": "windows",
+      "version": "1.0.0",
+      "summary": "Power off now and auto-wake later via a Task Scheduler wake timer.",
+      "platforms": ["windows"],
+      "requires": ["schtasks", "shutdown", "powershell"],
+      "deps": [],
+      "danger": true,
+      "tools": [
+        {
+          "name": "shutdown_and_wake",
+          "kind": "python",
+          "summary": "Register a wake timer as a scheduled task, then shut the machine down — it starts itself again after the delay you gave.",
+          "params": [
+            {
+              "name": "minutes",
+              "type": "int",
+              "required": false,
+              "default": "60",
+              "description": "How long the machine should stay off, counted from the moment it powers down."
+            }
+          ],
+          "confirm": true,
+          "privileged": false
+        },
+        {
+          "name": "cancel_wake",
+          "kind": "python",
+          "summary": "Abort the pending shutdown and delete the wake timer task.",
+          "params": [],
+          "confirm": true,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Registers a scheduled task named SysBotWake using New-ScheduledTaskSettingsSet -WakeToRun, then runs shutdown /s /t 60. Cancelling runs shutdown /a and deletes the task.",
+        "Elevation is usually not needed here, unlike the Linux and macOS equivalents — registering a scheduled task for your own user is an ordinary operation. If it fails, the problem is normally the Task Scheduler service rather than permissions.",
+        "Verifying the timer yourself with powercfg /waketimers does need an elevated prompt."
+      ],
+      "troubleshooting": [
+        {
+          "symptom": "The machine wakes from sleep but not after a full shutdown.",
+          "cause": "Wake timers are reliable from sleep and hibernate. Waking from S5 additionally depends on firmware support.",
+          "fix": "Enable the RTC alarm or wake timers in the BIOS and turn ErP off. In practice this bites less often on Windows than on Linux, because Fast Startup — the Windows default — makes shutdown /s a hybrid hibernate rather than a true S5, and most hardware wakes from that.",
+          "verify": "powercfg /waketimers   (run from an elevated prompt)"
+        }
+      ]
+    }
+  ]
+}

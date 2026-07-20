@@ -1,0 +1,953 @@
+@import "tailwindcss";
+
+/* The theme toggle stamps .dark on <html>; it must beat the media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-200: #a5f3fc;
+  --color-brand-300: #67e8f9;
+  --color-brand-400: #22d3ee;
+  --color-brand-500: #06b6d4;
+  --color-brand-600: #0891b2;
+  --color-brand-700: #0e7490;
+  --color-brand-800: #155e75;
+  --color-brand-900: #164e63;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --text-xs: 0.78rem;
+  --text-sm: 0.875rem;
+
+  --radius-card: 0.875rem;
+}
+
+/* ===================================================================== */
+/* Base                                                                  */
+/* ===================================================================== */
+
+@layer base {
+  :root {
+    --topbar-h: 3.5rem;
+    --sidebar-w: 16.5rem;
+    --toc-w: 15rem;
+    --content-max: 46rem;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--topbar-h) + 1.25rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white text-slate-700 font-sans antialiased;
+    @apply dark:bg-slate-950 dark:text-slate-300;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-slate-900;
+  }
+  .dark ::selection {
+    @apply bg-brand-700/60 text-white;
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-slate-900 dark:text-white font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  code {
+    @apply font-mono;
+  }
+
+  /* A consistent focus ring everywhere, without killing mouse ergonomics. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500 rounded-sm;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* ===================================================================== */
+/* Layout scaffolding                                                    */
+/* ===================================================================== */
+
+@layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100;
+    @apply focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white focus:font-medium;
+  }
+
+  .topbar {
+    @apply sticky top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur-md;
+    @apply dark:border-slate-800/80 dark:bg-slate-950/85;
+  }
+
+  .topbar-inner {
+    @apply mx-auto flex h-14 max-w-[100rem] items-center gap-2 px-4 sm:gap-3 sm:px-6;
+  }
+
+  .topbar-spacer {
+    @apply flex-1;
+  }
+
+  .brand {
+    @apply flex items-center gap-2 rounded-lg py-1 pr-2 transition-opacity hover:opacity-80;
+  }
+  .brand-name {
+    @apply text-[0.98rem] font-semibold tracking-tight text-slate-900 dark:text-white;
+  }
+  .brand-sub {
+    @apply hidden text-[0.72rem] font-medium uppercase tracking-[0.14em] text-slate-400 sm:inline dark:text-slate-500;
+  }
+
+  .icon-button {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition;
+    @apply hover:bg-slate-100 hover:text-slate-900;
+    @apply dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white;
+  }
+
+  .shell {
+    @apply mx-auto flex w-full max-w-[100rem] items-start gap-0 px-0;
+  }
+  .shell-bare {
+    @apply block max-w-none px-0;
+  }
+
+  /* --- Sidebar ------------------------------------------------------- */
+
+  .sidebar {
+    @apply fixed inset-y-0 left-0 z-70 w-[17rem] -translate-x-full overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-200;
+    @apply dark:border-slate-800 dark:bg-slate-950;
+    @apply lg:sticky lg:top-14 lg:z-30 lg:h-[calc(100vh-var(--topbar-h))] lg:w-[var(--sidebar-w)] lg:translate-x-0 lg:border-r-0 lg:bg-transparent lg:dark:bg-transparent;
+  }
+  .sidebar[data-open="true"] {
+    @apply translate-x-0 shadow-2xl;
+  }
+  .sidebar-inner {
+    @apply px-4 py-6 lg:py-8 lg:pl-6 lg:pr-4;
+  }
+  .sidebar-mobile-head {
+    @apply mb-4 flex items-center justify-between border-b border-slate-200 pb-3 dark:border-slate-800;
+  }
+  .sidebar-backdrop {
+    @apply fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-[2px] lg:hidden;
+  }
+
+  .nav-section {
+    @apply mb-6;
+  }
+  .nav-title {
+    @apply mb-2 px-2 text-[0.7rem] font-semibold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500;
+  }
+  .nav-list {
+    @apply space-y-px border-l border-slate-200 dark:border-slate-800;
+  }
+  .nav-link {
+    @apply -ml-px flex items-center justify-between gap-2 border-l border-transparent py-1.5 pl-3 pr-2 text-sm text-slate-600 transition;
+    @apply hover:border-slate-300 hover:text-slate-900;
+    @apply dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white;
+  }
+  .nav-link-active {
+    @apply border-brand-500 font-medium text-brand-700 dark:border-brand-400 dark:text-brand-300;
+  }
+  .nav-badge {
+    @apply rounded-full bg-slate-100 px-1.5 py-0.5 text-[0.68rem] font-medium text-slate-500;
+    @apply dark:bg-slate-800 dark:text-slate-400;
+  }
+
+  /* --- Main + TOC ---------------------------------------------------- */
+
+  .main-doc {
+    @apply min-w-0 flex-1 px-5 py-10 sm:px-8 lg:px-10 xl:max-w-[var(--content-max)];
+  }
+  .main-wide {
+    @apply min-w-0 flex-1 px-5 py-10 sm:px-8 lg:px-10;
+  }
+  .main-bare {
+    @apply mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16;
+  }
+
+  .toc {
+    @apply sticky top-14 hidden h-[calc(100vh-var(--topbar-h))] w-[var(--toc-w)] shrink-0 overflow-y-auto py-10 pr-6 xl:block;
+  }
+  .toc-title {
+    @apply mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500;
+  }
+  .toc-list {
+    @apply space-y-1 border-l border-slate-200 dark:border-slate-800;
+  }
+  .toc-item.toc-depth-3 {
+    @apply pl-3;
+  }
+  .toc-link {
+    @apply -ml-px block border-l border-transparent py-1 pl-3 text-[0.82rem] leading-snug text-slate-500 transition;
+    @apply hover:border-slate-300 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white;
+  }
+  .toc-link-active {
+    @apply border-brand-500 text-brand-700 dark:border-brand-400 dark:text-brand-300;
+  }
+
+  /* --- Page furniture ------------------------------------------------ */
+
+  .breadcrumbs {
+    @apply mb-6 text-[0.8rem] text-slate-500 dark:text-slate-500;
+  }
+  .breadcrumbs ol {
+    @apply flex flex-wrap items-center gap-1.5;
+  }
+  .breadcrumbs li + li::before {
+    content: "/";
+    @apply mr-1.5 text-slate-300 dark:text-slate-700;
+  }
+  .breadcrumbs a {
+    @apply transition hover:text-slate-900 dark:hover:text-white;
+  }
+
+  .page-header {
+    @apply mb-10 border-b border-slate-200 pb-8 dark:border-slate-800;
+  }
+  .eyebrow {
+    @apply mb-2 flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-brand-600 dark:text-brand-400;
+  }
+  .page-title {
+    @apply text-[2.1rem] leading-[1.15] sm:text-[2.5rem];
+  }
+  .title-code {
+    @apply font-mono text-[1.9rem] sm:text-[2.2rem];
+  }
+  .page-lede {
+    @apply mt-4 text-[1.05rem] leading-relaxed text-slate-600 dark:text-slate-400;
+    text-wrap: pretty;
+  }
+
+  .section {
+    @apply mt-14;
+  }
+  .section > h2 {
+    @apply border-t border-slate-200 pt-10 text-[1.5rem] dark:border-slate-800;
+  }
+  .section > p {
+    @apply mt-4 leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .section > p a {
+    @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-[3px] dark:text-brand-300 dark:decoration-brand-700;
+  }
+  .section > p code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.85em] text-slate-800 dark:bg-slate-800 dark:text-slate-200;
+  }
+  .section-title {
+    @apply text-xl sm:text-2xl;
+  }
+  .section-lede {
+    @apply mt-3 max-w-2xl leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+
+  .heading-anchor {
+    @apply scroll-mt-24;
+  }
+  /* Doubled up so it also beats `.prose a`, which is more specific. */
+  .anchor-link,
+  .prose .anchor-link {
+    @apply ml-2 select-none font-normal no-underline transition-colors;
+    color: transparent;
+  }
+  .heading-anchor:hover .anchor-link,
+  .anchor-link:focus-visible {
+    @apply text-brand-500/70;
+  }
+
+  .pager {
+    @apply mt-16 grid grid-cols-2 gap-4 border-t border-slate-200 pt-8 dark:border-slate-800;
+  }
+  .pager-link {
+    @apply flex flex-col gap-1 rounded-xl border border-slate-200 px-4 py-3 transition;
+    @apply hover:border-brand-400 hover:bg-brand-50/50;
+    @apply dark:border-slate-800 dark:hover:border-brand-500/60 dark:hover:bg-slate-900;
+  }
+  .pager-next {
+    @apply items-end text-right;
+  }
+  .pager-dir {
+    @apply flex items-center gap-1.5 text-[0.72rem] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500;
+  }
+  .pager-next .pager-dir {
+    @apply flex-row-reverse;
+  }
+  .pager-label {
+    @apply font-medium text-slate-900 dark:text-white;
+  }
+  .edit-link {
+    @apply mt-8 text-sm text-slate-500 dark:text-slate-500;
+  }
+  .edit-link a {
+    @apply underline decoration-slate-300 underline-offset-4 transition hover:text-brand-600 dark:decoration-slate-700 dark:hover:text-brand-400;
+  }
+
+  /* ===================================================================== */
+  /* Version switcher                                                      */
+  /* ===================================================================== */
+
+  .version-switcher {
+    @apply relative;
+  }
+  .version-button {
+    @apply flex items-center gap-1.5 rounded-lg border border-slate-200 py-1.5 pl-2.5 pr-2 text-[0.82rem] font-medium text-slate-700 transition;
+    @apply hover:border-slate-300 hover:bg-slate-50;
+    @apply dark:border-slate-800 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-900;
+  }
+  .version-button-dot {
+    @apply h-1.5 w-1.5 rounded-full bg-brand-500;
+  }
+  .version-menu {
+    @apply absolute left-0 top-full z-60 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10;
+    @apply dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/40;
+  }
+  .version-menu-title {
+    @apply px-2.5 pb-1.5 pt-1 text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500;
+  }
+  .version-menu-note {
+    @apply mt-1.5 border-t border-slate-100 px-2.5 pb-1 pt-2 text-[0.72rem] leading-snug text-slate-400 dark:border-slate-800 dark:text-slate-500;
+  }
+  .version-option {
+    @apply flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm text-slate-600 transition;
+    @apply hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white;
+  }
+  .version-option-active {
+    @apply bg-brand-50 font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300;
+  }
+  .version-option-label {
+    @apply flex-1;
+  }
+  .version-tag {
+    @apply rounded-full bg-slate-100 px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-slate-500;
+    @apply dark:bg-slate-800 dark:text-slate-400;
+  }
+  .version-tag-current {
+    @apply bg-brand-100 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300;
+  }
+
+  .version-rows {
+    @apply mt-8 space-y-4;
+  }
+  .version-row {
+    @apply rounded-card border border-slate-200 p-5 transition hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700;
+  }
+  .version-row-head {
+    @apply flex flex-wrap items-center gap-3;
+  }
+  .version-row-label {
+    @apply font-mono text-lg font-semibold text-slate-900 transition hover:text-brand-600 dark:text-white dark:hover:text-brand-400;
+  }
+  .version-row-date {
+    @apply ml-auto text-sm text-slate-400 dark:text-slate-500;
+  }
+  .version-row-notes {
+    @apply mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .version-row-links {
+    @apply mt-4 flex flex-wrap gap-4 text-sm;
+  }
+  .version-row-links a {
+    @apply text-brand-600 transition hover:text-brand-700 hover:underline underline-offset-4 dark:text-brand-400;
+  }
+
+  /* ===================================================================== */
+  /* Search                                                                */
+  /* ===================================================================== */
+
+  .search-button {
+    @apply flex items-center gap-2 rounded-lg border border-slate-200 py-1.5 pl-2.5 pr-2 text-sm text-slate-400 transition;
+    @apply hover:border-slate-300 hover:text-slate-600;
+    @apply dark:border-slate-800 dark:text-slate-500 dark:hover:border-slate-700 dark:hover:text-slate-300;
+  }
+  .search-button-text {
+    @apply hidden sm:inline;
+  }
+  .search-kbd {
+    @apply hidden rounded border border-slate-200 bg-slate-50 px-1.5 font-mono text-[0.7rem] text-slate-400 sm:inline;
+    @apply dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500;
+  }
+
+  .search-modal {
+    @apply fixed inset-0 z-90;
+  }
+  .search-backdrop {
+    @apply absolute inset-0 bg-slate-900/50 backdrop-blur-sm;
+  }
+  .search-panel {
+    @apply relative mx-auto mt-[10vh] flex max-h-[70vh] w-[92%] max-w-xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl;
+    @apply dark:border-slate-800 dark:bg-slate-900;
+  }
+  .search-input-row {
+    @apply flex items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800;
+  }
+  .search-input {
+    @apply w-full bg-transparent text-[0.95rem] text-slate-900 outline-none placeholder:text-slate-400;
+    @apply dark:text-white dark:placeholder:text-slate-500;
+  }
+  .search-input::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+  .search-results {
+    @apply overflow-y-auto p-2;
+  }
+  .search-empty {
+    @apply px-3 py-6 text-center text-sm text-slate-400 dark:text-slate-500;
+  }
+  .search-hit {
+    @apply flex w-full flex-col gap-0.5 rounded-lg px-3 py-2.5 text-left transition;
+    @apply hover:bg-slate-100 dark:hover:bg-slate-800;
+  }
+  .search-hit-active {
+    @apply bg-brand-50 dark:bg-brand-500/10;
+  }
+  .search-hit-title {
+    @apply flex items-center gap-2 text-sm font-medium text-slate-900 dark:text-white;
+  }
+  .search-hit-kind {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.65rem] font-normal uppercase tracking-wide text-slate-500;
+    @apply dark:bg-slate-800 dark:text-slate-400;
+  }
+  .search-hit-desc {
+    @apply line-clamp-2 text-[0.8rem] leading-snug text-slate-500 dark:text-slate-400;
+  }
+  .search-hit mark {
+    @apply rounded bg-brand-200/70 px-0.5 text-inherit dark:bg-brand-500/30;
+  }
+
+  /* ===================================================================== */
+  /* Home page                                                             */
+  /* ===================================================================== */
+
+  .hero {
+    @apply grid items-center gap-10 pb-4 lg:grid-cols-[1.05fr_1fr] lg:gap-14;
+  }
+  .hero-badge {
+    @apply inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[0.75rem] font-medium text-brand-700;
+    @apply dark:border-brand-500/25 dark:bg-brand-500/10 dark:text-brand-300;
+  }
+  .hero-title {
+    @apply mt-5 text-[2.4rem] leading-[1.08] sm:text-[3.1rem];
+  }
+  .hero-lede {
+    @apply mt-5 max-w-xl text-[1.05rem] leading-relaxed text-slate-600 dark:text-slate-400;
+    text-wrap: pretty;
+  }
+  .hero-actions {
+    @apply mt-8 flex flex-wrap gap-3;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition;
+  }
+  .btn-primary {
+    @apply bg-slate-900 text-white hover:bg-slate-700;
+    @apply dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200;
+  }
+  .btn-ghost {
+    @apply border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50;
+    @apply dark:border-slate-800 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-900;
+  }
+
+  .terminal {
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-xl shadow-slate-900/5;
+    @apply dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/30;
+  }
+  .terminal-bar {
+    @apply flex items-center gap-1.5 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950;
+  }
+  .terminal-bar > span {
+    @apply h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-700;
+  }
+  .terminal-title {
+    @apply ml-2 text-[0.75rem] font-medium text-slate-400 dark:text-slate-500;
+  }
+  .terminal-body {
+    @apply space-y-2.5 p-4 text-[0.83rem] leading-relaxed;
+  }
+  .chat {
+    @apply max-w-[85%] rounded-xl px-3 py-2;
+  }
+  .chat-you {
+    @apply ml-auto bg-brand-500 text-white;
+  }
+  .chat-bot {
+    @apply border border-slate-200 bg-white text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300;
+  }
+  .chat-tool {
+    @apply mb-1.5 block font-mono text-[0.72rem] text-brand-600 dark:text-brand-400;
+  }
+
+  .start-grid {
+    @apply mt-20 grid gap-4 sm:grid-cols-3;
+  }
+  .start-card {
+    @apply flex flex-col rounded-card border border-slate-200 p-5 transition;
+    @apply hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg hover:shadow-brand-500/5;
+    @apply dark:border-slate-800 dark:hover:border-brand-500/50 dark:hover:shadow-black/30;
+  }
+  .start-card-title {
+    @apply text-base;
+  }
+  .start-card-body {
+    @apply mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .start-card-cta {
+    @apply mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 dark:text-brand-400;
+  }
+
+  .quickstart {
+    @apply mt-24;
+  }
+  .steps {
+    @apply mt-8 grid gap-5 sm:grid-cols-2;
+  }
+  .step {
+    @apply flex gap-4 rounded-card border border-slate-200 p-5 dark:border-slate-800;
+  }
+  .step-num {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[0.78rem] font-semibold text-white;
+    @apply dark:bg-white dark:text-slate-900;
+  }
+  .step-title {
+    @apply font-medium text-slate-900 dark:text-white;
+  }
+  .step-desc {
+    @apply mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .step-cmd {
+    @apply mt-3 block overflow-x-auto rounded-lg bg-slate-100 px-3 py-2 font-mono text-[0.78rem] text-slate-700;
+    @apply dark:bg-slate-900 dark:text-slate-300;
+  }
+
+  .platforms {
+    @apply mt-24;
+  }
+  .platform-grid {
+    @apply mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4;
+  }
+  .platform-card {
+    @apply rounded-card border border-slate-200 p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5;
+    @apply dark:border-slate-800 dark:hover:border-slate-700 dark:hover:shadow-black/30;
+  }
+  .platform-name {
+    @apply mt-3 font-semibold text-slate-900 dark:text-white;
+  }
+  .platform-count {
+    @apply mt-1 text-[0.78rem] font-medium text-brand-600 dark:text-brand-400;
+  }
+  .platform-list {
+    @apply mt-3 font-mono text-[0.75rem] leading-relaxed text-slate-500 dark:text-slate-500;
+  }
+
+  .journey {
+    @apply mt-24;
+  }
+  .journey-grid {
+    @apply mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .journey-title {
+    @apply mb-3 text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500;
+  }
+  .journey-list {
+    @apply space-y-3;
+  }
+  .journey-list a {
+    @apply block;
+  }
+  .journey-label {
+    @apply block text-sm font-medium text-slate-900 transition group-hover:text-brand-600 dark:text-white;
+  }
+  .journey-list a:hover .journey-label {
+    @apply text-brand-600 dark:text-brand-400;
+  }
+  .journey-desc {
+    @apply mt-0.5 block text-[0.8rem] leading-snug text-slate-500 dark:text-slate-500;
+  }
+
+  /* ===================================================================== */
+  /* Tool catalog                                                          */
+  /* ===================================================================== */
+
+  .catalog-controls {
+    @apply mb-10 space-y-4;
+  }
+  .catalog-search {
+    @apply relative;
+  }
+  .catalog-search-icon {
+    @apply pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400;
+  }
+  .catalog-search-input {
+    @apply w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 transition;
+    @apply placeholder:text-slate-400 focus:border-brand-400 focus:outline-none;
+    @apply dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500;
+  }
+  .filter-row {
+    @apply flex flex-wrap gap-2;
+  }
+  .filter-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-[0.8rem] font-medium text-slate-600 transition;
+    @apply hover:border-slate-300 hover:bg-slate-50;
+    @apply dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-900;
+  }
+  .filter-chip-active {
+    @apply border-slate-900 bg-slate-900 text-white hover:bg-slate-900;
+    @apply dark:border-white dark:bg-white dark:text-slate-900 dark:hover:bg-white;
+  }
+  .filter-count {
+    @apply rounded-full bg-black/10 px-1.5 text-[0.68rem] dark:bg-white/10;
+  }
+  .filter-chip-active .filter-count {
+    @apply bg-white/20 dark:bg-black/10;
+  }
+
+  .catalog-group {
+    @apply mb-14;
+  }
+  .catalog-group-head {
+    @apply mb-6;
+  }
+  .catalog-group-title {
+    @apply flex scroll-mt-24 items-center gap-2.5 text-xl;
+  }
+  .catalog-group-desc {
+    @apply mt-2 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .catalog-group-install {
+    @apply mt-4 max-w-2xl;
+  }
+  .catalog-group-note {
+    @apply mt-3 text-sm italic text-slate-500 dark:text-slate-500;
+  }
+  .catalog-empty {
+    @apply rounded-card border border-dashed border-slate-300 py-12 text-center text-sm text-slate-500;
+    @apply dark:border-slate-700 dark:text-slate-500;
+  }
+
+  .tool-grid {
+    @apply grid gap-4 sm:grid-cols-2 xl:grid-cols-3;
+  }
+  .tool-card {
+    @apply flex flex-col rounded-card border border-slate-200 p-5 transition;
+    @apply hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg hover:shadow-brand-500/5;
+    @apply dark:border-slate-800 dark:hover:border-brand-500/50 dark:hover:shadow-black/30;
+  }
+  .tool-card-head {
+    @apply flex items-center justify-between gap-2;
+  }
+  .tool-card-name {
+    @apply font-mono text-[0.95rem] font-semibold text-slate-900 dark:text-white;
+  }
+  .tool-card-summary {
+    @apply mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .tool-card-tools {
+    @apply mt-4 flex flex-wrap gap-1.5;
+  }
+  .tool-pill {
+    @apply rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[0.72rem] text-slate-600;
+    @apply dark:bg-slate-800 dark:text-slate-300;
+  }
+  .tool-card-foot {
+    @apply mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 dark:border-slate-800;
+  }
+
+  .collection-dot {
+    @apply inline-block h-2 w-2 shrink-0 rounded-full;
+  }
+  .collection-core { @apply bg-sky-500; }
+  .collection-linux { @apply bg-amber-500; }
+  .collection-macos { @apply bg-violet-500; }
+  .collection-windows { @apply bg-emerald-500; }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.7rem] font-medium;
+  }
+  .badge-platform {
+    @apply bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-md border border-slate-200 px-1.5 py-0.5 text-[0.7rem] font-medium text-slate-500;
+    @apply dark:border-slate-700 dark:text-slate-400;
+  }
+  .chip-warn {
+    @apply border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300;
+  }
+  .chip-danger {
+    @apply border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300;
+  }
+  .chip-muted {
+    @apply border-slate-200 text-slate-500 dark:border-slate-800 dark:text-slate-500;
+  }
+
+  /* --- Package page -------------------------------------------------- */
+
+  .danger-flag {
+    @apply mt-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800;
+    @apply dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200;
+  }
+
+  .meta-grid {
+    @apply grid gap-px overflow-hidden rounded-card border border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-5;
+    @apply dark:border-slate-800 dark:bg-slate-800;
+  }
+  .meta-item {
+    @apply bg-white p-4 dark:bg-slate-950;
+  }
+  .meta-label {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500;
+  }
+  .meta-value {
+    @apply mt-2 flex flex-wrap items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300;
+  }
+  .meta-value code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.78rem] dark:bg-slate-800;
+  }
+  .meta-value a {
+    @apply text-brand-600 underline decoration-brand-300 underline-offset-4 dark:text-brand-400 dark:decoration-brand-700;
+  }
+  .dash {
+    @apply text-slate-400 dark:text-slate-600;
+  }
+
+  .tool-entry {
+    @apply mt-8 scroll-mt-24 rounded-card border border-slate-200 p-5 sm:p-6 dark:border-slate-800;
+  }
+  .tool-entry-head {
+    @apply flex flex-wrap items-center justify-between gap-3;
+  }
+  .tool-entry-name {
+    @apply text-[1.05rem];
+  }
+  .tool-entry-name code {
+    @apply text-brand-700 dark:text-brand-300;
+  }
+  .tool-entry-flags {
+    @apply flex flex-wrap gap-1.5;
+  }
+  .tool-entry-summary {
+    @apply mt-3 leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .tool-entry-command,
+  .tool-entry-params,
+  .tool-entry-confirm {
+    @apply mt-5;
+  }
+  .field-label {
+    @apply mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500;
+  }
+  .no-params {
+    @apply text-sm italic text-slate-500 dark:text-slate-500;
+  }
+  .req {
+    @apply ml-2 rounded bg-brand-100 px-1 py-0.5 align-middle text-[0.62rem] font-medium uppercase tracking-wide text-brand-700;
+    @apply dark:bg-brand-500/15 dark:text-brand-300;
+  }
+  .param-table code.type {
+    @apply text-brand-700 dark:text-brand-300;
+  }
+  .confirm-quote {
+    @apply rounded-lg border-l-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900;
+    @apply dark:bg-amber-500/10 dark:text-amber-200;
+  }
+
+  .note-list {
+    @apply mt-4 space-y-3;
+  }
+  .note-list li {
+    @apply relative pl-5 leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .note-list li::before {
+    content: "";
+    @apply absolute left-0 top-[0.6em] h-1.5 w-1.5 rounded-full bg-brand-400;
+  }
+
+  .trouble {
+    @apply mt-6 rounded-card border border-slate-200 p-5 dark:border-slate-800;
+  }
+  .trouble-symptom {
+    @apply font-medium text-slate-900 dark:text-white;
+  }
+  .trouble-line {
+    @apply mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
+  }
+  .trouble-key {
+    @apply mr-2 inline-block w-8 shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500;
+  }
+  .trouble-verify {
+    @apply mt-4;
+  }
+
+  /* ===================================================================== */
+  /* Callouts, code, tables, prose                                         */
+  /* ===================================================================== */
+
+  .callout {
+    @apply rounded-card border p-5 leading-relaxed;
+  }
+  .callout-title {
+    @apply mb-2 font-semibold text-slate-900 dark:text-white;
+  }
+  .callout-info {
+    @apply border-brand-200 bg-brand-50/60 text-slate-700;
+    @apply dark:border-brand-500/25 dark:bg-brand-500/[0.07] dark:text-slate-300;
+  }
+  .callout code {
+    @apply rounded bg-white/70 px-1 py-0.5 font-mono text-[0.85em] dark:bg-slate-900/60;
+  }
+  .callout a {
+    @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-4 dark:text-brand-300 dark:decoration-brand-700;
+  }
+
+  .code-block {
+    @apply relative my-5 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/70;
+  }
+  .code-lang {
+    @apply absolute left-3.5 top-2 font-mono text-[0.65rem] uppercase tracking-wider text-slate-400 dark:text-slate-600;
+  }
+  .code-block pre {
+    @apply overflow-x-auto px-4 pb-4 pt-8 text-[0.83rem] leading-relaxed;
+  }
+  .code-block code {
+    @apply text-slate-800 dark:text-slate-200;
+  }
+  .code-copy {
+    @apply absolute right-2 top-2 rounded-md border border-slate-200 bg-white px-2 py-1 text-[0.68rem] font-medium text-slate-500 opacity-0 transition;
+    @apply hover:text-slate-900 focus-visible:opacity-100 group-hover:opacity-100;
+    @apply dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-white;
+  }
+
+  /* Syntax tokens */
+  .tok-com { @apply text-slate-400 italic dark:text-slate-500; }
+  .tok-str { @apply text-emerald-700 dark:text-emerald-400; }
+  .tok-kw  { @apply text-violet-700 dark:text-violet-400; }
+  .tok-num { @apply text-amber-700 dark:text-amber-400; }
+  .tok-fn  { @apply text-brand-700 dark:text-brand-300; }
+  .tok-var { @apply text-rose-700 dark:text-rose-400; }
+  .tok-key { @apply text-brand-700 dark:text-brand-300; }
+  .tok-flag { @apply text-slate-500 dark:text-slate-400; }
+  .tok-dec { @apply text-amber-700 dark:text-amber-400; }
+
+  .table-wrap {
+    @apply my-6 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800;
+  }
+  .table-wrap table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+  .table-wrap th {
+    @apply whitespace-nowrap border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.72rem] font-semibold uppercase tracking-wider text-slate-500;
+    @apply dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400;
+  }
+  .table-wrap td {
+    @apply border-b border-slate-100 px-4 py-3 align-top leading-relaxed text-slate-600;
+    @apply dark:border-slate-800/70 dark:text-slate-400;
+  }
+  .table-wrap tr:last-child td {
+    @apply border-b-0;
+  }
+  .table-wrap td code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.8em] text-slate-800 dark:bg-slate-800 dark:text-slate-200;
+  }
+
+  .prose {
+    @apply text-[0.97rem] leading-[1.75];
+  }
+  .prose > * + * {
+    @apply mt-5;
+  }
+  .prose h2 {
+    @apply mt-14 border-t border-slate-200 pt-10 text-[1.55rem] first:mt-0 first:border-0 first:pt-0 dark:border-slate-800;
+  }
+  .prose h3 {
+    @apply mt-10 text-[1.2rem];
+  }
+  .prose h4 {
+    @apply mt-8 text-[1.02rem];
+  }
+  .prose p {
+    text-wrap: pretty;
+  }
+  .prose a {
+    @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-[3px] transition;
+    @apply hover:decoration-brand-500 dark:text-brand-300 dark:decoration-brand-700 dark:hover:decoration-brand-400;
+  }
+  .prose ul, .prose ol {
+    @apply space-y-2 pl-5;
+  }
+  .prose ul { @apply list-disc marker:text-slate-300 dark:marker:text-slate-600; }
+  .prose ol { @apply list-decimal marker:text-slate-400 dark:marker:text-slate-500; }
+  .prose li > ul, .prose li > ol { @apply mt-2; }
+  .prose :not(pre) > code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.85em] text-slate-800;
+    @apply dark:bg-slate-800 dark:text-slate-200;
+  }
+  .prose blockquote {
+    @apply border-l-2 border-brand-400 bg-slate-50 py-3 pl-5 pr-4 text-slate-600 italic;
+    @apply dark:bg-slate-900/60 dark:text-slate-400;
+  }
+  .prose hr {
+    @apply my-10 border-slate-200 dark:border-slate-800;
+  }
+  .prose img {
+    @apply max-w-full rounded-xl border border-slate-200 dark:border-slate-800;
+  }
+  .prose strong {
+    @apply font-semibold text-slate-900 dark:text-white;
+  }
+  .prose .mermaid {
+    @apply my-8 flex justify-center overflow-x-auto rounded-xl border border-slate-200 bg-white p-6;
+    @apply dark:border-slate-800 dark:bg-slate-900/50;
+  }
+
+  .notfound {
+    @apply mx-auto max-w-lg py-20 text-center;
+  }
+  .notfound-code {
+    @apply font-mono text-6xl font-bold text-brand-500/25;
+  }
+  .notfound .hero-actions {
+    @apply justify-center;
+  }
+
+  /* ===================================================================== */
+  /* Footer                                                                */
+  /* ===================================================================== */
+
+  .footer {
+    @apply mt-24 border-t border-slate-200 dark:border-slate-800;
+  }
+  .footer-inner {
+    @apply mx-auto grid max-w-[100rem] gap-10 px-6 py-12 lg:grid-cols-[1.2fr_2fr];
+  }
+  .footer-brand {
+    @apply flex items-start gap-3;
+  }
+  .footer-name {
+    @apply font-semibold text-slate-900 dark:text-white;
+  }
+  .footer-tagline {
+    @apply mt-1 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-500;
+  }
+  .footer-cols {
+    @apply grid gap-8 sm:grid-cols-3;
+  }
+  .footer-col-title {
+    @apply mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500;
+  }
+  .footer-cols a {
+    @apply block py-1 text-sm text-slate-600 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400;
+  }
+  .footer-legal {
+    @apply border-t border-slate-200 px-6 py-6 text-center text-[0.8rem] text-slate-400 dark:border-slate-800 dark:text-slate-600;
+  }
+}

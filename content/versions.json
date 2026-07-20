@@ -1,0 +1,14 @@
+{
+  "latest": "v0.1",
+  "versions": [
+    {
+      "id": "v0.1",
+      "label": "0.1.0",
+      "core": "0.1.0",
+      "released": "2026-07-20",
+      "status": "current",
+      "ref": "main",
+      "notes": "First documented release. Cross-platform core, guided installer, and three official tool collections."
+    }
+  ]
+}

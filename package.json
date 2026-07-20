@@ -1,0 +1,23 @@
+{
+  "name": "sysbot-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for SysBot and its official tool collections.",
+  "scripts": {
+    "build": "node src/build.js && npm run css",
+    "css": "tailwindcss -i src/styles/main.css -o dist/assets/site.css --minify",
+    "dev": "node src/build.js && concurrently \"npm:watch:*\"",
+    "watch:html": "node src/build.js --watch",
+    "watch:css": "tailwindcss -i src/styles/main.css -o dist/assets/site.css --watch",
+    "serve": "node scripts/serve.js",
+    "release": "node scripts/release.js",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "concurrently": "^9.1.2",
+    "marked": "^18.0.6",
+    "tailwindcss": "^4.3.3"
+  }
+}

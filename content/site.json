@@ -1,0 +1,18 @@
+{
+  "title": "SysBot Docs",
+  "tagline": "A local AI assistant you can chat with via CLI, Telegram, or Slack — extended by tools you drop into a folder.",
+  "description": "Documentation for SysBot and its official Linux, macOS, and Windows tool collections.",
+  "base": "/sysbot-docs",
+  "url": "https://syan-dev.github.io/sysbot-docs",
+  "owner": "syan-dev",
+  "repos": {
+    "core": "syan-dev/sysbot",
+    "linux": "syan-dev/sysbot-linux-tools-official",
+    "macos": "syan-dev/sysbot-macos-tools-official",
+    "windows": "syan-dev/sysbot-windows-tools-official",
+    "docs": "syan-dev/sysbot-docs"
+  },
+  "contact": {
+    "email": "syan.vn@gmail.com"
+  }
+}

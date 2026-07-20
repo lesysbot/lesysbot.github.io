@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Introduction",
+    "items": ["overview", "architecture"]
+  },
+  {
+    "title": "Get started",
+    "items": ["getting-started", "models", "service"]
+  },
+  {
+    "title": "Everyday use",
+    "items": ["usage", "adapters", "configuration", "dashboard", "security"]
+  },
+  {
+    "title": "Tools",
+    "items": ["installing-tools", "writing-tools", "sharing-tools", "claude-code"]
+  },
+  {
+    "title": "Deploy",
+    "items": ["building-windows-exe"]
+  }
+]
