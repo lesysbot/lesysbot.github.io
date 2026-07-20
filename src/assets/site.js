@@ -1,4 +1,4 @@
-/* SysBot docs — client behaviour. No framework, no dependencies. */
+/* LeSysBot docs — client behaviour. No framework, no dependencies. */
 (function () {
   'use strict';
 
@@ -19,7 +19,7 @@
     themeToggle.addEventListener('click', () => {
       const dark = document.documentElement.classList.toggle('dark');
       try {
-        localStorage.setItem('sysbot-docs-theme', dark ? 'dark' : 'light');
+        localStorage.setItem('lesysbot-docs-theme', dark ? 'dark' : 'light');
       } catch (e) {
         /* private mode — the toggle still works for this page view */
       }

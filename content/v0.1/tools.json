@@ -3,46 +3,46 @@
     {
       "id": "core",
       "name": "Bundled",
-      "short": "Bundled with SysBot",
-      "repo": "syan-dev/sysbot",
+      "short": "Bundled with LeSysBot",
+      "repo": "lesysbot/lesysbot",
       "path": "tools",
       "platform": "all",
       "accent": "sky",
-      "description": "Ships inside the SysBot package itself. These are available the moment you finish the installer — nothing to install, nothing to pin. They stay deliberately dependency-light so a fresh install is useful on any OS.",
+      "description": "Ships inside the LeSysBot package itself. These are available the moment you finish the installer — nothing to install, nothing to pin. They stay deliberately dependency-light so a fresh install is useful on any OS.",
       "install": null
     },
     {
       "id": "linux",
       "name": "Linux",
       "short": "Official Linux collection",
-      "repo": "syan-dev/sysbot-linux-tools-official",
+      "repo": "lesysbot/lesysbot-linux-tools-official",
       "path": "tools",
       "platform": "linux",
       "accent": "amber",
       "description": "Tools that lean on Linux-specific interfaces — hwmon sysfs, the RTC wake alarm, and the Unix flavour of the standard network utilities. The network package also runs on macOS.",
-      "install": "sysbot tools install syan-dev/sysbot-linux-tools-official"
+      "install": "lesysbot tools install lesysbot/lesysbot-linux-tools-official"
     },
     {
       "id": "macos",
       "name": "macOS",
       "short": "Official macOS collection",
-      "repo": "syan-dev/sysbot-macos-tools-official",
+      "repo": "lesysbot/lesysbot-macos-tools-official",
       "path": "tools",
       "platform": "macos",
       "accent": "violet",
       "description": "Tools built on macOS power management and sensor interfaces — pmset, powermetrics, and the SMC. For networking, install the Linux collection's network package: its Unix commands work on macOS as-is.",
-      "install": "sysbot tools install syan-dev/sysbot-macos-tools-official"
+      "install": "lesysbot tools install lesysbot/lesysbot-macos-tools-official"
     },
     {
       "id": "windows",
       "name": "Windows",
       "short": "Official Windows collection",
-      "repo": "syan-dev/sysbot-windows-tools-official",
+      "repo": "lesysbot/lesysbot-windows-tools-official",
       "path": "tools",
       "platform": "windows",
       "accent": "emerald",
       "description": "Tools built on Windows interfaces — WMI thermal zones, Task Scheduler wake timers, and the Windows flavour of ping, nslookup, and tracert.",
-      "install": "sysbot tools install syan-dev/sysbot-windows-tools-official"
+      "install": "lesysbot tools install lesysbot/lesysbot-windows-tools-official"
     }
   ],
 
@@ -59,7 +59,7 @@
         {
           "name": "get_system_info",
           "kind": "python",
-          "summary": "Report OS, hostname, architecture, CPU count, memory, and uptime for the machine SysBot runs on.",
+          "summary": "Report OS, hostname, architecture, CPU count, memory, and uptime for the machine LeSysBot runs on.",
           "params": [],
           "confirm": false,
           "privileged": false
@@ -222,7 +222,7 @@
       ],
       "notes": [
         "Uses speed.cloudflare.com over the standard library — no speedtest binary and no pip dependency.",
-        "This is the same measurement the optional startup notice can run when SysBot boots. See the startup_notice block in Configuration."
+        "This is the same measurement the optional startup notice can run when LeSysBot boots. See the startup_notice block in Configuration."
       ]
     },
     {
@@ -292,7 +292,7 @@
         }
       ],
       "notes": [
-        "Requires the gradio pip package. State is kept in ~/.sysbot/remote_dashboard.json and the log in ~/.sysbot/logs/remote-dashboard.log.",
+        "Requires the gradio pip package. State is kept in ~/.lesysbot/remote_dashboard.json and the log in ~/.lesysbot/logs/remote-dashboard.log.",
         "The share link is a public *.gradio.live URL — anyone who has the link and the passcode reaches your machine from the open internet. Stop the dashboard when you are done rather than leaving the link live.",
         "This is distinct from the built-in local dashboard described in the Dashboard guide, which binds to 127.0.0.1 and is not exposed publicly."
       ]
@@ -431,13 +431,13 @@
       "notes": [
         "The wake delay counts from the power-off, not from the moment you ask. Because shutdown is scheduled one minute out, shutdown_and_wake(60) brings the machine back roughly 61 minutes from now.",
         "The shutdown is deliberately scheduled a minute ahead so the chat reply reaches you before the link drops, and a heads-up notification fires about ten seconds before the machine goes down.",
-        "Armed state is read back from /sys/class/rtc/rtc0/wakealarm, so SysBot still knows the alarm is set after a restart. If that sysfs node is missing the tool refuses to act rather than powering off a machine it cannot wake.",
+        "Armed state is read back from /sys/class/rtc/rtc0/wakealarm, so LeSysBot still knows the alarm is set after a restart. If that sysfs node is missing the tool refuses to act rather than powering off a machine it cannot wake.",
         "Arming the RTC needs root. The package tries the plain command, retries under sudo -n, and if both fail points you at its bundled setup-sudoers.sh, which grants exactly one NOPASSWD entry for rtcwake and validates the result with visudo -cf."
       ],
       "troubleshooting": [
         {
           "symptom": "The alarm arms, the machine powers off, but it never wakes.",
-          "cause": "Firmware is ignoring the RTC alarm in S5 (full soft-off). This is a BIOS setting, not a SysBot problem — the alarm is still sitting in the RTC registers when you power on by hand, which proves the software side worked.",
+          "cause": "Firmware is ignoring the RTC alarm in S5 (full soft-off). This is a BIOS setting, not a LeSysBot problem — the alarm is still sitting in the RTC registers when you power on by hand, which proves the software side worked.",
           "fix": "In the BIOS, disable ErP Ready (on ASUS boards: Advanced → APM Configuration → ErP Ready = Disabled). ErP caps standby power below what the RTC alarm circuit needs. Also confirm the PSU switch is on and the machine still has mains power — cutting either blocks wake regardless of the alarm.",
           "verify": "sudo rtcwake -m no -t $(date -d '+3 minutes' +%s) && systemctl poweroff"
         }
@@ -533,7 +533,7 @@
         }
       ],
       "notes": [
-        "cancel_wake runs pmset schedule cancelall, which clears every scheduled pmset event — including wake or power events you set up yourself outside SysBot. There is no per-event cancel in pmset.",
+        "cancel_wake runs pmset schedule cancelall, which clears every scheduled pmset event — including wake or power events you set up yourself outside LeSysBot. There is no per-event cancel in pmset.",
         "BSD shutdown has no -c flag, so the pending shutdown is cancelled with killall shutdown rather than the Linux syntax.",
         "pmset schedule, shutdown, and killall shutdown all need root. Every privileged call tries plain first, then sudo -n. The bundled setup-sudoers.sh grants exactly those three commands and nothing else.",
         "Armed state is read back from pmset -g sched, which needs no root.",
@@ -603,7 +603,7 @@
         }
       ],
       "notes": [
-        "The tool names match the Linux collection's network package exactly, and so does the folder name. That is deliberate — you install whichever one suits the machine, and they never coexist. Installing both means the second overwrites the first in ~/.sysbot/tools/.",
+        "The tool names match the Linux collection's network package exactly, and so does the folder name. That is deliberate — you install whichever one suits the machine, and they never coexist. Installing both means the second overwrites the first in ~/.lesysbot/tools/.",
         "The longer traceroute timeout reflects tracert's behaviour on unresponsive hops, which is slower to give up than the Unix tool."
       ]
     },
@@ -669,7 +669,7 @@
         }
       ],
       "notes": [
-        "Registers a scheduled task named SysBotWake using New-ScheduledTaskSettingsSet -WakeToRun, then runs shutdown /s /t 60. Cancelling runs shutdown /a and deletes the task.",
+        "Registers a scheduled task named LeSysBotWake using New-ScheduledTaskSettingsSet -WakeToRun, then runs shutdown /s /t 60. Cancelling runs shutdown /a and deletes the task.",
         "Elevation is usually not needed here, unlike the Linux and macOS equivalents — registering a scheduled task for your own user is an ordinary operation. If it fails, the problem is normally the Task Scheduler service rather than permissions.",
         "Verifying the timer yourself with powercfg /waketimers does need an elevated prompt."
       ],

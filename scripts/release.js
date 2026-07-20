@@ -75,7 +75,7 @@ function main() {
   console.log('');
   console.log('Next:');
   console.log(`  1. edit content/${opts.id}/ — it is the live version from here on`);
-  console.log(`  2. node scripts/import-docs.js ../sysbot ${opts.id}   (to pull upstream guide changes)`);
+  console.log(`  2. node scripts/import-docs.js ../lesysbot ${opts.id}   (to pull upstream guide changes)`);
   console.log('  3. npm run build && npm run serve');
 }
 

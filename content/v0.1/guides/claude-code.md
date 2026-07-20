@@ -1,30 +1,30 @@
 ---
 title: Claude Code plugin
-description: Use the sysbot-tool-dev plugin to scaffold tool packages from your editor.
+description: Use the lesysbot-tool-dev plugin to scaffold tool packages from your editor.
 section: Tools
 source: docs/claude-code.md
 ---
-SysBot ships a [Claude Code](https://code.claude.com/docs) plugin —
-**`sysbot-tool-dev`** — so an AI assistant can scaffold correct tool packages
+LeSysBot ships a [Claude Code](https://code.claude.com/docs) plugin —
+**`lesysbot-tool-dev`** — so an AI assistant can scaffold correct tool packages
 for you in *any* repo: the official tool collections, your own tools repo, or
-a folder destined for `~/.sysbot/tools/`. The plugin carries an `add-tool`
+a folder destined for `~/.lesysbot/tools/`. The plugin carries an `add-tool`
 skill that encodes the package conventions (README frontmatter, `@tool` /
 `CLITool`, typing, confirmation, cross-platform gating) so Claude gets them
 right without you pasting docs into the chat.
 
 This repo is also the plugin **marketplace**: the catalog lives in
 [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json) and the
-plugin itself in [`claude-plugin/sysbot-tool-dev/`](../claude-plugin/sysbot-tool-dev/).
+plugin itself in [`claude-plugin/lesysbot-tool-dev/`](../claude-plugin/lesysbot-tool-dev/).
 Improve the skill here, push, and every installed copy can pull the update —
 one source of truth, no per-repo drift.
 
 ## 1. Official tool repos — zero setup
 
 The official tool-collection repos (e.g.
-[sysbot-linux-tools-official](https://github.com/syan-dev/sysbot-linux-tools-official))
+[lesysbot-linux-tools-official](https://github.com/lesysbot/lesysbot-linux-tools-official))
 commit a `.claude/settings.json` that references this marketplace. Clone one,
 open Claude Code inside it, and trust the folder when asked — Claude Code then
-prompts you to install the `sysbot` marketplace and enables `sysbot-tool-dev`
+prompts you to install the `lesysbot` marketplace and enables `lesysbot-tool-dev`
 automatically. After that, just ask: *"add a tool that checks whether a
 systemd unit is running"*.
 
@@ -33,8 +33,8 @@ systemd unit is running"*.
 From any Claude Code session:
 
 ```
-/plugin marketplace add syan-dev/sysbot
-/plugin install sysbot-tool-dev@sysbot
+/plugin marketplace add lesysbot/lesysbot
+/plugin install lesysbot-tool-dev@lesysbot
 ```
 
 The skill is then available everywhere you run Claude Code, including an empty
@@ -43,7 +43,7 @@ folder where you're starting a brand-new tools repo.
 ## 3. Getting updates
 
 ```
-/plugin marketplace update sysbot
+/plugin marketplace update lesysbot
 ```
 
 The plugin is deliberately **unversioned**, so every push to this repo counts
@@ -59,12 +59,12 @@ contributors to get the skill automatically, commit this as
 ```json
 {
   "extraKnownMarketplaces": {
-    "sysbot": {
-      "source": { "source": "github", "repo": "syan-dev/sysbot" }
+    "lesysbot": {
+      "source": { "source": "github", "repo": "lesysbot/lesysbot" }
     }
   },
   "enabledPlugins": {
-    "sysbot-tool-dev@sysbot": true
+    "lesysbot-tool-dev@lesysbot": true
   }
 }
 ```
@@ -79,11 +79,11 @@ Three skill locations exist, for three audiences — don't mix them up:
 
 | Location | Audience | Purpose |
 |---|---|---|
-| `claude-plugin/sysbot-tool-dev/` (this plugin) | Tool authors in **any** repo | Write tool packages |
-| [`skills/`](../skills/README.md) | AI agents **operating** SysBot | Install, configure, manage a running bot |
+| `claude-plugin/lesysbot-tool-dev/` (this plugin) | Tool authors in **any** repo | Write tool packages |
+| [`skills/`](../skills/README.md) | AI agents **operating** LeSysBot | Install, configure, manage a running bot |
 | `.claude/skills/` | Contributors working **on this repo** | Core-repo specifics (bundled-tool catalog, tests) |
 
 When tool-package conventions change, update the plugin's
-[`add-tool` skill](../claude-plugin/sysbot-tool-dev/skills/add-tool/SKILL.md)
+[`add-tool` skill](../claude-plugin/lesysbot-tool-dev/skills/add-tool/SKILL.md)
 **and** the core-repo project skill `.claude/skills/add-tool/` together —
 they overlap by design.

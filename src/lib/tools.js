@@ -11,7 +11,7 @@ export function packageHref(base, versionId, pkg) {
 
 function installCommand(pkg, collection) {
   if (collection.id === 'core') return null;
-  return `sysbot tools install ${collection.repo}/${collection.path}/${pkg.slug}`;
+  return `lesysbot tools install ${collection.repo}/${collection.path}/${pkg.slug}`;
 }
 
 function codeBlock(code, lang = 'shell') {
@@ -104,7 +104,7 @@ export function renderCatalog({ site, version, catalog }) {
         `<p class="catalog-group-desc">${escapeHtml(collection.description)}</p>`,
         collection.install
           ? `<div class="catalog-group-install">${codeBlock(collection.install)}</div>`
-          : '<p class="catalog-group-note">Included with SysBot — nothing to install.</p>',
+          : '<p class="catalog-group-note">Included with LeSysBot — nothing to install.</p>',
         '</div>',
         '<div class="tool-grid">',
         items.map((p) => catalogCard(p, collection, base, version.id)).join(''),
@@ -118,7 +118,7 @@ export function renderCatalog({ site, version, catalog }) {
     '<div class="page-header">',
     '<p class="eyebrow">Reference</p>',
     '<h1 class="page-title">Tool reference</h1>',
-    `<p class="page-lede">Every tool SysBot can call, across the bundled set and the three official platform collections — ${packages.length} packages exposing ${totalTools} tools. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
+    `<p class="page-lede">Every tool LeSysBot can call, across the bundled set and the three official platform collections — ${packages.length} packages exposing ${totalTools} tools. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
     '</div>',
 
     '<div class="catalog-controls">',
@@ -136,7 +136,7 @@ export function renderCatalog({ site, version, catalog }) {
 
     '<section class="callout callout-info mt-14">',
     '<p class="callout-title">Two packages named <code>network</code></p>',
-    '<p>The Linux and Windows collections both ship a package called <code>network</code> with the same three tool names. That is deliberate — you install whichever fits the machine. They cannot coexist: the folder names collide in <code>~/.sysbot/tools/</code>, so the second install replaces the first. On macOS, install the <a href="' +
+    '<p>The Linux and Windows collections both ship a package called <code>network</code> with the same three tool names. That is deliberate — you install whichever fits the machine. They cannot coexist: the folder names collide in <code>~/.lesysbot/tools/</code>, so the second install replaces the first. On macOS, install the <a href="' +
       escapeHtml(base) +
       '/' +
       escapeHtml(version.id) +
@@ -280,7 +280,7 @@ export function renderPackagePage({ site, version, pkg, collection }) {
       : [
           '<section class="section">',
           '<h2 id="install" class="heading-anchor">Install<a href="#install" class="anchor-link" aria-label="Link to this section">#</a></h2>',
-          '<p>Nothing to do — this package ships inside SysBot and is available as soon as the installer finishes.</p>',
+          '<p>Nothing to do — this package ships inside LeSysBot and is available as soon as the installer finishes.</p>',
           '</section>',
         ].join(''),
 

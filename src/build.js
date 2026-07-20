@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static site generator for the SysBot docs.
+ * Static site generator for the LeSysBot docs.
  *
  * Every published version is built into its own directory (/v0.1/, /v0.2/ …)
  * and stays there forever, so old links keep working. /latest/ is an alias
@@ -98,7 +98,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
 
   const startCards = [
     {
-      title: 'Install SysBot',
+      title: 'Install LeSysBot',
       body: 'Run the guided wizard: pick a model, connect a chat app, install the background service.',
       href: v('/guides/getting-started/'),
       cta: 'Getting started',
@@ -131,7 +131,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<div class="hero-copy">',
     `<span class="hero-badge">Version ${escapeHtml(version.label)}</span>`,
     '<h1 class="hero-title">A local AI assistant for the machine you own.</h1>',
-    `<p class="hero-lede">${escapeHtml(site.tagline)} SysBot runs against a local model, so the machine it controls and the model reading your messages are both yours.</p>`,
+    `<p class="hero-lede">${escapeHtml(site.tagline)} LeSysBot runs against a local model, so the machine it controls and the model reading your messages are both yours.</p>`,
     '<div class="hero-actions">',
     `<a href="${v('/guides/getting-started/')}" class="btn btn-primary">Get started ${icon(
       'arrowRight',
@@ -142,7 +142,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '</div>',
     '<div class="hero-demo">',
     '<div class="terminal">',
-    '<div class="terminal-bar"><span></span><span></span><span></span><p class="terminal-title">Telegram · SysBot</p></div>',
+    '<div class="terminal-bar"><span></span><span></span><span></span><p class="terminal-title">Telegram · LeSysBot</p></div>',
     '<div class="terminal-body">',
     '<p class="chat chat-you">how hot is the machine right now?</p>',
     '<p class="chat chat-bot"><span class="chat-tool">temperature()</span>CPU 41–47°C across 16 cores · GPU 38°C. Nothing to worry about.</p>',
@@ -174,12 +174,12 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<ol class="steps">',
     [
       ['Run a model locally', 'Install Ollama and pull a model sized for your GPU.', 'ollama pull llama3.2'],
-      ['Install SysBot', 'The wizard writes your config and sets up the background service.', './scripts/install.sh'],
-      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'sysbot --provider cli'],
+      ['Install LeSysBot', 'The wizard writes your config and sets up the background service.', './scripts/install.sh'],
+      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot --provider cli'],
       [
         'Add tools for your OS',
         'Pull in the official collection that matches the machine.',
-        'sysbot tools install syan-dev/sysbot-linux-tools-official',
+        'lesysbot tools install lesysbot/lesysbot-linux-tools-official',
       ],
     ]
       .map(([title, desc, cmd], i) =>
@@ -316,7 +316,7 @@ function buildVersion({ site, version, versions, urlId }) {
       version,
       versions,
       urlId,
-      title: `SysBot ${version.label} documentation`,
+      title: `LeSysBot ${version.label} documentation`,
       description: site.description,
       body: renderVersionHome({ site, version, urlId, sections, catalog }),
       nav,
@@ -397,7 +397,7 @@ function buildVersion({ site, version, versions, urlId }) {
       versions,
       urlId,
       title: 'Tool reference',
-      description: `Every tool SysBot can call in version ${version.label} — ${catalog.packages.length} packages across the bundled set and the Linux, macOS, and Windows collections.`,
+      description: `Every tool LeSysBot can call in version ${version.label} — ${catalog.packages.length} packages across the bundled set and the Linux, macOS, and Windows collections.`,
       body: catalogBody,
       nav,
       currentPath: `${versionBase}/tools/`,
@@ -520,8 +520,8 @@ function renderVersionsPage({ site, versions, latest }) {
     `<div class="version-rows">${rows}</div>`,
     '<section class="callout callout-info mt-10">',
     '<p class="callout-title">Pinning a tool collection</p>',
-    '<p>Site versions track SysBot releases. Tool packages carry their own version in their README frontmatter, and you can pin an install to any git ref:</p>',
-    '<figure class="code-block"><pre><code class="lang-shell">sysbot tools install syan-dev/sysbot-linux-tools-official@v1.0.0</code></pre></figure>',
+    '<p>Site versions track LeSysBot releases. Tool packages carry their own version in their README frontmatter, and you can pin an install to any git ref:</p>',
+    '<figure class="code-block"><pre><code class="lang-shell">lesysbot tools install lesysbot/lesysbot-linux-tools-official@v1.0.0</code></pre></figure>',
     '<p>Installed packages are recorded in <code>tools.lock.json</code> with the package version and the exact commit SHA, so you can always tell what is running.</p>',
     '</section>',
   ].join('');
@@ -537,7 +537,7 @@ function buildSiteLevel({ site, versions, latest, latestData }) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SysBot Docs</title>
+<title>LeSysBot Docs</title>
 <link rel="canonical" href="${site.url}/latest/">
 <meta http-equiv="refresh" content="0; url=${base}/latest/">
 <script>location.replace(${JSON.stringify(`${base}/latest/`)});</script>
@@ -567,7 +567,7 @@ function buildSiteLevel({ site, versions, latest, latestData }) {
       versions,
       urlId: 'latest',
       title: 'Documentation versions',
-      description: 'Every published version of the SysBot documentation.',
+      description: 'Every published version of the LeSysBot documentation.',
       body: renderVersionsPage({ site, versions, latest }),
       nav: navForVersions,
       currentPath: `${base}/versions/`,

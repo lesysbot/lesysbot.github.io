@@ -9,7 +9,7 @@ anyone with one command — there is nothing to register or publish beyond
 pushing the repo:
 
 ```bash
-sysbot tools install you/sysbot-gpu-tools
+lesysbot tools install you/lesysbot-gpu-tools
 ```
 
 ## 1. A single-tool repo
@@ -17,7 +17,7 @@ sysbot tools install you/sysbot-gpu-tools
 The simplest shareable unit — the repo *is* the package:
 
 ```
-sysbot-gpu-temp/
+lesysbot-gpu-temp/
 ├── README.md        # frontmatter: name, description, version, platforms, requires
 ├── tool.py          # the tools (@tool functions / CLITool instances)
 ├── _helpers.py      # optional, ignored by the loader, importable by tool.py
@@ -38,7 +38,7 @@ requires: [nvidia-smi]
 ```
 
 `name` overrides the folder/repo name; `version` shows up in
-`sysbot tools list/info`. `platforms`/`requires` document the gating your
+`lesysbot tools list/info`. `platforms`/`requires` document the gating your
 `tool.py` declares (the code is what's enforced).
 
 ## 2. A multi-tool repo
@@ -46,7 +46,7 @@ requires: [nvidia-smi]
 Put each package in its own subdirectory:
 
 ```
-sysbot-tools/
+lesysbot-tools/
 ├── gpu-temp/
 │   ├── README.md
 │   └── tool.py
@@ -55,20 +55,20 @@ sysbot-tools/
     └── tool.py
 ```
 
-`sysbot tools install you/sysbot-tools` offers all of them; users can cherry-pick
+`lesysbot tools install you/lesysbot-tools` offers all of them; users can cherry-pick
 with `--only gpu-temp` or install a single one directly via
-`you/sysbot-tools/gpu-temp`. Directories named `tests/`, `docs/`, or starting
+`you/lesysbot-tools/gpu-temp`. Directories named `tests/`, `docs/`, or starting
 with `.`/`_` are ignored. A repo may also nest the package folders under a
 `tools/` directory (the official collections do) — the installer looks there
 first when the root holds no packages.
 
 ## 3. Versioning & refs
 
-- Tag releases (`git tag v1.0.0`) so users can pin: `sysbot tools install you/repo@v1.0.0`.
+- Tag releases (`git tag v1.0.0`) so users can pin: `lesysbot tools install you/repo@v1.0.0`.
 - The installer records the exact commit SHA it extracted in the user's lock
   file, whatever ref they asked for.
 - Bump `version:` in the README frontmatter with each release — it's what
-  `sysbot tools list` displays.
+  `lesysbot tools list` displays.
 
 ## 4. Checklist before you share
 
@@ -78,6 +78,6 @@ first when the root holds no packages.
 - [ ] `platforms=[...]`/`requires=[...]` declared where the tool isn't universal.
 - [ ] README frontmatter filled in (name, description, version).
 - [ ] Test locally: copy the package into your own tools dir, or
-      `sysbot tools install you/repo@your-branch`.
+      `lesysbot tools install you/repo@your-branch`.
 
 See [Writing Tools](writing-tools.md) for the tool code itself.

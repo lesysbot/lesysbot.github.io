@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Import guide markdown from a local checkout of the core SysBot repo.
+ * Import guide markdown from a local checkout of the core LeSysBot repo.
  *
- *   node scripts/import-docs.js ../sysbot v0.1
+ *   node scripts/import-docs.js ../lesysbot v0.1
  *
  * The docs repo is self-contained — committed markdown under content/ is what
  * the build reads, so CI never needs the core repo. This script only exists to
@@ -34,13 +34,13 @@ const GUIDES = {
     title: 'Choosing a model',
     section: 'Get started',
     description:
-      'Which local model to run for the GPU you have, and how to point SysBot at it.',
+      'Which local model to run for the GPU you have, and how to point LeSysBot at it.',
   },
   service: {
     title: 'Running as a service',
     section: 'Get started',
     description:
-      'Keep SysBot running in the background and start it on boot, on Linux, macOS, and Windows.',
+      'Keep LeSysBot running in the background and start it on boot, on Linux, macOS, and Windows.',
   },
   usage: {
     title: 'Everyday use',
@@ -88,13 +88,13 @@ const GUIDES = {
     title: 'Claude Code plugin',
     section: 'Tools',
     description:
-      'Use the sysbot-tool-dev plugin to scaffold tool packages from your editor.',
+      'Use the lesysbot-tool-dev plugin to scaffold tool packages from your editor.',
   },
   'building-windows-exe': {
     title: 'Building a Windows executable',
     section: 'Deploy',
     description:
-      'Package SysBot into a standalone sysbot.exe with PyInstaller.',
+      'Package LeSysBot into a standalone lesysbot.exe with PyInstaller.',
   },
 };
 
@@ -102,7 +102,7 @@ const GUIDES = {
 const KEEP = new Set(['overview', 'security']);
 
 function main() {
-  const [coreRepo = '../sysbot', versionId = 'v0.1'] = process.argv.slice(2);
+  const [coreRepo = '../lesysbot', versionId = 'v0.1'] = process.argv.slice(2);
   const srcDir = path.resolve(coreRepo, 'docs');
   const outDir = path.resolve('content', versionId, 'guides');
 

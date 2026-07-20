@@ -229,7 +229,7 @@ export function layout(o) {
   // Applied before paint so a dark-mode reload never flashes white.
   (function () {
     try {
-      var stored = localStorage.getItem('sysbot-docs-theme');
+      var stored = localStorage.getItem('lesysbot-docs-theme');
       var dark = stored ? stored === 'dark'
         : window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.classList.toggle('dark', dark);
@@ -251,7 +251,7 @@ export function layout(o) {
 
     <a href="${asset(`/${urlId}/`)}" class="brand">
       ${icon('logo', 'h-7 w-7')}
-      <span class="brand-name">SysBot</span>
+      <span class="brand-name">LeSysBot</span>
       <span class="brand-sub">docs</span>
     </a>
 
@@ -270,7 +270,7 @@ export function layout(o) {
       <span class="hidden dark:inline">${icon('sun', 'h-4.5 w-4.5')}</span>
     </button>
 
-    <a href="https://github.com/${escapeHtml(site.repos.core)}" class="icon-button hidden sm:inline-flex" target="_blank" rel="noopener noreferrer" aria-label="SysBot on GitHub">
+    <a href="https://github.com/${escapeHtml(site.repos.core)}" class="icon-button hidden sm:inline-flex" target="_blank" rel="noopener noreferrer" aria-label="LeSysBot on GitHub">
       ${icon('github', 'h-4.5 w-4.5')}
     </a>
   </div>
@@ -322,7 +322,7 @@ export function layout(o) {
     <div class="footer-brand">
       ${icon('logo', 'h-6 w-6')}
       <div>
-        <p class="footer-name">SysBot</p>
+        <p class="footer-name">LeSysBot</p>
         <p class="footer-tagline">A local AI assistant for the machine you own.</p>
       </div>
     </div>
@@ -335,7 +335,7 @@ export function layout(o) {
       </div>
       <div>
         <p class="footer-col-title">Repositories</p>
-        <a href="https://github.com/${escapeHtml(site.repos.core)}" target="_blank" rel="noopener noreferrer">sysbot</a>
+        <a href="https://github.com/${escapeHtml(site.repos.core)}" target="_blank" rel="noopener noreferrer">lesysbot</a>
         <a href="https://github.com/${escapeHtml(site.repos.linux)}" target="_blank" rel="noopener noreferrer">linux-tools</a>
         <a href="https://github.com/${escapeHtml(site.repos.macos)}" target="_blank" rel="noopener noreferrer">macos-tools</a>
         <a href="https://github.com/${escapeHtml(site.repos.windows)}" target="_blank" rel="noopener noreferrer">windows-tools</a>
@@ -349,7 +349,7 @@ export function layout(o) {
     </div>
   </div>
   <div class="footer-legal">
-    <p>Documentation for SysBot ${escapeHtml(version.label)}. Released under the MIT License.</p>
+    <p>Documentation for LeSysBot ${escapeHtml(version.label)}. Released under the MIT License.</p>
   </div>
 </footer>
 

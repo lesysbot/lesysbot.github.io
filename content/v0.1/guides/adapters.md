@@ -4,8 +4,8 @@ description: Set up the CLI, Telegram, or Slack front end — or write an adapte
 section: Everyday use
 source: docs/adapters.md
 ---
-An **adapter** is how you talk to SysBot. Pick one — they all share the same chat,
-slash-command, and tool behaviour described in [Using SysBot](usage.md); only the
+An **adapter** is how you talk to LeSysBot. Pick one — they all share the same chat,
+slash-command, and tool behaviour described in [Using LeSysBot](usage.md); only the
 setup differs.
 
 | Adapter | Credentials needed | Best for |
@@ -23,13 +23,13 @@ You can switch anytime with `--provider` or the `messaging.provider` setting in 
 The simplest adapter — no accounts, no tokens.
 
 ```bash
-sysbot --provider cli
+lesysbot --provider cli
 ```
 
 - LLM responses **stream live and render as Markdown** (color, bold, headings, lists, code), with a `Thinking…` / `Running <tool>…` spinner while the model works.
 - Slash-command and tool output is printed **verbatim**, so parameter signatures (`<host>`) and column layouts (e.g. `df`) are preserved.
 - Confirmation prompts appear inline as `y/n` (the live display pauses so they stay readable).
-- Background log lines stay out of the chat (they go to `logs/sysbot.log`); use `-v` to show them.
+- Background log lines stay out of the chat (they go to `logs/lesysbot.log`); use `-v` to show them.
 
 | Input | What it does |
 |---|---|
@@ -39,7 +39,7 @@ sysbot --provider cli
 | `exit` / `quit` / `q` | Leave the session |
 | `Ctrl+C` | Force-exit |
 
-👉 Full day-to-day usage (arguments, history, confirmations) is in **[Using SysBot](usage.md)**.
+👉 Full day-to-day usage (arguments, history, confirmations) is in **[Using LeSysBot](usage.md)**.
 
 ---
 
@@ -51,8 +51,8 @@ Reach your bot from the Telegram app on any device.
 
 1. In Telegram, search for **[@BotFather](https://t.me/BotFather)** (the official bot, with a blue checkmark) and open a chat with it.
 2. Send `/newbot`.
-3. When prompted, enter a **display name** (e.g. `My SysBot`).
-4. Then enter a **username** — it must be unique and **end in `bot`** (e.g. `my_sysbot_bot`).
+3. When prompted, enter a **display name** (e.g. `My LeSysBot`).
+4. Then enter a **username** — it must be unique and **end in `bot`** (e.g. `my_lesysbot_bot`).
 5. BotFather replies with your **bot token**, which looks like:
 
    ```
@@ -86,8 +86,8 @@ messaging:
 ### 2.4 Run it
 
 ```bash
-sysbot --provider telegram
-# (or just `sysbot` if config.yaml already has provider: telegram)
+lesysbot --provider telegram
+# (or just `lesysbot` if config.yaml already has provider: telegram)
 ```
 
 Now open your bot in Telegram (search its username), press **Start**, and chat:
@@ -100,7 +100,7 @@ You:  /ping 8.8.8.8
 Bot:  PING 8.8.8.8 ... 3 packets transmitted, 3 received, 0% packet loss
 ```
 
-Everything from [Using SysBot](usage.md) applies — natural language and `/commands` both work.
+Everything from [Using LeSysBot](usage.md) applies — natural language and `/commands` both work.
 
 ### 2.5 Restricting access
 
@@ -129,14 +129,14 @@ Tap **✅ Yes** to approve or **❌ No** to cancel. If you don't respond within 
 | Symptom | Fix |
 |---|---|
 | Bot replies `Unauthorized.` | Your user ID isn't in `allowed_user_ids`. Re-check it via [@userinfobot](https://t.me/userinfobot). |
-| No response at all | Wrong token, or SysBot isn't running. Check the logs; confirm `sysbot --provider telegram` is up. |
+| No response at all | Wrong token, or LeSysBot isn't running. Check the logs; confirm `lesysbot --provider telegram` is up. |
 | Replies look like raw `*markdown*` | Harmless — the model emitted Markdown Telegram couldn't format, so it was sent as plain text. |
 
 ---
 
 ## 3. Slack
 
-Run SysBot as a Slack app you message directly. Slack needs **two** tokens — a
+Run LeSysBot as a Slack app you message directly. Slack needs **two** tokens — a
 **bot token** (`xoxb-…`) and an **app-level token** (`xapp-…`) — and uses Socket
 Mode so you don't need a public URL.
 
@@ -153,10 +153,10 @@ The manifest sets all the scopes and settings in one step.
 
    ```yaml
    display_information:
-     name: SysBot
+     name: LeSysBot
    features:
      bot_user:
-       display_name: SysBot
+       display_name: LeSysBot
        always_online: true
    oauth_config:
      scopes:
@@ -207,25 +207,25 @@ messaging:
 ### 3.6 Run it and message the bot
 
 ```bash
-sysbot --provider slack
-# (or just `sysbot` if config.yaml already has provider: slack)
+lesysbot --provider slack
+# (or just `lesysbot` if config.yaml already has provider: slack)
 ```
 
-In Slack, find **SysBot** under **Apps** in the sidebar (or search its name), open a
+In Slack, find **LeSysBot** under **Apps** in the sidebar (or search its name), open a
 direct message, and chat:
 
 ```
 You:  what's the disk usage on /?
-SysBot:  The root filesystem has 143 GB free out of 980 GB (80% used).
+LeSysBot:  The root filesystem has 143 GB free out of 980 GB (80% used).
 
 You:  /ping 8.8.8.8
-SysBot:  PING 8.8.8.8 ... 0% packet loss
+LeSysBot:  PING 8.8.8.8 ... 0% packet loss
 ```
 
 ### 3.7 Notes & limitations
 
 - **Access:** the app is limited to your Slack workspace — anyone in the workspace who can DM the app can use it. Unlike Telegram, the Slack adapter has no per-user allow-list in config; restrict the app at the workspace level if needed.
-- **Direct tool calls:** Slack treats a leading `/` as its own slash-command system. To call a SysBot tool directly, type `/ ` **with a space** first: `/ disk_usage path=/tmp`. (Natural-language chat needs no prefix.)
+- **Direct tool calls:** Slack treats a leading `/` as its own slash-command system. To call a LeSysBot tool directly, type `/ ` **with a space** first: `/ disk_usage path=/tmp`. (Natural-language chat needs no prefix.)
 - **Confirmation prompts auto-approve** in Slack by default. To add ✅/❌ buttons, override `SlackAdapter.confirm()` with Slack Block Kit — see [§4](#4-building-a-custom-adapter).
 
 ### 3.8 Troubleshooting
@@ -242,13 +242,13 @@ SysBot:  PING 8.8.8.8 ... 0% packet loss
 ## 4. Building a custom adapter
 
 To support another platform, subclass `MessagingAdapter`
-(`sysbot/messaging/base.py`) and implement `start()` and `send()`. Override
+(`lesysbot/messaging/base.py`) and implement `start()` and `send()`. Override
 `confirm()` to add a confirmation UI (the default auto-approves).
 
 ```python
-# sysbot/messaging/myplatform.py
+# lesysbot/messaging/myplatform.py
 from typing import Any
-from sysbot.messaging.base import MessageHandler, MessagingAdapter
+from lesysbot.messaging.base import MessageHandler, MessagingAdapter
 
 class MyPlatformAdapter(MessagingAdapter):
 
@@ -274,11 +274,11 @@ class MyPlatformAdapter(MessagingAdapter):
         return await my_platform.ask_yes_no(user_id, prompt)
 ```
 
-Wire it into the `if/elif` block in `sysbot/__main__.py`:
+Wire it into the `if/elif` block in `lesysbot/__main__.py`:
 
 ```python
 elif provider == "myplatform":
-    from sysbot.messaging.myplatform import MyPlatformAdapter
+    from lesysbot.messaging.myplatform import MyPlatformAdapter
     adapter = MyPlatformAdapter(settings.messaging.myplatform)
 ```
 

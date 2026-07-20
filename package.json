@@ -1,9 +1,9 @@
 {
-  "name": "sysbot-docs",
+  "name": "lesysbot-docs",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Documentation site for SysBot and its official tool collections.",
+  "description": "Documentation site for LeSysBot and its official tool collections.",
   "scripts": {
     "build": "node src/build.js && npm run css",
     "css": "tailwindcss -i src/styles/main.css -o dist/assets/site.css --minify",
