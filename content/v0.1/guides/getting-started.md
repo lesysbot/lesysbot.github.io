@@ -250,7 +250,7 @@ Use this path if you'd rather not run the wizard. It does the same three things 
 ### 6.1 Install the package
 
 ```bash
-# Everything the wizard can offer: Telegram, Slack, and the web dashboard
+# Everything the wizard can offer: Telegram and Slack
 pip install ".[all]"
 
 # …or the minimal install — terminal chat and tools only, no chat platforms
@@ -261,15 +261,14 @@ pip install -e ".[dev]"
 ```
 
 **Extras.** The base install covers terminal chat, the tool registry, and the
-`lesysbot tools` / `lesysbot setup` commands. Chat platforms and the dashboard are
-opt-in so a CLI-only install stays small:
+`lesysbot tools` / `lesysbot setup` commands. Chat platforms are opt-in so a
+CLI-only install stays small:
 
 | Extra | Adds | Needed for |
 |---|---|---|
 | `telegram` | `python-telegram-bot` | `--provider telegram` |
 | `slack` | `slack-bolt`, `aiohttp` | `--provider slack` |
-| `dashboard` | `aiohttp` | `lesysbot --dashboard` |
-| `all` | all three | what `scripts/install.{sh,ps1}` install |
+| `all` | both | what `scripts/install.{sh,ps1}` install |
 
 Pick a provider you didn't install and LeSysBot names the extra to add rather
 than failing with a traceback.
@@ -453,7 +452,7 @@ bash scripts/uninstall.sh
 The script undoes everything the installer set up, in order:
 
 1. **Stops and removes the background service** (systemd on Linux, launchd on macOS, Task Scheduler on Windows) — skipped with a note if none is installed, e.g. for a Terminal-only setup. On Linux it also offers to disable `loginctl` linger if the installer enabled it.
-2. **Offers to remove the wake-up sudoers rule** (`/etc/sudoers.d/lesysbot-rtcwake`) — Linux only, and only if one was set up for the optional `shutdown-wake` tool (its `setup-sudoers.sh`, or an older install wizard).
+2. **Reports any leftover sudoers rule** from an older version (`/etc/sudoers.d/lesysbot-rtcwake`) and prints the command to delete it — it doesn't remove it itself, since that would make the uninstaller ask for your password. No current LeSysBot tool needs root, so this step usually prints nothing.
 3. **Uninstalls the `lesysbot` Python package** via pip.
 4. **Asks before deleting `~/.lesysbot`** (your config, tools, and logs; the location honours `LESYSBOT_HOME`). The default is **No** — keeping it means a later re-install finds your settings and custom tools exactly as you left them. Answer `y` only if you want a completely clean machine.
 
@@ -467,7 +466,7 @@ Both paths (wizard and manual) are covered — if you installed manually and nev
 |---|---|
 | Use it day to day (chat, slash commands, history) | [Using LeSysBot](usage.md) |
 | All tool options (`confirm`, type hints, multiple tools per file) | [Writing Tools](writing-tools.md) |
-| Manage tools + check LLM health in a browser | [Dashboard](dashboard.md) |
+| Manage tools from the terminal (enable/disable/remove/install) | [Using LeSysBot §9](usage.md#9-managing-tools-enable--disable--remove) |
 | Set up Telegram or Slack in detail | [Messaging Adapters](adapters.md) |
 | Change model, adjust history size, disable logging | [Configuration](configuration.md) |
 | Run as a background service / auto-start on boot | [Running as a Service](service.md) |

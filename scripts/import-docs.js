@@ -60,12 +60,6 @@ const GUIDES = {
     description:
       'The full config.yaml reference, environment variable overrides, and CLI flags.',
   },
-  dashboard: {
-    title: 'Dashboard',
-    section: 'Everyday use',
-    description:
-      'The local web dashboard: what it shows, how to enable and manage tools from it, and its security boundaries.',
-  },
   'installing-tools': {
     title: 'Installing tools',
     section: 'Tools',
@@ -98,8 +92,10 @@ const GUIDES = {
   },
 };
 
-/** Authored in this repo — never clobbered by an import. */
-const KEEP = new Set(['overview', 'security']);
+/** Authored in this repo — never clobbered by an import.
+ * `monitoring` and `management-ui` are authored here too (kept in sync with
+ * docs/ by hand), so a docs import doesn't overwrite the site-tuned prose. */
+const KEEP = new Set(['overview', 'security', 'monitoring', 'management-ui']);
 
 function main() {
   const [coreRepo = '../lesysbot', versionId = 'v0.1'] = process.argv.slice(2);

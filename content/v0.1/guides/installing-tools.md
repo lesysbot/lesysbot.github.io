@@ -31,8 +31,7 @@ lesysbot tools remove gpu_temp  # deletes the package (asks y/N)
 `list`/`info` show provenance for installed packages (`acme/repo@commit`);
 tools you wrote yourself just say `local`. See
 [Using LeSysBot §9](usage.md#9-managing-tools-enable--disable--remove) for the
-management commands and the [Dashboard](dashboard.md) for the point-and-click
-equivalent.
+management commands.
 
 ## Source spec grammar
 

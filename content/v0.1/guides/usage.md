@@ -12,17 +12,15 @@ Everything here works the same in **CLI, Telegram, and Slack**. The examples use
 
 ## 1. Start a session
 
-If your `config.yaml` already sets `provider: cli`, just run:
-
-```bash
-lesysbot
-```
-
-Or force the CLI explicitly (handy if your config is set to Telegram/Slack):
+To chat in your terminal, force the CLI provider:
 
 ```bash
 lesysbot --provider cli
 ```
+
+Note: bare `lesysbot` in a terminal opens the [management UI](management-ui.md)
+(a status screen + local web panel), **not** a chat. Use `lesysbot --provider
+cli` to chat, or `lesysbot run` to run the bot with whatever `config.yaml` says.
 
 You'll see a banner and a prompt:
 
@@ -202,9 +200,9 @@ Precedence is **CLI flags → `LESYSBOT_*` env vars → `config.yaml`**. The ful
 
 ## 9. Managing tools (enable / disable / remove)
 
-Every installed tool can be managed from the terminal — no dashboard or running
-bot needed. The commands act on the same state file and tools directory the bot
-loads, so what you change here is what the bot sees:
+Every installed tool can be managed from the terminal — no running bot needed.
+The commands act on the same state file and tools directory the bot loads, so
+what you change here is what the bot sees:
 
 ```bash
 lesysbot tools install owner/repo  # install tool package(s) from a GitHub repo
@@ -215,9 +213,9 @@ lesysbot tools enable gpu_temp     # turn it back on
 lesysbot tools remove gpu_temp     # DELETE its folder package / .py file (asks y/N)
 ```
 
-- **disable/enable** is reversible and persisted (`tool_state.json`). A running
-  bot applies it on its next restart; the [Dashboard](dashboard.md) applies it
-  live instead.
+- **disable/enable** is reversible and persisted (`tool_state.json`), and a
+  running bot applies it **live** — it watches that file, so the change lands
+  within a second whether it came from these commands or a hand edit.
 - **remove** permanently deletes the tool's folder package (or loose `.py`) from
   the tools dir — including any other tools defined in the same package, which
   are listed before you confirm. An installed package's `tools.lock.json` entry
@@ -225,8 +223,6 @@ lesysbot tools remove gpu_temp     # DELETE its folder package / .py file (asks 
 - **install** fetches packages straight from a GitHub link — see
   [Installing Tools](installing-tools.md) for specs, pinning, and the trust
   model.
-
-The same actions are available point-and-click in the [Dashboard](dashboard.md).
 
 ---
 
@@ -257,7 +253,7 @@ Disable either by setting its path to `null` in `config.yaml`.
 |---|---|
 | Set up Telegram or Slack | [Messaging Adapters](adapters.md) |
 | Add your own tools | [Writing Tools](writing-tools.md) |
-| Manage tools in a browser | [Dashboard](dashboard.md) |
+| Install tools from GitHub | [Installing Tools](installing-tools.md) |
 | Change models, history, logging | [Configuration](configuration.md) |
 | Run LeSysBot in the background | [Running as a Service](service.md) |
 | Understand what happens under the hood | [Architecture](architecture.md) |

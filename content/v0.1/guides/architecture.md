@@ -51,9 +51,9 @@ dropped into `tools/`.
 Everything starts in [lesysbot/__main__.py](../lesysbot/__main__.py):
 
 1. **Parse the command line.** `build_parser()` handles the flags (`-c`, `-v`,
-   `--provider`, `--model`, `--base-url`, `--dashboard`). If you ran a
-   subcommand (`lesysbot tools …`), it's dispatched to the tools CLI before any
-   bot setup — the bot never starts.
+   `--provider`, `--model`, `--base-url`). If you ran a subcommand
+   (`lesysbot tools …`), it's dispatched to the tools CLI before any bot setup —
+   the bot never starts.
 2. **Load settings.** `Settings.load()`
    ([lesysbot/core/config.py](../lesysbot/core/config.py)) finds the active config
    file (see [§7](#7-configuration--paths)), applies `LESYSBOT_*` environment
@@ -62,7 +62,7 @@ Everything starts in [lesysbot/__main__.py](../lesysbot/__main__.py):
    anchored to the directory the config file came from — so an installed setup
    uses `~/.lesysbot/tools`, and a dev checkout uses the repo's `tools/`.
 4. **Set up logging.** A Rich console handler plus a time-rotating file handler
-   on `logs/lesysbot.log` (see [§10](#10-logging--tracing)).
+   on `logs/lesysbot.log` (see [§9](#9-logging--tracing)).
 5. **Build the Agent.** `Agent.setup()` loads every tool from the tools
    directory and, with `hot_reload: true`, starts a watcher that reloads them
    whenever a `.py` file changes.
@@ -79,14 +79,13 @@ Everything starts in [lesysbot/__main__.py](../lesysbot/__main__.py):
    requesting user *after* its reply — the bundled `power` tool uses it to
    announce "powering off now" just before a scheduled shutdown fires.
 8. **Run.** `await adapter.start(agent.handle)` blocks for the life of the
-   process. If the dashboard is enabled, it runs as a *background* asyncio task
-   beside the adapter and is cancelled when the adapter stops — that's why
-   typing `exit` in the CLI actually ends the process. A second background
-   task, the **startup notice** (Telegram/Slack only, on by default), waits
-   for the adapter to connect and then pings the configured chat with a short
-   system report — CPU/GPU temperature, disk usage, internet speed — so a
-   service that starts at boot tells you the machine just came up (see
-   [Running as a Service](service.md#the-startup-notice)).
+   process. A *background* asyncio task, the **startup notice** (Telegram/Slack
+   only, on by default), waits for the adapter to connect and then pings the
+   configured chat with a short system report — CPU/GPU temperature, disk usage,
+   internet speed — so a service that starts at boot tells you the machine just
+   came up (see [Running as a Service](service.md#the-startup-notice)). It's
+   cancelled when the adapter stops — that's why typing `exit` in the CLI
+   actually ends the process.
 
 ---
 
@@ -181,9 +180,9 @@ Details worth knowing before you modify it:
 
 - **It always streams** (`stream=True`), accumulating text and tool-call
   fragments from the deltas — that's what makes live rendering possible.
-- **`health()`** is a separate non-streaming probe used by the dashboard: it
-  times a `models.list()` call with a short 5 s timeout and reports whether
-  the backend is reachable and whether your configured model is present.
+- **`health()`** is a separate non-streaming probe: it times a `models.list()`
+  call with a short 5 s timeout and reports whether the backend is reachable and
+  whether your configured model is present.
 
 ---
 
@@ -234,9 +233,11 @@ handle `ImportError` themselves.
 
 ### 5.4 Enable/disable
 
-The [dashboard](dashboard.md) can toggle tools off. A disabled tool is hidden
+`lesysbot tools enable/disable` toggles tools off. A disabled tool is hidden
 from the LLM's schemas and refuses direct `/` calls; the choice is persisted
-to `tool_state.json` so it survives restarts and hot reloads.
+to `tool_state.json` (`mcp.state_file`) so it survives restarts and hot reloads.
+The running bot watches that file, so a change from the CLI applies within a
+second without a restart.
 
 ---
 
@@ -313,18 +314,7 @@ User guide: [Installing Tools](installing-tools.md); trust model included.
 
 ---
 
-## 9. The dashboard
-
-An optional local web UI ([lesysbot/dashboard/server.py](../lesysbot/dashboard/server.py),
-enabled with `--dashboard`) that shows every tool's status, toggles them
-on/off, and probes LLM health. It runs as a background asyncio task beside the
-messaging adapter and reads everything through the `Agent.registry` /
-`Agent.llm` properties — it has no state of its own. It binds `127.0.0.1`
-only, with no auth. User guide: [Dashboard](dashboard.md).
-
----
-
-## 10. Logging & tracing
+## 9. Logging & tracing
 
 Two independent records of what happened
 (paths anchored like everything else — `~/.lesysbot/logs/` when installed):
@@ -341,7 +331,7 @@ Two independent records of what happened
 
 ---
 
-## 11. Where to change what
+## 10. Where to change what
 
 | I want to… | Touch | Guide |
 |---|---|---|

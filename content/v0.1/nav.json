@@ -9,7 +9,7 @@
   },
   {
     "title": "Everyday use",
-    "items": ["usage", "adapters", "configuration", "dashboard", "security"]
+    "items": ["usage", "management-ui", "adapters", "configuration", "security"]
   },
   {
     "title": "Tools",
@@ -17,6 +17,6 @@
   },
   {
     "title": "Deploy",
-    "items": ["building-windows-exe"]
+    "items": ["building-windows-exe", "monitoring"]
   }
 ]

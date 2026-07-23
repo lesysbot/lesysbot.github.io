@@ -255,48 +255,6 @@
         "Content fetched from the web is fed straight into the model's context. Treat this the way you would treat any untrusted input to an assistant that can also run tools on your machine — see Security."
       ]
     },
-    {
-      "slug": "remote-dashboard",
-      "name": "remote-dashboard",
-      "collection": "core",
-      "version": "1.2.0",
-      "summary": "A passcode-gated web dashboard with a public share link.",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": [],
-      "deps": ["gradio"],
-      "danger": true,
-      "tools": [
-        {
-          "name": "start_dashboard",
-          "kind": "python",
-          "summary": "Launch the Gradio dashboard and return a public share link plus its passcode.",
-          "params": [],
-          "confirm": false,
-          "privileged": false
-        },
-        {
-          "name": "stop_dashboard",
-          "kind": "python",
-          "summary": "Shut the dashboard down and invalidate the share link.",
-          "params": [],
-          "confirm": false,
-          "privileged": false
-        },
-        {
-          "name": "dashboard_status",
-          "kind": "python",
-          "summary": "Report whether the dashboard is running and, if so, its current link.",
-          "params": [],
-          "confirm": false,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "Requires the gradio pip package. State is kept in ~/.lesysbot/remote_dashboard.json and the log in ~/.lesysbot/logs/remote-dashboard.log.",
-        "The share link is a public *.gradio.live URL — anyone who has the link and the passcode reaches your machine from the open internet. Stop the dashboard when you are done rather than leaving the link live.",
-        "This is distinct from the built-in local dashboard described in the Dashboard guide, which binds to 127.0.0.1 and is not exposed publicly."
-      ]
-    },
 
     {
       "slug": "network",

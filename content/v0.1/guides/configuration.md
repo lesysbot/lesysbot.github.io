@@ -87,6 +87,8 @@ llm:
 mcp:
   tools_dir: "./tools"
   hot_reload: true           # watch tools/ and reload on any .py change
+  lock_file: tools.lock.json    # provenance of `lesysbot tools install` packages
+  state_file: tool_state.json   # persisted disabled tools; anchored like tools_dir → ~/.lesysbot/
 
 # ── Agent behaviour ───────────────────────────────────────────────────────────
 agent:
@@ -96,15 +98,6 @@ agent:
     Be concise and clear.
   max_history: 50            # messages kept per user (system message not counted)
   max_tool_calls: 10         # max LLM → tool → LLM loops per user message
-
-# ── Dashboard ─────────────────────────────────────────────────────────────────
-dashboard:
-  enabled: false             # or run `lesysbot --dashboard`; needs the `dashboard` extra
-  host: "127.0.0.1"          # localhost only, no auth — change deliberately if exposing
-  port: 8765                 # http://localhost:8765
-  state_file: tool_state.json   # persisted disabled tools; anchored like tools_dir → ~/.lesysbot/
-
-
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:
@@ -116,6 +109,10 @@ logging:
 ```
 
 Both `file` and `trace_file` rotate on time (Python's `TimedRotatingFileHandler`), so neither grows without bound: at each `when` rollover the current file is renamed with a date suffix (e.g. `lesysbot.log.2026-06-21`) and only the newest `backup_count` are kept. `level` sets how much detail is written (and shown on the console for the Telegram/Slack daemons); `-v` forces `DEBUG`. In interactive CLI the console is always kept at `WARNING` or above so logs don't interrupt the chat — the file still gets everything at `level`.
+
+**Credentials are redacted.** Log lines are scrubbed before they are written, so tokens never reach disk — the Telegram bot token appears as `bot<redacted>/getUpdates`. This matters because the Telegram API carries the token in the URL *path* and `httpx` logs every request at `INFO`, so an unredacted service would write its own token to disk thousands of times a day. Redaction covers both the shapes credentials come in (Telegram, Slack `xoxb-`/`xapp-`, OpenAI `sk-`) and the exact values in your active config, and applies to tracebacks as well as messages. Short config values are deliberately left alone so the default `api_key: ollama` is not treated as a secret. See `lesysbot/core/redact.py`.
+
+Redaction protects logs written from now on. If you ran an earlier version, existing files under `logs/` may still contain a token in cleartext — check with `grep -c 'bot[0-9]\{6,\}:' logs/lesysbot.log`, and rotate the token if those logs were ever shared.
 
 ---
 
@@ -174,7 +171,7 @@ Environment variables take precedence over `config.yaml`.
 ## 5. CLI flags
 
 ```
-lesysbot [-c CONFIG] [-v] [--provider PROVIDER] [--model MODEL] [--base-url URL] [--dashboard] [--port N]
+lesysbot [-c CONFIG] [-v] [--provider PROVIDER] [--model MODEL] [--base-url URL]
 lesysbot tools …           # install/list/enable/disable/remove tools — see docs/installing-tools.md
 ```
 
@@ -185,8 +182,6 @@ lesysbot tools …           # install/list/enable/disable/remove tools — see 
 | `--provider` | `messaging.provider` | `--provider telegram` |
 | `--model` | `llm.model` | `--model qwen3.5` |
 | `--base-url` | `llm.base_url` | `--base-url http://localhost:8000/v1` |
-| `--dashboard` | `dashboard.enabled` → true | `--dashboard` |
-| `--port` | `dashboard.port` (implies `--dashboard`) | `--port 9000` |
 
 CLI flags take precedence over environment variables and `config.yaml`.
 

@@ -150,12 +150,12 @@ async def delete_logs(directory: str) -> str:
 ```
 
 ```python
-reboot = CLITool(
-    name="reboot_server",
-    description="Reboot the local machine",
-    command="sudo reboot",
-    params={},
-    confirm="This will immediately reboot the machine. Proceed?",
+clear_cache = CLITool(
+    name="clear_cache",
+    description="Delete everything in a cache directory",
+    command="rm -rf {directory}",
+    params={"directory": "Directory to empty"},
+    confirm="This will permanently delete the directory's contents. Proceed?",
 )
 ```
 
@@ -289,6 +289,26 @@ doesn't disable its siblings.
 
 The decorator/`CLITool` args are what LeSysBot enforces; mirror them in your
 package `README.md` frontmatter for humans and the catalog.
+
+### Keep tools unprivileged
+
+**Don't write a tool that needs `sudo` or an Administrator context.** A tool
+runs from a chat message, and the bot has no way to type a password — so a
+privileged tool either fails with a permissions error or forces the user
+through a one-time sudoers rule before it works at all. Both break the promise
+that installing a package is enough to use it.
+
+In practice:
+
+- Never invoke `sudo`/`runas` from a tool, and never ship a script that edits
+  `/etc/sudoers.d`.
+- Prefer the unprivileged route to the same fact — read `/sys` or `/proc`
+  instead of shelling out as root, use a helper like `osx-cpu-temp` instead of
+  root-only `powermetrics`, and let logind/polkit handle `shutdown` on Linux
+  rather than elevating yourself.
+- When a capability genuinely can't be had unprivileged, say so in the reply
+  and stop. An honest "this machine doesn't expose that without root" is a
+  better tool than one that half-works after manual setup.
 
 ---
 
