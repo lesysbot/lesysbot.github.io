@@ -28,6 +28,8 @@ Because the layers are independent, the interesting question — "can it do X?" 
 
 **It runs against a local model by default.** The stock configuration points at Ollama on `localhost:11434`. Your messages, and the output of every tool call, stay on your hardware. You can point it at OpenAI instead by changing one URL — but then the machine's temperatures and disk usage travel to someone else's server, and that should be a decision you make deliberately rather than a default you inherit.
 
+**An install leaves three things running.** A background service (systemd, launchd, or Task Scheduler — whichever your OS uses), the [control panel](management-ui.md) it serves at `http://127.0.0.1:8700`, and a [Grafana dashboard](monitoring.md) of the machine's CPU, memory, disk, network, and GPU. All of them bind to localhost only. Chat is the fourth thing, and the only one that reaches off the machine — which is why the allow-list below matters. Running `lesysbot` with no arguments prints the health of all four and exits without starting anything.
+
 **Destructive tools ask first.** Anything that powers the machine down declares a confirmation string, and LeSysBot will not run it until you answer. The power tools go further and schedule the shutdown a minute out, so the reply reaches you before the network drops and you still have a window to cancel it.
 
 **Tools are ordinary Python that you are trusting.** Installing a tool package from GitHub means running that author's code with your user's permissions on your machine. There is no sandbox. The [trust model](installing-tools.md) is exactly the same as `pip install` — read what you install, and prefer refs you have pinned.

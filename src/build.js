@@ -171,12 +171,17 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '</section>',
 
     '<section class="quickstart">',
-    '<h2 class="section-title">Four steps to a working bot</h2>',
+    '<h2 class="section-title">Five steps to a working bot</h2>',
     '<ol class="steps">',
     [
       ['Get a model running', 'Install Ollama and pull one sized for your hardware.', 'ollama pull llama3.2'],
       ['Install LeSysBot', 'A short wizard writes your config. Press Enter through it.', 'bash scripts/install.sh'],
       ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot --provider cli'],
+      [
+        'Open the control panel',
+        'Settings, tools and health in a browser. The service keeps it online.',
+        'http://127.0.0.1:8700',
+      ],
       [
         'Add tools for your OS',
         'Pull in the official collection that matches the machine.',
@@ -223,11 +228,11 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<section class="feature">',
     '<div class="feature-copy">',
     '<h2 class="section-title">Watch the machine over time</h2>',
-    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. LeSysBot ships an optional Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built for the OS you are on.</p>',
-    '<p class="feature-note">One command, nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
+    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. Every install sets up a Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built for the OS you are on.</p>',
+    '<p class="feature-note">The installer wires it up and starts it — nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
     '<div class="feature-cmds">',
-    '<code>cd monitoring &amp;&amp; ./scripts/start.sh</code>',
     '<code>open http://localhost:3000</code>',
+    '<code>~/.lesysbot/monitoring/scripts/start.sh down</code>',
     '</div>',
     '<p class="feature-note">Then ask the bot for it from anywhere — <code>share_dashboard</code> publishes an expiring public snapshot you can send to someone, and takes it back down when you are done.</p>',
     '<div class="hero-actions">',

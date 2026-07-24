@@ -66,24 +66,29 @@ Snapshots expire (an hour by default), `/list_snapshots` shows what is still liv
 
 ## 5. What listens, and where
 
-**The bot process opens no port.** It reaches out to your LLM backend and to
-Telegram or Slack, but nothing listens for inbound connections to the bot, so
-there is no chat-facing web surface to authenticate, firewall, or accidentally
-expose on `0.0.0.0`. The only ways to reach the bot are the chat platform you
-configured — governed by `allowed_user_ids` above — and the terminal session you
-start yourself.
+**Nothing listens for the bot itself.** The agent reaches out to your LLM backend
+and to Telegram or Slack, but no inbound connection reaches it, so there is no
+chat-facing web surface to authenticate, firewall, or accidentally expose on
+`0.0.0.0`. The only ways to reach the bot are the chat platform you configured —
+governed by `allowed_user_ids` above — and the terminal session you start
+yourself.
 
-Two **optional** parts of the project do listen, and both are deliberately bound
-to `127.0.0.1` only, so neither is reachable from your network:
+Two things do listen, and both are deliberately bound to `127.0.0.1` only, so
+neither is reachable from your network:
 
-- The [management UI](management-ui.md) (`lesysbot manage`, or bare `lesysbot` in
-  a terminal) — a local web panel for config and tools. It is loopback-only, it
-  rejects requests whose `Host` header isn't localhost (blocking DNS-rebinding),
-  and it has no login: anyone who can open it *on the machine* can change your
-  config, so treat it exactly like shell access. Don't forward its port.
+- The [control panel](management-ui.md) at `http://127.0.0.1:8700` — a local web
+  page for config, tools, and health. The background service keeps it up, so
+  unlike everything else here it is **always on**. It is loopback-only by
+  construction (the host is not configurable, only the port), it rejects requests
+  whose `Host` header isn't localhost (blocking DNS-rebinding), and it has no
+  login: anyone who can open it *on the machine* can change your config, so treat
+  it exactly like shell access. It also displays your real `config.yaml`, secrets
+  included — keep tokens in environment variables if that matters to you. Don't
+  forward its port.
 - The [monitoring stack](monitoring.md) — Prometheus, Grafana, and the exporters,
-  a separate set of processes you start by hand. Every port binds `127.0.0.1`.
-  Grafana ships with an `admin`/`admin` login you should change.
+  a separate set of containers the installer sets up. Every port binds
+  `127.0.0.1`. Grafana starts with the login you chose during setup, which
+  defaults to `admin`/`admin` — change it if you haven't.
 
 For either, if you ever publish it deliberately, put it behind a reverse proxy
 with TLS and auth rather than moving the bind off loopback.

@@ -22,6 +22,13 @@ export function slugify(text) {
 }
 
 /**
+ * Repo files that are a guide here under a different path. The core docs link
+ * to `../monitoring/README.md` because that is where the stack lives in the
+ * repo; on the site it is the `monitoring` guide, so keep the reader here.
+ */
+const REPO_PAGE_ALIASES = new Map([['monitoring/README.md', 'monitoring']]);
+
+/**
  * Source docs link to files by repo-relative path. Map those onto the site
  * where an equivalent page exists, and onto GitHub otherwise, so nothing 404s.
  */
@@ -44,8 +51,15 @@ function rewriteHref(href, ctx) {
     if (known) return `${ctx.versionBase}/guides/${known}/${anchor}`;
   }
 
-  // Everything else — source files, CONTRIBUTING, skills — lives on GitHub.
   const repoPath = clean.replace(/^(\.\.\/)+/, '');
+
+  // A repo path that is a guide here under another name (see the alias map).
+  const aliased = REPO_PAGE_ALIASES.get(repoPath);
+  if (aliased && ctx.guideSlugs.has(aliased)) {
+    return `${ctx.versionBase}/guides/${aliased}/${anchor}`;
+  }
+
+  // Everything else — source files, CONTRIBUTING, skills — lives on GitHub.
   return `https://github.com/${ctx.repo}/blob/${ctx.ref}/${repoPath}${anchor}`;
 }
 

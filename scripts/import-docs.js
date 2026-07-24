@@ -45,10 +45,10 @@ const GUIDES = {
       'Reach the bot from your phone or your workspace — full token and app setup for both.',
   },
   'management-ui': {
-    title: 'Management UI',
+    title: 'Control panel',
     section: 'Everyday use',
     description:
-      'Edit settings and toggle, install, or remove tools from a web page that only your machine can reach.',
+      'The always-on web page at http://127.0.0.1:8700 — settings, tools, and health, reachable from your machine only.',
   },
   configuration: {
     title: 'Settings',
@@ -90,7 +90,7 @@ const GUIDES = {
     title: 'Run as a service',
     section: 'Keep it running',
     description:
-      'Background operation, starting at boot, and where to find the logs — on Linux, macOS, and Windows.',
+      'The background service every install gets — it keeps the control panel online, answers Telegram and Slack, and writes the logs.',
   },
   'building-windows-exe': {
     title: 'Build a Windows .exe',

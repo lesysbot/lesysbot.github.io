@@ -1,25 +1,68 @@
 ---
 title: System monitoring
-description: An optional Prometheus + Grafana stack that graphs CPU, memory, disk, network, temperatures, and GPU as time series — on Linux, macOS, and Windows.
+description: The Prometheus + Grafana dashboard every install sets up — CPU, memory, disk, network, temperatures, and GPU as time series, on Linux, macOS, and Windows.
 section: Keep it running
 source: monitoring/README.md
 ---
 
 Sometimes you want more than a one-off "what's the temperature?" — you want to
 watch a machine over time: the CPU climbing under a build, the GPU heating up,
-a disk filling. LeSysBot ships an optional monitoring stack for exactly that. It
-records **CPU, memory, disk, network (per interface, so Ethernet and Wifi are
-separate), temperatures, and NVIDIA GPU** as time series and draws them on a
-ready-made Grafana dashboard.
+a disk filling. That is what the monitoring stack is for. It records **CPU,
+memory, disk, network (per interface, so Ethernet and Wifi are separate),
+temperatures, and NVIDIA GPU** as time series and draws them on a ready-made
+Grafana dashboard.
 
-It is deliberately **separate from the bot**. LeSysBot itself still opens no
-network listener; this is a companion you start by hand when you want graphs.
+**You probably already have it.** It is a standard part of LeSysBot, not an
+add-on: `lesysbot setup` — the wizard the installer runs — copies the stack into
+`~/.lesysbot/monitoring`, asks which Grafana login to use, and starts it. A
+normal install leaves Grafana on **http://localhost:3000**, and `lesysbot` links
+to it from the status screen.
+
 Everything it exposes binds to `127.0.0.1` only — nothing appears on your LAN —
-and none of it needs `sudo` or admin rights.
+and none of it needs `sudo` or admin rights. It runs as its own containers,
+beside LeSysBot rather than inside it.
 
-## What you need
+## What the installer did
 
-One thing: **Docker** with Compose v2.
+The wizard asks two things and handles the rest:
+
+- **How to start it.** On Linux, if Docker is ready it offers to bring the stack
+  up right there. If Docker isn't installed or the daemon isn't running, it
+  prints the exact commands to fix that — no `sudo` prompts mid-install — and you
+  can start the stack later.
+- **Which Grafana login LeSysBot should use.** Defaults to `admin` / `admin`; the
+  password is typed masked. It is saved to `~/.lesysbot/grafana.env` (readable
+  only by you) and applied to the bundled Grafana's first boot, which is how the
+  status screen and the `share-dashboard` tool authenticate later.
+
+On **macOS and Windows** the installer deliberately does *not* require Docker
+Desktop. If Docker is running it offers the same one-command stack; otherwise it
+points you at a native [Grafana download](https://grafana.com/grafana/download)
+and explains how to connect it. LeSysBot finds Grafana on `localhost:3000`
+either way.
+
+Set `LESYSBOT_SKIP_MONITORING` before running setup to skip the whole step —
+useful for unattended installs.
+
+## Starting and stopping it by hand
+
+From `~/.lesysbot/monitoring` (or the `monitoring/` folder of a checkout):
+
+```bash
+./scripts/start.sh          # Linux and macOS — up
+./scripts/start.sh down     # stop it again
+```
+
+```powershell
+.\scripts\start.ps1          # Windows (PowerShell)
+.\scripts\start.ps1 down
+```
+
+One command, either way: it detects your OS and your GPU and does the right
+thing. Then open **http://localhost:3000**. The dashboard is in the **LeSysBot**
+folder.
+
+The only prerequisite for the bundled stack is **Docker with Compose v2**:
 
 ```bash
 docker compose version      # should print "v2.x"; if not, install Docker first
@@ -31,33 +74,6 @@ Install it if missing — Docker Desktop on
 [Docker Engine](https://docs.docker.com/engine/install/) on Linux. Prometheus,
 Grafana, and the metric exporters all download and configure themselves the
 first time you start the stack — there is nothing else to install or wire up.
-
-The stack lives in the `monitoring/` folder of the
-[core repo](https://github.com/lesysbot/lesysbot). If you installed LeSysBot
-with `pip` and don't have a checkout, clone it first:
-
-```bash
-git clone https://github.com/lesysbot/lesysbot
-cd lesysbot/monitoring
-```
-
-## Starting it
-
-One command, from the `monitoring/` folder. It detects your OS and your GPU and
-does the right thing.
-
-```bash
-./scripts/start.sh          # Linux and macOS
-```
-
-```powershell
-.\scripts\start.ps1          # Windows (PowerShell)
-```
-
-Then open **http://localhost:3000** and log in with `admin` / `admin` (change it
-before you expose Grafana anywhere). The dashboard is in the **LeSysBot** folder.
-Stop the stack again with `./scripts/start.sh down` (or `.\scripts\start.ps1
-down`).
 
 ## What you get
 
@@ -94,12 +110,11 @@ desktops). Panels for sensors your hardware doesn't have simply stay empty.
 
 ## Sharing a snapshot from chat
 
-If you run the bot as well, you can hand the dashboard to someone with a text
-message. The bundled `share-dashboard` tool turns **"share me the dashboard"**
-into a public link: it publishes a point-in-time *snapshot* — the current graphs
-baked in as data — *through Grafana* to its public snapshot server, so the
-recipient sees a live-looking dashboard without any access to your machine or
-your Grafana.
+You can hand the dashboard to someone with a text message. The bundled
+`share-dashboard` tool turns **"share me the dashboard"** into a public link: it
+publishes a point-in-time *snapshot* — the current graphs baked in as data —
+*through Grafana* to its public snapshot server, so the recipient sees a
+live-looking dashboard without any access to your machine or your Grafana.
 
 ```
 You:  share me the dashboard for a day
@@ -114,17 +129,23 @@ of your metrics, share deliberately and delete what you no longer need. Two thin
 to expect: a link you just deleted may keep loading for up to an hour while the
 snapshot server clears its cache, and a snapshot you publish from Grafana's own
 browser button (rather than through the bot) can't be deleted by the bot — so
-share through the bot to keep it removable. The tool reaches Grafana at
-`localhost:3000` by default; point it elsewhere with `LESYSBOT_GRAFANA_URL` if you
-changed the port.
+share through the bot to keep it removable.
+
+The tool **finds Grafana by itself** — it checks the port your stack actually
+uses, then the usual `3000`/`3001`, and verifies that Grafana really answers
+there. So a stack that landed on 3001 because something else owned 3000 still
+works. Set `LESYSBOT_GRAFANA_URL` only if Grafana runs somewhere unusual; even
+then it is verified before use.
 
 ## Where it sits with the rest of LeSysBot
 
-The [security](security.md) boundaries for the bot are unchanged — this stack is
-a separate process family, not a listener bolted onto LeSysBot. Because it binds
-only to `127.0.0.1`, the exposure is the same as anything else you run locally.
-If you deliberately publish Grafana, put it behind a reverse proxy with TLS
-rather than moving the bind off loopback.
+The [security](security.md) boundaries are unchanged — this stack is a separate
+process family, not a listener bolted onto LeSysBot. Because it binds only to
+`127.0.0.1`, the exposure is the same as anything else you run locally. If you
+deliberately publish Grafana, put it behind a reverse proxy with TLS rather than
+moving the bind off loopback. And change the Grafana password from `admin` before
+you do — the wizard is the easy place to set it, or `GRAFANA_ADMIN_PASSWORD` in
+`~/.lesysbot/monitoring/.env`.
 
 The full reference — every port, the `.env` overrides, how the dashboards are
 generated, and a troubleshooting list — lives in
