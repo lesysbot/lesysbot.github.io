@@ -1,7 +1,7 @@
 ---
-title: Sharing tools
+title: Share your tools
 description: Publish your tools so other people can install them, and version them sensibly.
-section: Tools
+section: Give it new abilities
 source: docs/sharing-tools.md
 ---
 Any public GitHub repo containing a tool folder package is installable by

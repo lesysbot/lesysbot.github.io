@@ -1,20 +1,21 @@
 ---
-title: Messaging adapters
-description: Set up the CLI, Telegram, or Slack front end — or write an adapter of your own.
+title: Telegram & Slack
+description: Reach the bot from your phone or your workspace — full token and app setup for both.
 section: Everyday use
 source: docs/adapters.md
 ---
-An **adapter** is how you talk to LeSysBot. Pick one — they all share the same chat,
-slash-command, and tool behaviour described in [Using LeSysBot](usage.md); only the
-setup differs.
+Where you talk to LeSysBot from. All three options behave identically once
+you're chatting — same tools, same `/commands`, same confirmations, all covered
+in [Everyday use](usage.md). Only the setup differs.
 
-| Adapter | Credentials needed | Best for |
+| Where | What you need | Best for |
 |---|---|---|
-| **[CLI](#1-cli)** | None | Trying it out, local use, scripting |
-| **[Telegram](#2-telegram)** | Bot token | A personal bot you reach from your phone |
-| **[Slack](#3-slack)** | Bot + app tokens | Team/workspace use |
+| **[Terminal](#1-cli)** | nothing | Trying it out, local use, scripting |
+| **[Telegram](#2-telegram)** | a bot token (2 minutes) | Reaching your machine from your phone |
+| **[Slack](#3-slack)** | two app tokens (10 minutes) | A team or workspace |
 
-You can switch anytime with `--provider` or the `messaging.provider` setting in `config.yaml`.
+Switch anytime with `--provider`, or by changing `messaging.provider` in your
+config. The terminal always works regardless of what's configured.
 
 ---
 

@@ -1,12 +1,17 @@
 ---
-title: Building a Windows executable
-description: Package LeSysBot into a standalone lesysbot.exe with PyInstaller.
-section: Deploy
+title: Build a Windows .exe
+description: Package LeSysBot into a standalone lesysbot.exe with PyInstaller, for people without Python.
+section: Keep it running
 source: docs/building-windows-exe.md
 ---
-This guide is for **developers/maintainers** who want to ship LeSysBot to end users
-as a standalone `lesysbot.exe` — no Python install, no `pip`, no terminal knowledge
-required. The end user unzips a folder, edits `config.yaml`, and double-clicks the exe.
+> **Advanced.** You only need this if you're *distributing* LeSysBot to other
+> people. To run it on your own Windows machine, follow
+> [Getting started](getting-started.md) instead.
+
+This is for maintainers who want to ship LeSysBot as a standalone
+`lesysbot.exe` — no Python install, no `pip`, no terminal knowledge required.
+The person receiving it unzips a folder, edits `config.yaml`, and double-clicks
+the exe.
 
 It uses [PyInstaller](https://pyinstaller.org) to freeze the app and its
 dependencies into a self-contained bundle.

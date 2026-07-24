@@ -46,6 +46,23 @@ Everything the build reads lives in `content/`. The core repo is not needed to
 build the site — `import-docs.js` is a convenience for refreshing guide text,
 not a build step.
 
+## Logo and colours
+
+`src/assets/favicon.svg`, `favicon.ico`, `logo.svg`, `wordmark.svg`,
+`apple-touch-icon.png`, and `og-image.png` are **copies of generated files**.
+They are produced by `scripts/gen_logo.py` in the core repo from a character
+grid, and copied here — don't edit them, and don't hand-tune them to match the
+site. The source, the palette table, and the copy commands are in
+[`assets/brand/README.md`](https://github.com/lesysbot/lesysbot/blob/main/assets/brand/README.md).
+
+The brand palette in `src/styles/main.css` (`--color-brand-*`) is the same six
+values the mark uses, which is why the logo needs no light/dark variant. If you
+change a brand token here, the mark's palette has to follow.
+
+The mark is served as an `<img>` through `brandMark()` in `src/lib/layout.js`
+rather than inlined: it is roughly 1500 `<rect>` elements, so inlining it would
+add about 18 KB to every page twice over.
+
 ## Versioning
 
 Each version is built into its own directory and stays there permanently:
@@ -81,8 +98,20 @@ To pull in upstream guide changes afterwards:
 node scripts/import-docs.js ../lesysbot v0.2
 ```
 
-`overview.md` and `security.md` are authored in this repo and are never
-overwritten by an import.
+`overview.md`, `security.md`, and `monitoring.md` are authored in this repo and
+are never overwritten by an import — they're in the `KEEP` set at the top of
+`import-docs.js`. Everything else is imported verbatim from the core repo's
+`docs/`, so **fix guide prose upstream, not here.**
+
+When the core repo gains a guide, add it to the `GUIDES` map in
+`import-docs.js` (title, one-line description, and the nav section it belongs
+to) and list its slug in `content/<version>/nav.json`. Both are needed: the map
+decides what gets imported, the nav file decides the order and grouping.
+
+Guides push technical detail into `<details><summary>` blocks so the main flow
+stays short. Those are styled in `src/styles/main.css` under `.prose details`;
+markdown inside them is parsed normally as long as a blank line follows the
+`<summary>`.
 
 ## Documenting a tool
 

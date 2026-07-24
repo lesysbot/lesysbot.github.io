@@ -1,15 +1,15 @@
 ---
 title: Management UI
-description: A localhost-only web panel to edit config and toggle, install, or remove tools — plus the status screen bare "lesysbot" shows.
+description: Edit settings and toggle, install, or remove tools from a web page that only your machine can reach.
 section: Everyday use
 source: docs/management-ui.md
 ---
+A small web page for the two things you change most — your **settings** and your
+**tools** — plus a status screen that answers "is it working?" at a glance.
 
-LeSysBot has a small **web control panel** for the two things you tune most —
-your **config** and your **tools** — plus an at-a-glance **status** screen. It is
-**local only**: the server binds to `127.0.0.1`, so it is never reachable from
-your network, and there is no login. The trust boundary is having a shell on the
-machine, exactly like editing `config.yaml` by hand.
+It runs on your machine only. Nothing about it is reachable from your network.
+
+---
 
 ## Opening it
 
@@ -19,57 +19,86 @@ Run `lesysbot` with no arguments in a terminal:
 lesysbot
 ```
 
-It prints a status summary and a link, and serves the UI until you press Ctrl-C:
-
 ```
-LeSysBot v0.1.0
+[the LeSysBot mark, in colour]  LeSysBot
+                                v0.1.0
+
   LLM backend  reachable · 42 ms
      Provider  cli · model llama3.2
         Tools  12/13 enabled
   Bot service  running (PID 12934)
       Grafana  http://localhost:3001 · v11.5.1
+       Config  /home/you/.lesysbot/config.yaml
 
   Management UI: http://127.0.0.1:8700   (localhost only · Ctrl-C to stop)
 ```
 
-Or explicitly, with options:
+The mark is drawn in colour when your terminal supports it. It disappears on its
+own under `NO_COLOR`, a plain `TERM`, or when you pipe the output somewhere —
+so `lesysbot > status.txt` stays readable.
+
+Ctrl-C stops it. A few variations:
 
 ```bash
-lesysbot manage --open        # also open it in your browser
-lesysbot manage --port 9000   # different port
+lesysbot manage             # the same thing, said explicitly
+lesysbot manage --open      # and open it in your browser
+lesysbot manage --port 9000 # if 8700 is taken
 ```
 
-In a terminal, bare `lesysbot` opens this UI. To **run the bot** in the
-foreground use `lesysbot run` (or `lesysbot --provider cli` for a terminal chat);
-the background service runs `lesysbot run` for you, so nothing changes there. A
-non-interactive `lesysbot` (no terminal) still runs the bot.
+> **Looking for a chat?** Bare `lesysbot` opens this UI, not a conversation. Use
+> `lesysbot --provider cli` to chat, or `lesysbot run` to run the bot in the
+> foreground. The background service uses `lesysbot run` already — nothing to
+> change there.
 
-## What you can do
+---
 
-- **Status** — LLM backend reachability and latency, the active provider/model,
-  how many tools are enabled, whether the background bot service is running, a
-  **link to your Grafana** when the [monitoring stack](monitoring.md) is up
-  (auto-detected on the usual ports), and where your config and tools live.
-- **Tools** — enable/disable each tool (applies **live** — a running bot picks it
-  up within a second), install a package from GitHub by pasting
-  `owner/repo[/subdir][@ref]`, or remove one.
-- **Config** — the full `config.yaml` in an editor. Saving **validates against
-  the schema first** and refuses to write an invalid file. Most settings take
-  effect on the next bot restart; tool enable/disable is live.
+## What you can do with it
 
-## Security
+**Status** — whether your model backend is reachable and how fast it answers,
+which provider and model are active, how many tools are on, whether the
+background bot service is running, a link to your
+[Grafana dashboard](../monitoring/README.md) if the monitoring stack is up, and
+where your config and tools actually live.
 
-- **Loopback only.** The server binds `127.0.0.1`; the host is not configurable,
-  so it can't be exposed on the LAN. It also rejects any request whose `Host`
-  header isn't localhost, which blocks DNS-rebinding from a web page.
-- **No authentication** — anyone who can open the URL *on the machine* can use
-  it, the same access as editing your files. Don't forward the port.
-- **The config editor shows secrets** (tokens, API keys) because it shows your
-  real `config.yaml`. Prefer keeping secrets in environment variables referenced
-  as `${VAR}` — see [Configuration](configuration.md) and [Security](security.md).
+**Tools** — every tool with its current state:
 
-The bot process itself still opens **no** network listener; this UI is a
-separate, opt-in server you start on purpose. Only the port is configurable:
+- **Enable / disable** with one click, applied to a running bot within a second.
+- **Install** a package from GitHub by pasting `owner/repo`.
+- **Remove** a package, files and all.
+
+**Settings** — your `config.yaml` in an editor. Saving checks it first and
+refuses to write something invalid, so you can't lock yourself out with a typo.
+Most settings take effect the next time the bot starts; tool enable/disable is
+the exception and applies immediately.
+
+---
+
+## Is this safe to leave running?
+
+Yes, on a machine only you use — that's the assumption it's built on.
+
+- **It's localhost-only.** The server binds `127.0.0.1`. The host isn't
+  configurable, only the port, so it can't accidentally end up on your LAN. It
+  also rejects any request whose `Host` header isn't localhost, which blocks a
+  malicious web page from reaching it through your browser.
+- **There's no login.** Anyone who can open `http://127.0.0.1:8700` on the
+  machine can use it — but they could equally just edit `config.yaml`. That's
+  the trust boundary, and it's the same one.
+- **It shows your secrets**, because it shows your real config file. If that
+  bothers you, keep tokens in environment variables and reference them as
+  `${VAR}` — see [Settings](configuration.md).
+
+Don't forward the port or put it behind a reverse proxy unless you add
+authentication and TLS yourself.
+
+The bot process itself still opens no listener at all. This UI is a separate
+server you start on purpose.
+
+---
+
+## Settings
+
+Only the port:
 
 ```yaml
 webui:

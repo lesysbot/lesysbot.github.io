@@ -6,7 +6,7 @@ section: Everyday use
 
 LeSysBot is an assistant that can power off your computer, and it listens on a chat network. That combination deserves a few minutes of thought before you leave it running unattended.
 
-There are four boundaries worth understanding, roughly in order of how badly they go wrong when you get them right or wrong.
+There are five boundaries worth understanding, roughly in order of how badly they go wrong when you get them right or wrong.
 
 ## 1. Who is allowed to talk to the bot
 
@@ -24,7 +24,7 @@ messaging:
 
 **An empty list means everyone is allowed.** The runtime treats a blank allow-list as "no filter configured" and warns loudly at startup, but it still starts. Do not rely on that warning — it scrolls past in a log you are not reading.
 
-The install wizards (`install.sh` and `install.ps1`) will not accept a blank list; they re-prompt until you give at least one numeric ID. If you are writing `config.yaml` by hand you are on your own, so check it.
+The setup wizard will not accept a blank list; it re-prompts until you give at least one numeric ID. If you are writing `config.yaml` by hand you are on your own, so check it.
 
 To find your own numeric ID, message `@userinfobot` on Telegram.
 
@@ -56,9 +56,15 @@ messaging:
 
 Every setting can also be overridden with a `LESYSBOT_`-prefixed environment variable, which is the cleaner path for systemd units and containers. Environment variables win over config files.
 
-The traces log at `logs/traces.jsonl` records tool calls and their results. That is genuinely useful when debugging and it is also a plain-text record of everything your tools returned — treat it as sensitive, and do not attach it to a bug report without reading it first.
+Tokens are stripped from the application log before it is written, so `logs/lesysbot.log` is safe to share. The traces log at `logs/traces.jsonl` is different: it records tool calls and their results, which is genuinely useful when debugging and is also a plain-text record of everything your tools returned. Treat it as sensitive, and read it before attaching it to a bug report.
 
-## 4. What listens, and where
+## 4. What you publish on purpose
+
+One bundled tool deliberately makes something public: `share_dashboard` uploads a snapshot of your Grafana dashboard to `snapshots.raintank.io` and returns a link that **anyone who has it can open**. That is the point of the feature, but the snapshot contains your machine's metrics for the window it captured.
+
+Snapshots expire (an hour by default), `/list_snapshots` shows what is still live, and `/delete_snapshot` takes one down — though a CDN may serve a cached copy for up to an hour after deletion. Do not share one from a machine whose metrics you would not post publicly.
+
+## 5. What listens, and where
 
 **The bot process opens no port.** It reaches out to your LLM backend and to
 Telegram or Slack, but nothing listens for inbound connections to the bot, so

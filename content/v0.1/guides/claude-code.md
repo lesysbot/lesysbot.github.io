@@ -1,7 +1,7 @@
 ---
-title: Claude Code plugin
-description: Use the lesysbot-tool-dev plugin to scaffold tool packages from your editor.
-section: Tools
+title: Write tools with Claude Code
+description: Use the lesysbot-tool-dev plugin to let an AI assistant scaffold tool packages for you.
+section: Give it new abilities
 source: docs/claude-code.md
 ---
 LeSysBot ships a [Claude Code](https://code.claude.com/docs) plugin —

@@ -1,7 +1,7 @@
 ---
 title: System monitoring
 description: An optional Prometheus + Grafana stack that graphs CPU, memory, disk, network, temperatures, and GPU as time series — on Linux, macOS, and Windows.
-section: Deploy
+section: Keep it running
 source: monitoring/README.md
 ---
 

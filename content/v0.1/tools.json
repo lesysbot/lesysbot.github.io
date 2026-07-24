@@ -19,7 +19,7 @@
       "path": "tools",
       "platform": "linux",
       "accent": "amber",
-      "description": "Tools that lean on Linux-specific interfaces — hwmon sysfs, the RTC wake alarm, and the Unix flavour of the standard network utilities. The network package also runs on macOS.",
+      "description": "Tools that lean on Linux-specific interfaces — hwmon sysfs sensors and the Unix flavour of the standard network utilities. The network package also runs on macOS.",
       "install": "lesysbot tools install lesysbot/lesysbot-linux-tools-official"
     },
     {
@@ -30,7 +30,7 @@
       "path": "tools",
       "platform": "macos",
       "accent": "violet",
-      "description": "Tools built on macOS power management and sensor interfaces — pmset, powermetrics, and the SMC. For networking, install the Linux collection's network package: its Unix commands work on macOS as-is.",
+      "description": "Tools built on macOS interfaces — pmset for battery state and the SMC for temperature, both unprivileged. For networking, install the Linux collection's network package: its Unix commands work on macOS as-is.",
       "install": "lesysbot tools install lesysbot/lesysbot-macos-tools-official"
     },
     {
@@ -41,18 +41,21 @@
       "path": "tools",
       "platform": "windows",
       "accent": "emerald",
-      "description": "Tools built on Windows interfaces — WMI thermal zones, Task Scheduler wake timers, and the Windows flavour of ping, nslookup, and tracert.",
+      "description": "Tools built on Windows interfaces — WMI thermal zones and the Windows flavour of ping, nslookup, and tracert.",
       "install": "lesysbot tools install lesysbot/lesysbot-windows-tools-official"
     }
   ],
-
   "packages": [
     {
       "slug": "system-info",
       "name": "system-info",
       "collection": "core",
       "summary": "Basic machine information and free disk space.",
-      "platforms": ["linux", "macos", "windows"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -83,7 +86,11 @@
       "collection": "core",
       "version": "1.0.0",
       "summary": "Current date, time, and timezone information.",
-      "platforms": ["linux", "macos", "windows"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -113,7 +120,11 @@
       "name": "power",
       "collection": "core",
       "summary": "Reboot or power off the machine, scheduled a minute out and cancellable.",
-      "platforms": ["linux", "macos", "windows"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
       "requires": [],
       "deps": [],
       "danger": true,
@@ -124,7 +135,8 @@
           "summary": "Restart the machine one minute from now.",
           "params": [],
           "confirm": true,
-          "privileged": true
+          "privileged": false,
+          "confirmText": "⚠️ This will REBOOT the machine in 1 minute. Proceed?"
         },
         {
           "name": "power_off",
@@ -132,21 +144,23 @@
           "summary": "Shut the machine down one minute from now.",
           "params": [],
           "confirm": true,
-          "privileged": true
+          "privileged": false,
+          "confirmText": "⚠️ This will POWER OFF the machine in 1 minute. Proceed?"
         },
         {
           "name": "cancel_shutdown",
           "kind": "python",
           "summary": "Cancel a pending reboot or shutdown before the timer expires.",
           "params": [],
-          "confirm": false,
-          "privileged": true
+          "confirm": true,
+          "privileged": false,
+          "confirmText": "Cancel the pending shutdown/reboot?"
         }
       ],
       "notes": [
         "The one-minute delay is deliberate: it gives the chat reply time to reach you before the machine goes down, and it leaves a window to run cancel_shutdown if you change your mind.",
-        "The right command is selected per OS. Depending on your setup, powering off may require sudo (Linux and macOS) or an Administrator context (Windows).",
-        "cancel_shutdown does not know about wake alarms. If you powered the machine off with shutdown_and_wake, use that package's cancel_wake instead so the alarm is disarmed too."
+        "The right command is selected per OS. On systemd Linux the shutdown is scheduled through logind and polkit, so it runs as your normal user — no sudo, no setup.",
+        "About ten seconds before the machine actually goes down, LeSysBot pushes a separate heads-up message, so you know the cancellation window has closed."
       ]
     },
     {
@@ -154,7 +168,9 @@
       "name": "cpu-temp",
       "collection": "core",
       "summary": "CPU temperature from Linux thermal sensors.",
-      "platforms": ["linux"],
+      "platforms": [
+        "linux"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -177,8 +193,13 @@
       "name": "gpu-temp",
       "collection": "core",
       "summary": "NVIDIA GPU temperature via nvidia-smi.",
-      "platforms": ["linux", "windows"],
-      "requires": ["nvidia-smi"],
+      "platforms": [
+        "linux",
+        "windows"
+      ],
+      "requires": [
+        "nvidia-smi"
+      ],
       "deps": [],
       "tools": [
         {
@@ -199,7 +220,11 @@
       "name": "speedtest",
       "collection": "core",
       "summary": "Measure internet download speed and latency.",
-      "platforms": ["linux", "macos", "windows"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -230,9 +255,15 @@
       "name": "web",
       "collection": "core",
       "summary": "Fetch a URL and return its text content.",
-      "platforms": ["linux", "macos", "windows"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
       "requires": [],
-      "deps": ["httpx"],
+      "deps": [
+        "httpx"
+      ],
       "tools": [
         {
           "name": "fetch_url",
@@ -255,15 +286,97 @@
         "Content fetched from the web is fed straight into the model's context. Treat this the way you would treat any untrusted input to an assistant that can also run tools on your machine — see Security."
       ]
     },
-
+    {
+      "slug": "share-dashboard",
+      "name": "share-dashboard",
+      "collection": "core",
+      "version": "1.1.0",
+      "summary": "Publish the Grafana system dashboard as an expiring public link, then list or delete your shares.",
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [],
+      "deps": [],
+      "tools": [
+        {
+          "name": "share_dashboard",
+          "kind": "python",
+          "summary": "Publish a point-in-time snapshot of the dashboard and return a public link.",
+          "params": [
+            {
+              "name": "expiration",
+              "type": "str",
+              "required": false,
+              "default": "1h",
+              "description": "How long the link stays live: 1h, 6h, 12h, 1d, 7d, 30d, or never."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "list_snapshots",
+          "kind": "python",
+          "summary": "Show every snapshot that is still live, with its link and time remaining.",
+          "params": [],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "delete_snapshot",
+          "kind": "python",
+          "summary": "Take a snapshot down, by its number from the listing, its key, or 'all'.",
+          "params": [
+            {
+              "name": "which",
+              "type": "str",
+              "required": true,
+              "description": "The snapshot's number from /list_snapshots, its key, or 'all'."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        }
+      ],
+      "notes": [
+        "Needs the monitoring stack running — it reads the dashboard and its data from your local Grafana. Start it with monitoring/scripts/start.sh (or start.ps1).",
+        "The snapshot is a frozen copy: the data is baked into the published dashboard, so viewers never reach back to your Prometheus and see nothing beyond the window you captured.",
+        "The link is genuinely public — anyone who has it can open it. Snapshots expire after the time you chose (1h by default), and delete_snapshot removes them from both Grafana and raintank.",
+        "raintank's CDN may keep serving a deleted snapshot for up to an hour afterwards.",
+        "Grafana's location and credentials come from LESYSBOT_GRAFANA_URL, _USER, _PASSWORD, and _TOKEN, defaulting to localhost:3000 with admin/admin."
+      ],
+      "troubleshooting": [
+        {
+          "symptom": "\"Can't reach Grafana\"",
+          "cause": "The monitoring stack isn't running, or Grafana is on a different port.",
+          "fix": "Start the stack, or point LESYSBOT_GRAFANA_URL at the right address.",
+          "verify": "curl -s localhost:3000/api/health"
+        },
+        {
+          "symptom": "The published dashboard shows empty panels",
+          "cause": "Prometheus had no data for the captured window.",
+          "fix": "Let the stack run for a few minutes so the exporters have something to report, then share again.",
+          "verify": "docker compose ps"
+        }
+      ]
+    },
     {
       "slug": "network",
       "name": "network",
       "collection": "linux",
       "version": "1.0.0",
       "summary": "Ping, DNS lookup, and traceroute using Unix syntax.",
-      "platforms": ["linux", "macos"],
-      "requires": ["ping", "nslookup", "traceroute"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "ping",
+        "nslookup",
+        "traceroute"
+      ],
       "deps": [],
       "tools": [
         {
@@ -329,7 +442,9 @@
       "collection": "linux",
       "version": "1.0.0",
       "summary": "CPU and GPU temperatures from hwmon and nvidia-smi.",
-      "platforms": ["linux"],
+      "platforms": [
+        "linux"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -349,67 +464,17 @@
       ]
     },
     {
-      "slug": "shutdown-wake",
-      "name": "shutdown-wake",
-      "collection": "linux",
-      "version": "1.0.0",
-      "summary": "Power off now and have the machine turn itself back on later, via the RTC wake alarm.",
-      "platforms": ["linux"],
-      "requires": ["rtcwake"],
-      "deps": [],
-      "danger": true,
-      "tools": [
-        {
-          "name": "shutdown_and_wake",
-          "kind": "python",
-          "summary": "Arm the real-time clock wake alarm, then power the machine off — it starts itself again after the delay you gave.",
-          "params": [
-            {
-              "name": "minutes",
-              "type": "int",
-              "required": false,
-              "default": "60",
-              "description": "How long the machine should stay off, counted from the moment it powers down."
-            }
-          ],
-          "confirm": true,
-          "confirmText": "⚠️ This will POWER OFF the machine in 1 minute and auto-start it again later. Proceed?",
-          "privileged": true
-        },
-        {
-          "name": "cancel_wake",
-          "kind": "python",
-          "summary": "Cancel the pending shutdown and disarm the wake alarm.",
-          "params": [],
-          "confirm": true,
-          "confirmText": "Cancel the pending shutdown and disarm the wake alarm?",
-          "privileged": true
-        }
-      ],
-      "notes": [
-        "The wake delay counts from the power-off, not from the moment you ask. Because shutdown is scheduled one minute out, shutdown_and_wake(60) brings the machine back roughly 61 minutes from now.",
-        "The shutdown is deliberately scheduled a minute ahead so the chat reply reaches you before the link drops, and a heads-up notification fires about ten seconds before the machine goes down.",
-        "Armed state is read back from /sys/class/rtc/rtc0/wakealarm, so LeSysBot still knows the alarm is set after a restart. If that sysfs node is missing the tool refuses to act rather than powering off a machine it cannot wake.",
-        "Arming the RTC needs root. The package tries the plain command, retries under sudo -n, and if both fail points you at its bundled setup-sudoers.sh, which grants exactly one NOPASSWD entry for rtcwake and validates the result with visudo -cf."
-      ],
-      "troubleshooting": [
-        {
-          "symptom": "The alarm arms, the machine powers off, but it never wakes.",
-          "cause": "Firmware is ignoring the RTC alarm in S5 (full soft-off). This is a BIOS setting, not a LeSysBot problem — the alarm is still sitting in the RTC registers when you power on by hand, which proves the software side worked.",
-          "fix": "In the BIOS, disable ErP Ready (on ASUS boards: Advanced → APM Configuration → ErP Ready = Disabled). ErP caps standby power below what the RTC alarm circuit needs. Also confirm the PSU switch is on and the machine still has mains power — cutting either blocks wake regardless of the alarm.",
-          "verify": "sudo rtcwake -m no -t $(date -d '+3 minutes' +%s) && systemctl poweroff"
-        }
-      ]
-    },
-
-    {
       "slug": "battery",
       "name": "battery",
       "collection": "macos",
       "version": "1.0.0",
       "summary": "Battery charge, power source, and time remaining.",
-      "platforms": ["macos"],
-      "requires": ["pmset"],
+      "platforms": [
+        "macos"
+      ],
+      "requires": [
+        "pmset"
+      ],
       "deps": [],
       "tools": [
         {
@@ -430,83 +495,46 @@
       "slug": "temperature",
       "name": "temperature",
       "collection": "macos",
-      "version": "1.0.0",
-      "summary": "CPU and GPU temperature, or thermal pressure on Apple Silicon.",
-      "platforms": ["macos"],
-      "requires": [],
+      "version": "2.0.0",
+      "summary": "CPU temperature read from the SMC, without root.",
+      "platforms": [
+        "macos"
+      ],
+      "requires": [
+        "osx-cpu-temp"
+      ],
       "deps": [],
       "tools": [
         {
           "name": "temperature",
           "kind": "python",
-          "summary": "Report the machine's thermal state — a die temperature where the hardware exposes one, otherwise a thermal pressure level.",
+          "summary": "Report the CPU temperature in °C, or explain why this Mac has none to give.",
           "params": [],
           "confirm": false,
           "privileged": false
         }
       ],
       "notes": [
-        "Tries osx-cpu-temp first, which needs no root and works on Intel Macs. Install it with brew install osx-cpu-temp.",
-        "Apple Silicon exposes no die temperature to userspace. There the tool falls back to sudo -n powermetrics and reports a pressure level — Nominal, Moderate, or Heavy — which is the honest answer rather than a fabricated number.",
-        "The powermetrics path needs passwordless sudo. It is optional: without it you still get readings on Intel hardware.",
+        "Reads the SMC through osx-cpu-temp, which needs no root. Install it with brew install osx-cpu-temp.",
+        "macOS' own sampler, powermetrics, is root-only and is deliberately not used — no tool in this collection asks for sudo.",
+        "Apple Silicon exposes no die temperature to unprivileged userspace, so on those Macs the tool says so plainly instead of reporting a substitute number.",
         "osx-cpu-temp printing 0.0°C means the SMC key is unsupported on that model, so the tool treats it as no reading rather than reporting freezing."
       ]
     },
-    {
-      "slug": "shutdown-wake",
-      "name": "shutdown-wake",
-      "collection": "macos",
-      "version": "1.0.0",
-      "summary": "Power off now and auto-wake later via a pmset scheduled wake.",
-      "platforms": ["macos"],
-      "requires": ["pmset"],
-      "deps": [],
-      "danger": true,
-      "tools": [
-        {
-          "name": "shutdown_and_wake",
-          "kind": "python",
-          "summary": "Schedule a pmset wake, then power the Mac off — it starts itself again after the delay you gave.",
-          "params": [
-            {
-              "name": "minutes",
-              "type": "int",
-              "required": false,
-              "default": "60",
-              "description": "How long the machine should stay off, counted from the moment it powers down."
-            }
-          ],
-          "confirm": true,
-          "confirmText": "⚠️ This will POWER OFF the machine in 1 minute and auto-start it again later. Proceed?",
-          "privileged": true
-        },
-        {
-          "name": "cancel_wake",
-          "kind": "python",
-          "summary": "Cancel the pending shutdown and clear the scheduled wake.",
-          "params": [],
-          "confirm": true,
-          "confirmText": "Cancel the pending shutdown and clear the scheduled wake?",
-          "privileged": true
-        }
-      ],
-      "notes": [
-        "cancel_wake runs pmset schedule cancelall, which clears every scheduled pmset event — including wake or power events you set up yourself outside LeSysBot. There is no per-event cancel in pmset.",
-        "BSD shutdown has no -c flag, so the pending shutdown is cancelled with killall shutdown rather than the Linux syntax.",
-        "pmset schedule, shutdown, and killall shutdown all need root. Every privileged call tries plain first, then sudo -n. The bundled setup-sudoers.sh grants exactly those three commands and nothing else.",
-        "Armed state is read back from pmset -g sched, which needs no root.",
-        "On recent laptops a scheduled wake only fires on AC power. Leave the Mac plugged in if you are relying on it."
-      ]
-    },
-
     {
       "slug": "network",
       "name": "network",
       "collection": "windows",
       "version": "1.0.0",
       "summary": "Ping, DNS lookup, and tracert using Windows syntax.",
-      "platforms": ["windows"],
-      "requires": ["ping", "nslookup", "tracert"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "ping",
+        "nslookup",
+        "tracert"
+      ],
       "deps": [],
       "tools": [
         {
@@ -571,7 +599,9 @@
       "collection": "windows",
       "version": "1.0.0",
       "summary": "Thermal zone and GPU temperatures via WMI and nvidia-smi.",
-      "platforms": ["windows"],
+      "platforms": [
+        "windows"
+      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -588,56 +618,6 @@
         "Queries MSAcpi_ThermalZoneTemperature in the root/wmi namespace through PowerShell, converts tenths of a kelvin to Celsius, and discards zones reporting implausible values.",
         "Output is grouped as Thermal zones and GPU rather than CPU and GPU — ACPI zones are board-level and do not map cleanly onto CPU cores.",
         "Many consumer motherboards leave the ACPI thermal zones empty, or expose them only to Administrators. When that happens the tool explains the situation and points at LibreHardwareMonitor rather than reporting a failure."
-      ]
-    },
-    {
-      "slug": "shutdown-wake",
-      "name": "shutdown-wake",
-      "collection": "windows",
-      "version": "1.0.0",
-      "summary": "Power off now and auto-wake later via a Task Scheduler wake timer.",
-      "platforms": ["windows"],
-      "requires": ["schtasks", "shutdown", "powershell"],
-      "deps": [],
-      "danger": true,
-      "tools": [
-        {
-          "name": "shutdown_and_wake",
-          "kind": "python",
-          "summary": "Register a wake timer as a scheduled task, then shut the machine down — it starts itself again after the delay you gave.",
-          "params": [
-            {
-              "name": "minutes",
-              "type": "int",
-              "required": false,
-              "default": "60",
-              "description": "How long the machine should stay off, counted from the moment it powers down."
-            }
-          ],
-          "confirm": true,
-          "privileged": false
-        },
-        {
-          "name": "cancel_wake",
-          "kind": "python",
-          "summary": "Abort the pending shutdown and delete the wake timer task.",
-          "params": [],
-          "confirm": true,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "Registers a scheduled task named LeSysBotWake using New-ScheduledTaskSettingsSet -WakeToRun, then runs shutdown /s /t 60. Cancelling runs shutdown /a and deletes the task.",
-        "Elevation is usually not needed here, unlike the Linux and macOS equivalents — registering a scheduled task for your own user is an ordinary operation. If it fails, the problem is normally the Task Scheduler service rather than permissions.",
-        "Verifying the timer yourself with powercfg /waketimers does need an elevated prompt."
-      ],
-      "troubleshooting": [
-        {
-          "symptom": "The machine wakes from sleep but not after a full shutdown.",
-          "cause": "Wake timers are reliable from sleep and hibernate. Waking from S5 additionally depends on firmware support.",
-          "fix": "Enable the RTC alarm or wake timers in the BIOS and turn ErP off. In practice this bites less often on Windows than on Linux, because Fast Startup — the Windows default — makes shutdown /s a hybrid hibernate rather than a true S5, and most hardware wakes from that.",
-          "verify": "powercfg /waketimers   (run from an elevated prompt)"
-        }
       ]
     }
   ]

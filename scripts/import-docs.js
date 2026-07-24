@@ -16,86 +16,100 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-/** slug → metadata. Order within a section comes from nav.json, not here. */
+/** slug → metadata. Order within a section comes from nav.json, not here.
+ * `section` is the eyebrow shown above a page title and the search-result
+ * grouping — keep it equal to the nav.json section the slug is listed in. */
 const GUIDES = {
-  architecture: {
-    title: 'Architecture',
-    section: 'Introduction',
-    description:
-      'How the messaging, agent, and tool layers fit together — and where to change what.',
-  },
   'getting-started': {
     title: 'Getting started',
-    section: 'Get started',
+    section: 'Start here',
     description:
-      'From nothing to a working bot: prerequisites, the guided installer, your first conversation, and your first tool.',
+      'From nothing to a working bot in about five minutes — install it, chat with it, write your first tool.',
   },
   models: {
     title: 'Choosing a model',
-    section: 'Get started',
+    section: 'Start here',
     description:
-      'Which local model to run for the GPU you have, and how to point LeSysBot at it.',
-  },
-  service: {
-    title: 'Running as a service',
-    section: 'Get started',
-    description:
-      'Keep LeSysBot running in the background and start it on boot, on Linux, macOS, and Windows.',
+      'Which local model to run on the hardware you have, and how to point LeSysBot at it.',
   },
   usage: {
     title: 'Everyday use',
     section: 'Everyday use',
     description:
-      'Chatting, slash commands, calling tools directly, confirmations, history, and reading the logs.',
+      'Asking in words versus running a tool directly, confirmations, memory, and turning tools on and off.',
   },
   adapters: {
-    title: 'Messaging adapters',
+    title: 'Telegram & Slack',
     section: 'Everyday use',
     description:
-      'Set up the CLI, Telegram, or Slack front end — or write an adapter of your own.',
+      'Reach the bot from your phone or your workspace — full token and app setup for both.',
+  },
+  'management-ui': {
+    title: 'Management UI',
+    section: 'Everyday use',
+    description:
+      'Edit settings and toggle, install, or remove tools from a web page that only your machine can reach.',
   },
   configuration: {
-    title: 'Configuration',
+    title: 'Settings',
     section: 'Everyday use',
     description:
-      'The full config.yaml reference, environment variable overrides, and CLI flags.',
+      'Where your settings live, the ones you will actually change, and the full config.yaml reference.',
+  },
+  troubleshooting: {
+    title: 'Troubleshooting',
+    section: 'Everyday use',
+    description:
+      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Slack setup.',
   },
   'installing-tools': {
-    title: 'Installing tools',
-    section: 'Tools',
+    title: 'Install tools',
+    section: 'Give it new abilities',
     description:
-      'Install tool packages from GitHub, pin them to a ref, and understand the trust model.',
+      'Add tools from any GitHub repo with one command — pinning, updating, and what you are trusting.',
   },
   'writing-tools': {
-    title: 'Writing tools',
-    section: 'Tools',
+    title: 'Write a tool',
+    section: 'Give it new abilities',
     description:
-      'Author your own tools with @tool and CLITool — schemas, confirmation, and cross-platform gating.',
+      'Turn a Python function or a shell command into something LeSysBot can do, in about a minute.',
   },
   'sharing-tools': {
-    title: 'Sharing tools',
-    section: 'Tools',
+    title: 'Share your tools',
+    section: 'Give it new abilities',
     description:
       'Publish your tools so other people can install them, and version them sensibly.',
   },
   'claude-code': {
-    title: 'Claude Code plugin',
-    section: 'Tools',
+    title: 'Write tools with Claude Code',
+    section: 'Give it new abilities',
     description:
-      'Use the lesysbot-tool-dev plugin to scaffold tool packages from your editor.',
+      'Use the lesysbot-tool-dev plugin to let an AI assistant scaffold tool packages for you.',
+  },
+  service: {
+    title: 'Run as a service',
+    section: 'Keep it running',
+    description:
+      'Background operation, starting at boot, and where to find the logs — on Linux, macOS, and Windows.',
   },
   'building-windows-exe': {
-    title: 'Building a Windows executable',
-    section: 'Deploy',
+    title: 'Build a Windows .exe',
+    section: 'Keep it running',
     description:
-      'Package LeSysBot into a standalone lesysbot.exe with PyInstaller.',
+      'Package LeSysBot into a standalone lesysbot.exe with PyInstaller, for people without Python.',
+  },
+  architecture: {
+    title: 'How it works',
+    section: 'Under the hood',
+    description:
+      'The life of a message, layer by layer — the technical page, for people modifying the code.',
   },
 };
 
 /** Authored in this repo — never clobbered by an import.
- * `monitoring` and `management-ui` are authored here too (kept in sync with
- * docs/ by hand), so a docs import doesn't overwrite the site-tuned prose. */
-const KEEP = new Set(['overview', 'security', 'monitoring', 'management-ui']);
+ * `monitoring` is derived from monitoring/README.md but tuned for the site, so
+ * it is maintained here by hand rather than imported. */
+const KEEP = new Set(['overview', 'security', 'monitoring']);
 
 function main() {
   const [coreRepo = '../lesysbot', versionId = 'v0.1'] = process.argv.slice(2);

@@ -20,9 +20,17 @@ const ICONS = {
     '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4m0 0 5-5m-5 5 5 5"/></svg>',
   arrowRight:
     '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12m0 0-5-5m5 5-5 5"/></svg>',
-  logo:
-    '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="4" y="7" width="24" height="18" rx="5" class="fill-brand-500"/><circle cx="12" cy="15" r="2.1" class="fill-white"/><circle cx="20" cy="15" r="2.1" class="fill-white"/><path d="M12.5 20h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M16 7V3.5" class="stroke-brand-500" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="2.6" r="1.9" class="fill-brand-400"/></svg>',
 };
+
+/**
+ * The 8-bit mark, referenced rather than inlined. It is ~1500 <rect> elements —
+ * one per pixel run — so inlining it would add roughly 18 KB to every page
+ * twice over. As an <img> the browser fetches and caches it once.
+ * See ../../lesysbot/assets/brand/ for the generator that produces it.
+ */
+export function brandMark(src, cls = 'h-7 w-7') {
+  return `<img src="${src}" alt="" class="${cls}" width="32" height="32" aria-hidden="true">`;
+}
 
 export function icon(name, cls = 'h-4 w-4') {
   const svg = ICONS[name];
@@ -224,6 +232,10 @@ export function layout(o) {
 <meta property="og:type" content="website">
 <meta property="og:url" content="${escapeHtml(canonical)}">
 <link rel="icon" href="${asset('/assets/favicon.svg')}" type="image/svg+xml">
+<link rel="icon" href="${asset('/assets/favicon.ico')}" sizes="32x32">
+<link rel="apple-touch-icon" href="${asset('/assets/apple-touch-icon.png')}">
+<meta property="og:image" content="${escapeHtml(`${site.url}/assets/og-image.png`)}">
+<meta property="og:image:alt" content="LeSysBot">
 <link rel="stylesheet" href="${asset('/assets/site.css')}">
 <script>
   // Applied before paint so a dark-mode reload never flashes white.
@@ -250,7 +262,7 @@ export function layout(o) {
     </button>
 
     <a href="${asset(`/${urlId}/`)}" class="brand">
-      ${icon('logo', 'h-7 w-7')}
+      ${brandMark(asset('/assets/logo.svg'), 'h-7 w-7')}
       <span class="brand-name">LeSysBot</span>
       <span class="brand-sub">docs</span>
     </a>
@@ -320,7 +332,7 @@ export function layout(o) {
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      ${icon('logo', 'h-6 w-6')}
+      ${brandMark(asset('/assets/logo.svg'), 'h-6 w-6')}
       <div>
         <p class="footer-name">LeSysBot</p>
         <p class="footer-tagline">A local AI assistant for the machine you own.</p>

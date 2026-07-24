@@ -98,22 +98,22 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
 
   const startCards = [
     {
-      title: 'Install LeSysBot',
-      body: 'Run the guided wizard: pick a model, connect a chat app, install the background service.',
+      title: 'Install it',
+      body: 'One command starts a short wizard: pick a model, choose how to reach it, done. Five minutes.',
       href: v('/guides/getting-started/'),
       cta: 'Getting started',
     },
     {
-      title: 'Browse the tools',
-      body: `${catalog.packages.length} packages and ${totalTools} tools, from disk usage to scheduled wake-ups.`,
+      title: 'See what it can do',
+      body: `${catalog.packages.length} packages and ${totalTools} tools — disk usage, temperatures, network checks, powering the machine down, sharing a dashboard.`,
       href: v('/tools/'),
       cta: 'Tool reference',
     },
     {
-      title: 'Write your own tool',
-      body: 'A folder with a README and a tool.py is a tool. Hot reload picks it up without a restart.',
+      title: 'Teach it something new',
+      body: 'A folder with a README and a tool.py is a tool. Drop it in and it works — no restart, no plugin API.',
       href: v('/guides/writing-tools/'),
-      cta: 'Writing tools',
+      cta: 'Write a tool',
     },
   ];
 
@@ -129,9 +129,10 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
   const body = [
     '<section class="hero">',
     '<div class="hero-copy">',
+    `<img src="${base}/assets/wordmark.svg" alt="LeSysBot" class="hero-wordmark" width="152" height="32">`,
     `<span class="hero-badge">Version ${escapeHtml(version.label)}</span>`,
-    '<h1 class="hero-title">A local AI assistant for the machine you own.</h1>',
-    `<p class="hero-lede">${escapeHtml(site.tagline)} LeSysBot runs against a local model, so the machine it controls and the model reading your messages are both yours.</p>`,
+    '<h1 class="hero-title">Chat with the machine you own.</h1>',
+    `<p class="hero-lede">${escapeHtml(site.tagline)} The model runs on your own hardware, so the machine it controls and the model reading your messages are both yours.</p>`,
     '<div class="hero-actions">',
     `<a href="${v('/guides/getting-started/')}" class="btn btn-primary">Get started ${icon(
       'arrowRight',
@@ -146,10 +147,10 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<div class="terminal-body">',
     '<p class="chat chat-you">how hot is the machine right now?</p>',
     '<p class="chat chat-bot"><span class="chat-tool">temperature()</span>CPU 41–47°C across 16 cores · GPU 38°C. Nothing to worry about.</p>',
-    '<p class="chat chat-you">turn it off and bring it back in 30 minutes</p>',
-    '<p class="chat chat-bot"><span class="chat-tool">shutdown_and_wake(30)</span>⚠️ This will POWER OFF the machine in 1 minute and auto-start it again later. Proceed?</p>',
+    '<p class="chat chat-you">the render finished — shut it down</p>',
+    '<p class="chat chat-bot"><span class="chat-tool">power_off()</span>⚠️ This will POWER OFF the machine in 1 minute. Proceed?</p>',
     '<p class="chat chat-you">yes</p>',
-    '<p class="chat chat-bot">Wake alarm armed for 01:42. Powering off in 60 seconds — see you soon.</p>',
+    '<p class="chat chat-bot">Powering off in 60 seconds. Say <em>cancel shutdown</em> if you change your mind.</p>',
     '</div>',
     '</div>',
     '</div>',
@@ -173,8 +174,8 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<h2 class="section-title">Four steps to a working bot</h2>',
     '<ol class="steps">',
     [
-      ['Run a model locally', 'Install Ollama and pull a model sized for your GPU.', 'ollama pull llama3.2'],
-      ['Install LeSysBot', 'The wizard writes your config and sets up the background service.', './scripts/install.sh'],
+      ['Get a model running', 'Install Ollama and pull one sized for your hardware.', 'ollama pull llama3.2'],
+      ['Install LeSysBot', 'A short wizard writes your config. Press Enter through it.', 'bash scripts/install.sh'],
       ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot --provider cli'],
       [
         'Add tools for your OS',
@@ -200,7 +201,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
 
     '<section class="platforms">',
     '<h2 class="section-title">Tools for every platform</h2>',
-    '<p class="section-lede">The bundled set works everywhere. Beyond that, each OS gets a collection built on its own interfaces — hwmon and rtcwake on Linux, pmset and powermetrics on macOS, WMI and Task Scheduler on Windows.</p>',
+    '<p class="section-lede">The bundled set works everywhere. Beyond that, each OS gets a collection built on its own interfaces — hwmon sensors on Linux, pmset and the SMC on macOS, WMI thermal zones on Windows. None of them needs root.</p>',
     '<div class="platform-grid">',
     catalog.collections
       .map((c) => {
@@ -216,6 +217,37 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
         ].join('');
       })
       .join(''),
+    '</div>',
+    '</section>',
+
+    '<section class="feature">',
+    '<div class="feature-copy">',
+    '<h2 class="section-title">Watch the machine over time</h2>',
+    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. LeSysBot ships an optional Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built for the OS you are on.</p>',
+    '<p class="feature-note">One command, nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
+    '<div class="feature-cmds">',
+    '<code>cd monitoring &amp;&amp; ./scripts/start.sh</code>',
+    '<code>open http://localhost:3000</code>',
+    '</div>',
+    '<p class="feature-note">Then ask the bot for it from anywhere — <code>share_dashboard</code> publishes an expiring public snapshot you can send to someone, and takes it back down when you are done.</p>',
+    '<div class="hero-actions">',
+    `<a href="${v('/guides/monitoring/')}" class="btn btn-primary">System monitoring ${icon(
+      'arrowRight',
+      'h-4 w-4',
+    )}</a>`,
+    `<a href="${v('/tools/core/share-dashboard/')}" class="btn btn-ghost">share-dashboard</a>`,
+    '</div>',
+    '</div>',
+    '<div class="feature-demo">',
+    '<div class="terminal">',
+    '<div class="terminal-bar"><span></span><span></span><span></span><p class="terminal-title">Telegram · LeSysBot</p></div>',
+    '<div class="terminal-body">',
+    '<p class="chat chat-you">share me the dashboard</p>',
+    '<p class="chat chat-bot"><span class="chat-tool">share_dashboard(expiration=&quot;1h&quot;)</span>📊 Dashboard shared — expires in 1h:<br>snapshots.raintank.io/dashboard/snapshot/xY7…<br><br>Anyone with this link can view a snapshot of your system metrics.</p>',
+    '<p class="chat chat-you">ok take it down</p>',
+    '<p class="chat chat-bot"><span class="chat-tool">delete_snapshot(which=&quot;1&quot;)</span>Deleted. The public link is gone.</p>',
+    '</div>',
+    '</div>',
     '</div>',
     '</section>',
 
