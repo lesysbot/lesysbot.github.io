@@ -67,7 +67,7 @@ Set `LESYSBOT_HOME` to use somewhere other than `~/.lesysbot`.
 ```yaml
 llm:
   base_url: "http://localhost:11434/v1"   # Ollama, running locally
-  model: "llama3.2"                       # a model you've pulled
+  model: "qwen3.5:4b"                     # a model you've pulled
   api_key: "ollama"                       # any non-empty string for local backends
 ```
 
@@ -75,7 +75,7 @@ llm:
 
 ```yaml
 messaging:
-  provider: cli            # cli | telegram | slack
+  provider: cli            # cli | telegram | discord
   telegram:
     token: "1234:ABC…"
     allowed_user_ids: [123456789]   # who may use it — see the warning below
@@ -217,27 +217,27 @@ lesysbot tools …          # install/list/enable/disable/remove tools
 ```yaml
 # ── How you reach the bot ─────────────────────────────────────────────────────
 messaging:
-  provider: cli              # cli | telegram | slack
+  provider: cli              # cli | telegram | discord
 
   telegram:
     token: "YOUR_BOT_TOKEN"
     allowed_user_ids: []     # empty = anyone. e.g. [123456789, 987654321]
 
-  slack:
-    bot_token: "xoxb-..."
-    app_token: "xapp-..."    # Socket Mode app token
+  discord:
+    token: "YOUR_BOT_TOKEN"
+    allowed_user_ids: []     # empty = anyone sharing a server with the bot
 
-  startup_notice:            # ping you when the bot comes up (Telegram/Slack only)
+  startup_notice:            # ping you when the bot comes up (Telegram/Discord only)
     enabled: true            # for a background service, that means "after boot"
-    notify: []               # Telegram chat ids / Slack channel ids
-                             # Telegram falls back to allowed_user_ids when empty
+    notify: []               # Telegram chat ids / Discord user or channel ids
+                             # falls back to that provider's allowed_user_ids
     speedtest: true          # include an internet speed reading
     speedtest_mb: 5          # how much to download for it
 
 # ── The model ─────────────────────────────────────────────────────────────────
 llm:
   base_url: "http://localhost:11434/v1"
-  model: "llama3.2"
+  model: "qwen3.5:4b"
   api_key: "ollama"          # any string for local backends; a real key for OpenAI
   temperature: 0.7
   max_tokens: 4096
@@ -286,7 +286,7 @@ at each `when` rollover the current file is renamed with a date suffix
 `level` sets how much detail is written. In an interactive terminal chat the
 *console* is clamped to warnings and worse regardless, so log lines can't
 interrupt you — the *file* still gets everything at `level`. For a
-Telegram/Slack service, `level` governs both. `-v` forces DEBUG.
+Telegram/Discord service, `level` governs both. `-v` forces DEBUG.
 
 </details>
 
@@ -300,8 +300,9 @@ people paste into bug reports.
 
 So log records are scrubbed on the way out, at the logging layer, which catches
 every producer including libraries we don't control. Two things are matched: the
-*shapes* credentials come in (Telegram's `digits:letters`, Slack's `xoxb-` and
-`xapp-`, OpenAI's `sk-`), which work with no configuration at all, and the
+*shapes* credentials come in (Telegram's `digits:letters`, Discord's
+`base64.six.hmac` three-part token, OpenAI's `sk-`), which work with no
+configuration at all, and the
 *exact* values from your active config, registered at startup. Tracebacks are
 covered too, since the request URL often rides along on the exception.
 
@@ -327,7 +328,7 @@ With `logging.trace_file` set, each message you send produces one JSON line:
   "turns": [
     {
       "index": 1,
-      "model": "llama3.2",
+      "model": "qwen3.5:4b",
       "messages": 3,
       "response_type": "tool_calls",
       "ms": 840.0,
@@ -337,7 +338,7 @@ With `logging.trace_file` set, each message you send produces one JSON line:
     },
     {
       "index": 2,
-      "model": "llama3.2",
+      "model": "qwen3.5:4b",
       "messages": 5,
       "response_type": "text",
       "ms": 620.0,

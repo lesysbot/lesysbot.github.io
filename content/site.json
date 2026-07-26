@@ -1,6 +1,6 @@
 {
   "title": "LeSysBot Docs",
-  "tagline": "A local AI assistant you can chat with via CLI, Telegram, or Slack — extended by tools you drop into a folder.",
+  "tagline": "A local AI assistant you can chat with via CLI, Telegram, or Discord — extended by tools you drop into a folder.",
   "description": "Documentation for LeSysBot and its official Linux, macOS, and Windows tool collections.",
   "base": "",
   "url": "https://lesysbot.github.io",

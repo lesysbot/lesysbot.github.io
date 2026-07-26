@@ -39,7 +39,7 @@ const GUIDES = {
       'Asking in words versus running a tool directly, confirmations, memory, and turning tools on and off.',
   },
   adapters: {
-    title: 'Telegram & Slack',
+    title: 'Telegram & Discord',
     section: 'Everyday use',
     description:
       'Reach the bot from your phone or your workspace — full token and app setup for both.',
@@ -60,7 +60,7 @@ const GUIDES = {
     title: 'Troubleshooting',
     section: 'Everyday use',
     description:
-      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Slack setup.',
+      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Discord setup.',
   },
   'installing-tools': {
     title: 'Install tools',
@@ -90,7 +90,7 @@ const GUIDES = {
     title: 'Run as a service',
     section: 'Keep it running',
     description:
-      'The background service every install gets — it keeps the control panel online, answers Telegram and Slack, and writes the logs.',
+      'The background service every install gets — it keeps the control panel online, answers Telegram and Discord, and writes the logs.',
   },
   'building-windows-exe': {
     title: 'Build a Windows .exe',

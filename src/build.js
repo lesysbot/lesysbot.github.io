@@ -174,7 +174,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<h2 class="section-title">Five steps to a working bot</h2>',
     '<ol class="steps">',
     [
-      ['Get a model running', 'Install Ollama and pull one sized for your hardware.', 'ollama pull llama3.2'],
+      ['Get a model running', 'Install Ollama and pull one sized for your hardware.', 'ollama pull qwen3.5:4b'],
       ['Install LeSysBot', 'A short wizard writes your config. Press Enter through it.', 'bash scripts/install.sh'],
       ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot --provider cli'],
       [
