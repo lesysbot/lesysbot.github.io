@@ -128,6 +128,10 @@
     @apply dark:border-slate-800 dark:bg-slate-950;
     @apply lg:sticky lg:top-14 lg:z-30 lg:h-[calc(100vh-var(--topbar-h))] lg:w-[var(--sidebar-w)] lg:translate-x-0 lg:border-r-0 lg:bg-transparent lg:dark:bg-transparent;
   }
+  /* Drawer-only variant: pages without a desktop sidebar column. */
+  .sidebar-drawer {
+    @apply lg:hidden;
+  }
   .sidebar[data-open="true"] {
     @apply translate-x-0 shadow-2xl;
   }
