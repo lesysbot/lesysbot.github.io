@@ -43,7 +43,8 @@
   }
 
   const sidebarToggle = $('[data-sidebar-toggle]');
-  if (sidebarToggle) sidebarToggle.addEventListener('click', () => setSidebar(true));
+  if (sidebarToggle)
+    sidebarToggle.addEventListener('click', () => setSidebar(sidebar?.dataset.open !== 'true'));
   if (backdrop) backdrop.addEventListener('click', () => setSidebar(false));
   const sidebarClose = $('[data-sidebar-close]');
   if (sidebarClose) sidebarClose.addEventListener('click', () => setSidebar(false));

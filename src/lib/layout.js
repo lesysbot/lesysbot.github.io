@@ -218,6 +218,10 @@ export function layout(o) {
     : '';
 
   const showSidebar = variant === 'doc' || variant === 'wide';
+  // Bare pages (version home, 404) have no desktop sidebar, but the topbar
+  // toggle still needs something to open on small screens.
+  const hasNav = nav.length > 0;
+  const showDrawer = showSidebar || hasNav;
 
   return `<!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -257,9 +261,13 @@ export function layout(o) {
 
 <header class="topbar">
   <div class="topbar-inner">
-    <button type="button" class="icon-button lg:hidden" data-sidebar-toggle aria-label="Open navigation" aria-expanded="false">
+    ${
+      showDrawer
+        ? `<button type="button" class="icon-button lg:hidden" data-sidebar-toggle aria-label="Open navigation" aria-expanded="false">
       ${icon('menu', 'h-5 w-5')}
-    </button>
+    </button>`
+        : ''
+    }
 
     <a href="${asset(`/${urlId}/`)}" class="brand">
       ${brandMark(asset('/assets/logo.svg'), 'h-7 w-7')}
@@ -290,9 +298,11 @@ export function layout(o) {
 
 <div class="shell${showSidebar ? '' : ' shell-bare'}">
   ${
-    showSidebar
+    showDrawer
       ? `<div class="sidebar-backdrop" data-sidebar-backdrop hidden></div>
-  <nav class="sidebar" data-sidebar aria-label="Documentation navigation">
+  <nav class="sidebar${
+    showSidebar ? '' : ' sidebar-drawer'
+  }" data-sidebar aria-label="Documentation navigation">
     <div class="sidebar-inner">
       <div class="sidebar-mobile-head lg:hidden">
         <span class="text-sm font-semibold">Navigation</span>
