@@ -183,9 +183,9 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
         'http://127.0.0.1:8700',
       ],
       [
-        'Add tools for your OS',
-        'Pull in the official collection that matches the machine.',
-        'lesysbot tools install lesysbot/lesysbot-linux-tools-official',
+        'Add tools and dashboards',
+        'Pull in the official cross-platform collection — one repo, every OS.',
+        'lesysbot install lesysbot/lesysbot-packages-official',
       ],
     ]
       .map(([title, desc, cmd], i) =>
@@ -558,7 +558,7 @@ function renderVersionsPage({ site, versions, latest }) {
     '<section class="callout callout-info mt-10">',
     '<p class="callout-title">Pinning a tool collection</p>',
     '<p>Site versions track LeSysBot releases. Tool packages carry their own version in their README frontmatter, and you can pin an install to any git ref:</p>',
-    '<figure class="code-block"><pre><code class="lang-shell">lesysbot tools install lesysbot/lesysbot-linux-tools-official@v1.0.0</code></pre></figure>',
+    '<figure class="code-block"><pre><code class="lang-shell">lesysbot install lesysbot/lesysbot-packages-official@v2.0.0</code></pre></figure>',
     '<p>Installed packages are recorded in <code>tools.lock.json</code> with the package version and the exact commit SHA, so you can always tell what is running.</p>',
     '</section>',
   ].join('');

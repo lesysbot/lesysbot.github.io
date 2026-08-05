@@ -20,7 +20,13 @@
   },
   {
     "title": "Give it new abilities",
-    "items": ["installing-tools", "writing-tools", "sharing-tools", "claude-code"]
+    "items": [
+      "installing-tools",
+      "installing-dashboards",
+      "writing-tools",
+      "sharing-tools",
+      "claude-code"
+    ]
   },
   {
     "title": "Keep it running",

@@ -102,7 +102,7 @@ on `CLITool` the same way.
 |---|---|
 | Terminal | The tool name, its arguments, your message, and a `y/n` prompt |
 | Telegram | A message with **✅ Yes** / **❌ No** buttons (2-minute timeout) |
-| Discord | A message with **✅ Yes** / **❌ No** buttons (5-minute timeout) |
+| Slack | Auto-approves, unless you customise the adapter |
 
 > The prompt only appears when the **model** decides to call the tool. If *you*
 > type `/delete_logs …`, it runs — typing it was the decision.
@@ -182,9 +182,9 @@ requires: [nvidia-smi]
 ```
 
 The decorator arguments are what LeSysBot actually enforces; the frontmatter
-mirrors them for humans and shows up in `lesysbot tools list`.
+mirrors them for humans and shows up in `lesysbot list`.
 
-This is the same shape `lesysbot tools install owner/repo` downloads — push the
+This is the same shape `lesysbot install owner/repo` downloads — push the
 folder to a repo and anyone can install it. See
 [Share your tools](sharing-tools.md).
 
@@ -212,7 +212,7 @@ else is treated as a string.
 
 | Option | Default | What it is |
 |---|---|---|
-| `name` | — | The tool name, used in `/commands` and by the model. Keep it to lowercase letters, digits and `_` — Telegram and Discord only accept that in a registered slash command, and a tool named otherwise is left out of their command menus (it still works as typed text). |
+| `name` | — | The tool name, used in `/commands` and by the model |
 | `description` | — | What it does |
 | `command` | — | Shell command with `{param}` placeholders, or a dict per OS |
 | `params` | `{}` | `param_name → description`; all are required |

@@ -135,12 +135,12 @@ export function renderCatalog({ site, version, catalog }) {
     groups,
 
     '<section class="callout callout-info mt-14">',
-    '<p class="callout-title">Two packages named <code>network</code></p>',
-    '<p>The Linux and Windows collections both ship a package called <code>network</code> with the same three tool names. That is deliberate — you install whichever fits the machine. They cannot coexist: the folder names collide in <code>~/.lesysbot/tools/</code>, so the second install replaces the first. On macOS, install the <a href="' +
+    '<p class="callout-title">One package per capability, every OS</p>',
+    '<p>Packages in the official collection are capability-shaped, not OS-shaped: the <a href="' +
       escapeHtml(base) +
       '/' +
       escapeHtml(version.id) +
-      '/tools/linux/network/">Linux <code>network</code> package</a> — its Unix commands run unchanged.</p>',
+      '/tools/packages/network/"><code>network</code> package</a> carries <code>ping&nbsp;-c</code>/<code>ping&nbsp;-n</code> and <code>traceroute</code>/<code>tracert</code> as per-OS variants of the same tools, and <code>temperature</code> picks the right reader (hwmon, SMC, or WMI) at call time. Install once; the right variant runs wherever it lands.</p>',
     '</section>',
   ].join('');
 

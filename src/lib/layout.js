@@ -358,9 +358,7 @@ export function layout(o) {
       <div>
         <p class="footer-col-title">Repositories</p>
         <a href="https://github.com/${escapeHtml(site.repos.core)}" target="_blank" rel="noopener noreferrer">lesysbot</a>
-        <a href="https://github.com/${escapeHtml(site.repos.linux)}" target="_blank" rel="noopener noreferrer">linux-tools</a>
-        <a href="https://github.com/${escapeHtml(site.repos.macos)}" target="_blank" rel="noopener noreferrer">macos-tools</a>
-        <a href="https://github.com/${escapeHtml(site.repos.windows)}" target="_blank" rel="noopener noreferrer">windows-tools</a>
+        <a href="https://github.com/${escapeHtml(site.repos.packages)}" target="_blank" rel="noopener noreferrer">packages-official</a>
       </div>
       <div>
         <p class="footer-col-title">This site</p>

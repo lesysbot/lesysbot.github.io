@@ -22,7 +22,7 @@ LeSysBot is three independent layers wired together by one class, `Agent`:
 
 ```mermaid
 flowchart TD
-    you["you (CLI / Telegram / Discord)"] -- "&quot;how much disk space is left?&quot;" --> adapter["MessagingAdapter<br>(how you reach it)"]
+    you["you (CLI / Telegram / Slack)"] -- "&quot;how much disk space is left?&quot;" --> adapter["MessagingAdapter<br>(how you reach it)"]
     adapter --> agent["Agent<br>(the middleman)"]
     agent --> llm["LLMClient<br>(the model)"]
     agent -- "run a tool" --> registry["ToolRegistry<br>(what it can do)"]
@@ -30,7 +30,7 @@ flowchart TD
 ```
 
 - **MessagingAdapter** ([lesysbot/messaging/](../lesysbot/messaging/)) — where
-  messages come from and where replies go: your terminal, Telegram, or Discord.
+  messages come from and where replies go: your terminal, Telegram, or Slack.
 - **Agent** ([lesysbot/core/agent.py](../lesysbot/core/agent.py)) — the middleman.
   It keeps per-user conversation history, asks the LLM what to do, runs the
   tools the LLM asks for, and loops until there's a final answer.
@@ -68,9 +68,9 @@ Everything starts in [lesysbot/__main__.py](../lesysbot/__main__.py):
    directory and, with `hot_reload: true`, starts a watcher that reloads them
    whenever a `.py` file changes.
 6. **Pick the adapter.** An `if/elif` on `messaging.provider` imports and
-   constructs the CLI, Telegram, or Discord adapter. Adapters are imported
+   constructs the CLI, Telegram, or Slack adapter. Adapters are imported
    *lazily* so a missing optional dependency doesn't break the others — the
-   Telegram and Discord packages are the `telegram`/`discord` extras, and picking a
+   Telegram and Slack packages are the `telegram`/`slack` extras, and picking a
    provider you haven't installed names the extra to add.
 7. **Wire confirmation.** `agent.set_confirm_fn(adapter.confirm)` connects the
    adapter's confirmation UI (terminal `y/n`, Telegram buttons) to the agent,
@@ -80,7 +80,7 @@ Everything starts in [lesysbot/__main__.py](../lesysbot/__main__.py):
    requesting user *after* its reply — the bundled `power` tool uses it to
    announce "powering off now" just before a scheduled shutdown fires.
 8. **Run.** `await adapter.start(agent.handle)` blocks for the life of the
-   process. A *background* asyncio task, the **startup notice** (Telegram/Discord
+   process. A *background* asyncio task, the **startup notice** (Telegram/Slack
    only, on by default), waits for the adapter to connect and then pings the
    configured chat with a short system report — CPU/GPU temperature, disk usage,
    internet speed — so a service that starts at boot tells you the machine just
@@ -107,7 +107,6 @@ sequenceDiagram
     you->>adapter: "how much disk space is left?"
     adapter->>agent: handle(user_id, text)
     Note over agent: starts with "/" ? run the tool<br>directly — the LLM is never called
-    Note over agent: otherwise take this user's turn lock —<br>one conversation advances one turn at a time
     agent->>agent: append to ConversationHistory
     loop until the model answers in text (max agent.max_tool_calls rounds)
         agent->>llm: chat(history, tool schemas)
@@ -131,18 +130,6 @@ is running, and why slash commands don't appear in conversation history.
 **Step 2 — The message joins the history.** Each user has their own
 `ConversationHistory`, seeded with the system prompt from the config and
 trimmed to `agent.max_history` messages.
-
-Steps 2–6 run under a **per-user lock**, so one person's conversation only ever
-advances one turn at a time: a message that arrives mid-turn waits for the
-current one to finish. That matters because the remote adapters dispatch
-updates concurrently — Telegram *must*, or the button press answering a
-confirmation would queue behind the very handler waiting for it. Without the
-lock, two turns appended into the same history, each then sent the other's
-messages to the model, and the model read the interleaving as a tool call still
-awaiting its result and **ran the tool a second time**. The lock is per user,
-not global, so a slow model call for one person doesn't stall anyone else — and
-Step 1 stays outside it, because `/cancel_shutdown` has to stay answerable
-*while* the turn that scheduled the reboot is still running.
 
 **Step 3 — Ask the LLM.** The agent sends the whole history to
 `LLMClient.chat()`, along with a JSON schema for every enabled tool. The model
@@ -173,7 +160,7 @@ commands still work, and the full traceback goes to the log at DEBUG level.
 Along the way, three optional callbacks keep the CLI display live: `on_status`
 drives the `Thinking…` / `Running <tool>…` spinner, `on_token` streams the
 answer text, and `on_reasoning` streams a reasoning model's thinking. Adapters
-that don't pass them (Telegram, Discord) are simply unaffected.
+that don't pass them (Telegram, Slack) are simply unaffected.
 
 ---
 
@@ -276,16 +263,8 @@ The three built-ins:
   allow-list, and ✅/❌
   inline buttons for confirmation. Malformed Markdown falls back to plain text
   so no reply is ever dropped.
-- **Discord** ([lesysbot/messaging/discord.py](../lesysbot/messaging/discord.py)) —
-  gateway websocket; DMs, plus channel messages that @-mention the bot. ✅/❌
-  button confirmations (the `discord` extra: `discord.py`).
-
-Both remote adapters also publish the tool list as **native platform slash
-commands** — Telegram's `/` menu, Discord's typed command picker — built from one
-set of specs in
-[lesysbot/messaging/commands.py](../lesysbot/messaging/commands.py). Those
-commands rebuild the `/name key=value` text and re-enter `Agent._handle_slash`,
-so there is still exactly one place a tool call is dispatched.
+- **Slack** ([lesysbot/messaging/slack.py](../lesysbot/messaging/slack.py)) —
+  Socket Mode DMs (the `slack` extra: `slack-bolt` + `aiohttp`).
 
 Adding a platform means subclassing the base and adding one `elif` in
 `__main__.py` — the step-by-step is in
@@ -322,7 +301,7 @@ full reference is in [Configuration](configuration.md).
 
 ## 8. The tool installer
 
-`lesysbot tools install owner/repo` ([lesysbot/install/](../lesysbot/install/))
+`lesysbot install owner/repo` ([lesysbot/install/](../lesysbot/install/))
 downloads a tool folder package from GitHub **into the same tools directory
 the bot loads** — so a running bot picks it up via hot reload. The pipeline,
 one module per stage:
@@ -353,10 +332,10 @@ Two independent records of what happened
 
 ---
 
-## 10. The control panel and CLI dispatch
+## 10. The management panel and CLI dispatch
 
-The one network listener in the project is the control panel in
-[lesysbot/webui/](../lesysbot/webui/) — a stdlib `ThreadingHTTPServer` bound to
+The one network listener in the project is the management panel in
+[lesysbot/management/](../lesysbot/management/) — a stdlib `ThreadingHTTPServer` bound to
 `127.0.0.1` only, with a DNS-rebinding guard that rejects any request whose
 `Host` header isn't loopback. It has no authentication because the trust
 boundary is having a shell on the machine — the same access as editing
@@ -376,14 +355,14 @@ It exposes `GET /api/status`, `/api/tools`, `/api/config` and
 `POST /api/config`, `/api/tools/{toggle,install,remove}`. Config writes are
 validated against the settings schema *before* the file is touched. Toggling a
 tool goes through `registry.set_enabled()`, which persists to `mcp.state_file`
-— the same file the `lesysbot tools` CLI writes, and the one a running bot
+— the same file the `lesysbot install` CLI writes, and the one a running bot
 watches, which is why a toggle applies live while other settings need a restart.
 
 **Which thing does `lesysbot` start?** `__main__.main()` decides:
 
 | You type | You get |
 |---|---|
-| `lesysbot run` | the service: control panel + bot (what every service template runs) |
+| `lesysbot run` | the service: management panel + bot (what every service template runs) |
 | `lesysbot --provider …` | the bot in the foreground, no panel |
 | `lesysbot manage` | the panel — or just its URL, when the service already serves it |
 | `lesysbot` | health and metrics, then exit — starts nothing |
@@ -395,7 +374,7 @@ poll, so it serves the panel and idles.
 The status snapshot behind both the terminal view and `/api/status` lives in
 [lesysbot/core/status.py](../lesysbot/core/status.py). It probes the panel
 (`/api/ping`, which identifies our server rather than trusting whatever holds the
-port) and the [monitoring stack](../monitoring/README.md), and reports the
+port) and the [dashboard stack](../dashboard/README.md), and reports the
 service by testing the single-instance lock — a leftover lock *file* with a stale
 PID must not read as "running".
 
@@ -408,13 +387,12 @@ PID must not read as "running".
 | Add a capability (new tool) | a new folder in `tools/` — no core code | [Write a tool](writing-tools.md) |
 | Share a tool with others | a GitHub repo — nothing else | [Share your tools](sharing-tools.md) |
 | Support a new chat platform | new file in [lesysbot/messaging/](../lesysbot/messaging/) + one `elif` in [lesysbot/__main__.py](../lesysbot/__main__.py) | [Adapters §4](adapters.md#4-building-a-custom-adapter) |
-| Change what appears in a platform's `/` menu | [lesysbot/messaging/commands.py](../lesysbot/messaging/commands.py) | [Adapters §2.5](adapters.md#25-the-command-menu), [§3.8](adapters.md#38-running-tools-from-the-command-picker) |
 | Support a new LLM backend | usually nothing — set `llm.base_url` | [Settings](configuration.md#switching-model-backend) |
 | Change the tool-calling loop, history, confirmations | [lesysbot/core/agent.py](../lesysbot/core/agent.py) | this page, [§3](#3-the-life-of-one-message) |
 | Change tool discovery, gating, hot reload | [lesysbot/mcp/registry.py](../lesysbot/mcp/registry.py) | this page, [§5](#5-the-tool-layer--registry-decorator-gating) |
 | Add a config setting | [lesysbot/core/config.py](../lesysbot/core/config.py) + `config/default.yaml` + [configuration.md](configuration.md) | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Change the setup wizard | [lesysbot/setup/](../lesysbot/setup/) — one cross-platform Python implementation; `scripts/install.{sh,ps1}` only bootstrap into it | [CONTRIBUTING.md](../CONTRIBUTING.md) |
-| Change the control panel | [lesysbot/webui/](../lesysbot/webui/) | this page, [§10](#10-the-control-panel-and-cli-dispatch) |
+| Change the management panel | [lesysbot/management/](../lesysbot/management/) | this page, [§10](#10-the-control-panel-and-cli-dispatch) |
 
 ---
 

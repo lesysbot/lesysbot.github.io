@@ -7,7 +7,7 @@ source: docs/usage.md
 How to actually use LeSysBot once it's installed.
 
 Everything here works the same whether you're in a terminal, in Telegram, or in
-Discord. The examples use the terminal because it needs no setup.
+Slack. The examples use the terminal because it needs no setup.
 
 ---
 
@@ -25,10 +25,10 @@ You:
 ```
 
 > **`lesysbot` on its own does something different** — it prints health and
-> metrics (backend, tools, service, [control panel](management-ui.md), Grafana)
+> metrics (backend, tools, service, [management panel](management-ui.md), Grafana)
 > and exits. To chat, use `lesysbot --provider cli`.
 
-Already running as a Telegram or Discord service? A terminal chat runs happily
+Already running as a Telegram or Slack service? A terminal chat runs happily
 alongside it, with its own separate conversation.
 
 ---
@@ -113,27 +113,6 @@ optional.
 > Direct calls don't go into your conversation history — they're one-shot and
 > stateless, which is exactly why they still work when no model is running.
 
-### In Telegram and Discord, the menu does the typing
-
-You don't have to remember tool names on either platform: LeSysBot registers
-every tool with the platform itself, so they show up in the client's command
-menu.
-
-- **Telegram** — type `/` and the menu lists every tool with its description.
-  Pick one, then type the arguments as above.
-- **Discord** — type `/` and pick the tool from the picker. Discord then gives
-  you a **labelled field per parameter**, so you don't type `key=value` at all;
-  required fields are marked and numbers only accept numbers.
-
-Both are just a nicer way in — they run the same tool, without the model, and
-typing the command out by hand keeps working.
-
-> **The menu is built when the bot starts.** Install a tool (or run
-> `lesysbot tools enable`) and it works as a typed command immediately, but it
-> joins the menu on the next restart — the platforms rate-limit command updates,
-> so LeSysBot registers once rather than on every change. Tools that are
-> disabled, or unavailable on this machine, are left out of the menu.
-
 ---
 
 ## Built-in commands
@@ -162,8 +141,8 @@ powers off. When the *model* decides to use one, you get asked first:
 Proceed? [y/n] (n):
 ```
 
-`y` runs it; anything else cancels. In Telegram and Discord this arrives as
-✅/❌ buttons (Telegram's expire after two minutes, Discord's after five).
+`y` runs it; anything else cancels. In Telegram this arrives as ✅/❌ buttons
+(they expire after two minutes). Slack auto-approves unless you customise it.
 
 > **Typing `/power_off` yourself skips the prompt.** You already decided. The
 > confirmation exists to catch the *model* acting on your behalf, not to
@@ -204,19 +183,19 @@ file. Full list: [Settings](configuration.md).
 From any terminal, whether or not the bot is running:
 
 ```bash
-lesysbot tools list                # everything installed, with its status
-lesysbot tools info gpu_temp       # what it takes, where it came from
-lesysbot tools disable gpu_temp    # hide it from the model; /gpu_temp refuses too
-lesysbot tools enable gpu_temp     # back on
-lesysbot tools remove gpu_temp     # delete it (asks first)
-lesysbot tools install owner/repo  # add tools from GitHub
+lesysbot list                # everything installed, with its status
+lesysbot info gpu_temp       # what it takes, where it came from
+lesysbot disable gpu_temp    # hide it from the model; /gpu_temp refuses too
+lesysbot enable gpu_temp     # back on
+lesysbot remove gpu_temp     # delete it (asks first)
+lesysbot install owner/repo  # add tools from GitHub
 ```
 
 **Enabling and disabling applies within a second** to a running bot — no restart.
 **Removing** deletes the tool's whole folder, including any sibling tools defined
 alongside it; those are listed before you confirm.
 
-You can do all of this from the [control panel](management-ui.md) too, if you'd
+You can do all of this from the [management panel](management-ui.md) too, if you'd
 rather click.
 
 Installing is covered properly in [Install tools](installing-tools.md).
@@ -240,7 +219,7 @@ and API keys are stripped before anything is written.
 ## Something not working?
 
 See **[Troubleshooting](troubleshooting.md)** — it covers the model being
-unreachable, tools not showing up, service problems, and Telegram/Discord setup
+unreachable, tools not showing up, service problems, and Telegram/Slack setup
 issues.
 
 ---
@@ -249,7 +228,7 @@ issues.
 
 | Want to… | Go to |
 |---|---|
-| Message it from your phone | [Telegram & Discord](adapters.md) |
+| Message it from your phone | [Telegram & Slack](adapters.md) |
 | Add your own abilities | [Write a tool](writing-tools.md) |
 | Install tools from GitHub | [Install tools](installing-tools.md) |
 | Change models, history, logging | [Settings](configuration.md) |

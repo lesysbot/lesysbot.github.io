@@ -39,7 +39,7 @@ const GUIDES = {
       'Asking in words versus running a tool directly, confirmations, memory, and turning tools on and off.',
   },
   adapters: {
-    title: 'Telegram & Discord',
+    title: 'Telegram & Slack',
     section: 'Everyday use',
     description:
       'Reach the bot from your phone or your workspace — full token and app setup for both.',
@@ -60,7 +60,7 @@ const GUIDES = {
     title: 'Troubleshooting',
     section: 'Everyday use',
     description:
-      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Discord setup.',
+      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Slack setup.',
   },
   'installing-tools': {
     title: 'Install tools',
@@ -73,6 +73,12 @@ const GUIDES = {
     section: 'Give it new abilities',
     description:
       'Turn a Python function or a shell command into something LeSysBot can do, in about a minute.',
+  },
+  'installing-dashboards': {
+    title: 'Install dashboards',
+    section: 'Give it new abilities',
+    description:
+      'Add Grafana dashboards with the same install command as tools — where they land, and when one is withheld.',
   },
   'sharing-tools': {
     title: 'Share your tools',
@@ -90,7 +96,7 @@ const GUIDES = {
     title: 'Run as a service',
     section: 'Keep it running',
     description:
-      'The background service every install gets — it keeps the control panel online, answers Telegram and Discord, and writes the logs.',
+      'The background service every install gets — it keeps the control panel online, answers Telegram and Slack, and writes the logs.',
   },
   'building-windows-exe': {
     title: 'Build a Windows .exe',

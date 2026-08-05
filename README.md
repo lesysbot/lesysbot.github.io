@@ -1,7 +1,8 @@
 # lesysbot-docs
 
 The documentation site for [LeSysBot](https://github.com/lesysbot/lesysbot) and its
-official Linux, macOS, and Windows tool collections.
+official cross-platform package collection,
+[lesysbot-packages-official](https://github.com/lesysbot/lesysbot-packages-official).
 
 **Live at <https://lesysbot.github.io/>**
 
@@ -123,7 +124,7 @@ the sidebar counts, and the search index all update together:
 {
   "slug": "battery",
   "name": "battery",
-  "collection": "macos",          // core | linux | macos | windows
+  "collection": "packages",       // core | packages
   "version": "1.0.0",             // from the package's README frontmatter
   "summary": "Battery charge, power source, and time remaining.",
   "platforms": ["macos"],

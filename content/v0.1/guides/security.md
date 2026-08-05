@@ -26,9 +26,9 @@ messaging:
 
 The setup wizard will not accept a blank list; it re-prompts until you give at least one numeric ID. If you are writing `config.yaml` by hand you are on your own, so check it.
 
-To find your own numeric ID, message `@userinfobot` on Telegram. On Discord, turn on Developer Mode (Settings → Advanced) and right-click your name → Copy User ID.
+To find your own numeric ID, message `@userinfobot` on Telegram.
 
-The allow-list matters more on Discord than on Telegram: anyone who shares a server with your bot can open a DM with it, so "nobody knows the bot exists" is not the barrier it feels like. Either way the principle is the same — the set of people who can reach the bot is the set of people who can run every tool you have installed.
+Slack is different: there is no per-user allow-list, because the workspace itself is the boundary — anyone in the workspace you installed the app into can DM the bot. Only install it into a workspace whose every member you would trust with a shell on that machine. Either way the principle is the same — the set of people who can reach the bot is the set of people who can run every tool you have installed.
 
 ## 2. What a tool is allowed to do
 
@@ -37,7 +37,7 @@ A tool package is Python that LeSysBot imports and calls. It runs as your user, 
 Three things reduce the blast radius, and none of them are a sandbox:
 
 - **Confirmation.** Tools that do something irreversible declare a confirmation string. LeSysBot refuses to run them until you answer in the chat. This protects you against the *model* misfiring, not against a hostile tool author — a malicious tool simply would not declare one.
-- **Pinning.** `lesysbot tools install owner/repo@v1.0.0` pins to a git ref. The installed package's version and exact commit SHA land in `tools.lock.json`, so you can always tell what is actually running.
+- **Pinning.** `lesysbot install owner/repo@v1.0.0` pins to a git ref. The installed package's version and exact commit SHA land in `lesysbot.lock.json`, so you can always tell what is actually running.
 - **Reading the code.** Every package is a `README.md` and a `tool.py`, usually under two hundred lines. That is a realistic amount to read before you install it, which is the point of the format.
 
 Prefer pinned refs over `main` for anything you did not write, and re-read the diff when you update.
@@ -67,7 +67,7 @@ Snapshots expire (an hour by default), `/list_snapshots` shows what is still liv
 ## 5. What listens, and where
 
 **Nothing listens for the bot itself.** The agent reaches out to your LLM backend
-and to Telegram or Discord, but no inbound connection reaches it, so there is no
+and to Telegram or Slack, but no inbound connection reaches it, so there is no
 chat-facing web surface to authenticate, firewall, or accidentally expose on
 `0.0.0.0`. The only ways to reach the bot are the chat platform you configured —
 governed by `allowed_user_ids` above — and the terminal session you start
@@ -103,7 +103,7 @@ For a personal machine reachable over Telegram:
 
 - Set `allowed_user_ids` to exactly your own ID.
 - Keep the token in the environment, not in `config.yaml`.
-- Install the official tool collections and read anything else before installing it.
+- Install the official package collection and read anything else before installing it.
 - Keep tools unprivileged — nothing in LeSysBot needs `sudo`.
 
 That covers the realistic failure modes. The remaining risk is that a model with tool access does something you did not intend — which is what the confirmation prompts are for, and why the shutdown tools give you a minute to change your mind.
