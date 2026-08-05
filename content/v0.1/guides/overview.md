@@ -18,7 +18,7 @@ The whole system is three layers that know very little about each other:
 
 | Layer | What it does | Swap it for |
 |---|---|---|
-| Messaging | Receives your text, sends replies | Terminal, Telegram, Slack, or an adapter you write |
+| Messaging | Receives your text, sends replies | Terminal, Telegram, Discord, or an adapter you write |
 | Agent | Runs the model, decides which tools to call | Any OpenAI-compatible endpoint |
 | Tools | Does the actual work on the machine | Any folder with a `README.md` and a `tool.py` |
 

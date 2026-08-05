@@ -26,9 +26,9 @@ messaging:
 
 The setup wizard will not accept a blank list; it re-prompts until you give at least one numeric ID. If you are writing `config.yaml` by hand you are on your own, so check it.
 
-To find your own numeric ID, message `@userinfobot` on Telegram.
+To find your own numeric ID, message `@userinfobot` on Telegram. On Discord, turn on Developer Mode (Settings → Advanced) and right-click your name → Copy User ID.
 
-Slack is different: there is no per-user allow-list, because the workspace itself is the boundary — anyone in the workspace you installed the app into can DM the bot. Only install it into a workspace whose every member you would trust with a shell on that machine. Either way the principle is the same — the set of people who can reach the bot is the set of people who can run every tool you have installed.
+The allow-list matters more on Discord than on Telegram: anyone who shares a server with your bot can open a DM with it, so "nobody knows the bot exists" is not the barrier it feels like. Either way the principle is the same — the set of people who can reach the bot is the set of people who can run every tool you have installed.
 
 ## 2. What a tool is allowed to do
 
@@ -67,7 +67,7 @@ Snapshots expire (an hour by default), `/list_snapshots` shows what is still liv
 ## 5. What listens, and where
 
 **Nothing listens for the bot itself.** The agent reaches out to your LLM backend
-and to Telegram or Slack, but no inbound connection reaches it, so there is no
+and to Telegram or Discord, but no inbound connection reaches it, so there is no
 chat-facing web surface to authenticate, firewall, or accidentally expose on
 `0.0.0.0`. The only ways to reach the bot are the chat platform you configured —
 governed by `allowed_user_ids` above — and the terminal session you start
