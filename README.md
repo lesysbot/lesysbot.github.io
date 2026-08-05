@@ -27,6 +27,9 @@ npm run serve      # → http://localhost:4173/
 content/
   site.json              site name, base path, repo URLs
   versions.json          every published version; which one is "latest"
+  catalog.json           the marketplace catalog, published at /catalog.json —
+                         a copy of the core repo's catalog.json, kept in step
+                         by its tests/test_catalog.py
   v0.1/
     nav.json             sidebar order
     tools.json           the tool catalog — every package and tool

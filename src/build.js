@@ -434,7 +434,7 @@ function buildVersion({ site, version, versions, urlId }) {
       versions,
       urlId,
       title: 'Tool reference',
-      description: `Every tool LeSysBot can call in version ${version.label} — ${catalog.packages.length} packages across the bundled set and the Linux, macOS, and Windows collections.`,
+      description: `Every tool LeSysBot can call in version ${version.label} — ${catalog.packages.length} packages across the bundled set and the official cross-platform collection.`,
       body: catalogBody,
       nav,
       currentPath: `${versionBase}/tools/`,
@@ -662,6 +662,14 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
   );
 
   write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
+
+  /* The marketplace catalog `lesysbot search --refresh` fetches from
+     <site>/catalog.json — a copy of the core repo's catalog.json, kept in
+     content/ so the build stays self-contained. */
+  const catalogSrc = path.join(CONTENT, 'catalog.json');
+  if (fs.existsSync(catalogSrc)) {
+    fs.copyFileSync(catalogSrc, path.join(DIST, 'catalog.json'));
+  }
 
   /* GitHub Pages must not run these through Jekyll --------------------- */
   write('.nojekyll', '');

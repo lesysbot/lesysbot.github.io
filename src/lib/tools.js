@@ -118,7 +118,7 @@ export function renderCatalog({ site, version, catalog }) {
     '<div class="page-header">',
     '<p class="eyebrow">Reference</p>',
     '<h1 class="page-title">Tool reference</h1>',
-    `<p class="page-lede">Every tool LeSysBot can call, across the bundled set and the three official platform collections — ${packages.length} packages exposing ${totalTools} tools. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
+    `<p class="page-lede">Every tool LeSysBot can call, across the bundled set and the official cross-platform collection — ${packages.length} packages exposing ${totalTools} tools. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
     '</div>',
 
     '<div class="catalog-controls">',
