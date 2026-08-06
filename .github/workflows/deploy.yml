@@ -33,6 +33,17 @@ jobs:
       - name: Build site
         run: npm run build
 
+      # The install one-liner in every README points at these URLs. Nothing else
+      # in the build would notice if content/static/ stopped being published —
+      # the site would look perfectly fine and `curl … | sh` would 404 for
+      # everyone.
+      - name: Root files really shipped
+        run: |
+          test -s dist/install.sh
+          test -s dist/install.ps1
+          test -s dist/catalog.json
+          head -1 dist/install.sh | grep -qx '#!/bin/sh'
+
       - name: Check for broken internal links
         run: node scripts/check-links.js
 

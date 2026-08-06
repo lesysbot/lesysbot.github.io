@@ -23,10 +23,10 @@ export function slugify(text) {
 
 /**
  * Repo files that are a guide here under a different path. The core docs link
- * to `../monitoring/README.md` because that is where the stack lives in the
+ * to `../dashboard/README.md` because that is where the stack lives in the
  * repo; on the site it is the `monitoring` guide, so keep the reader here.
  */
-const REPO_PAGE_ALIASES = new Map([['monitoring/README.md', 'monitoring']]);
+const REPO_PAGE_ALIASES = new Map([['dashboard/README.md', 'monitoring']]);
 
 /**
  * Source docs link to files by repo-relative path. Map those onto the site

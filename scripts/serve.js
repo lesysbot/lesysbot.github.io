@@ -26,6 +26,11 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8',
   '.png': 'image/png',
   '.ico': 'image/x-icon',
+  // The installers, served at the site root. `curl | sh` ignores content-type,
+  // but text/plain lets you read one in a browser before running it — which is
+  // exactly what we tell people to do.
+  '.sh': 'text/plain; charset=utf-8',
+  '.ps1': 'text/plain; charset=utf-8',
 };
 
 const send = (res, code, body, type) => {

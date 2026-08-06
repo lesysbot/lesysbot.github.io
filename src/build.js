@@ -99,7 +99,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
   const startCards = [
     {
       title: 'Install it',
-      body: 'One command starts a short wizard: pick a model, choose how to reach it, done. Five minutes.',
+      body: 'One command, no questions. It sorts out Python, Ollama and a model, then configures itself.',
       href: v('/guides/getting-started/'),
       cta: 'Getting started',
     },
@@ -171,12 +171,15 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '</section>',
 
     '<section class="quickstart">',
-    '<h2 class="section-title">Five steps to a working bot</h2>',
+    '<h2 class="section-title">Four steps to a working bot</h2>',
     '<ol class="steps">',
     [
-      ['Get a model running', 'Install Ollama and pull one sized for your hardware.', 'ollama pull qwen3.5:4b'],
-      ['Install LeSysBot', 'A short wizard writes your config. Press Enter through it.', 'bash scripts/install.sh'],
-      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot --provider cli'],
+      [
+        'Install it',
+        'One command. It gets Python and Ollama ready, pulls a model, and configures everything — no questions asked.',
+        'curl -fsSL https://lesysbot.github.io/install.sh | sh',
+      ],
+      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot chat'],
       [
         'Open the control panel',
         'Settings, tools and health in a browser. The service keeps it online.',
@@ -663,12 +666,24 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
 
   write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
 
-  /* The marketplace catalog `lesysbot search --refresh` fetches from
-     <site>/catalog.json — a copy of the core repo's catalog.json, kept in
-     content/ so the build stays self-contained. */
-  const catalogSrc = path.join(CONTENT, 'catalog.json');
-  if (fs.existsSync(catalogSrc)) {
-    fs.copyFileSync(catalogSrc, path.join(DIST, 'catalog.json'));
+  /* Everything in content/static/ is published verbatim at the site root.
+     Three things need a root URL and can get one no other way:
+
+       catalog.json   what `lesysbot search --refresh` fetches
+       install.sh     what `curl -fsSL <site>/install.sh | sh` runs
+       install.ps1    the same for `irm <site>/install.ps1 | iex`
+
+     and a CNAME file would belong here too the day this moves to a custom
+     domain — src/assets/ is copied to /assets/, where Pages ignores it.
+     All of them are synced from the core repo by scripts/import-docs.js and
+     committed, so the build never needs that checkout. `.nojekyll` below is
+     what stops Pages filtering them out. */
+  const staticDir = path.join(CONTENT, 'static');
+  if (fs.existsSync(staticDir)) {
+    for (const entry of fs.readdirSync(staticDir, { withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      fs.copyFileSync(path.join(staticDir, entry.name), path.join(DIST, entry.name));
+    }
   }
 
   /* GitHub Pages must not run these through Jekyll --------------------- */

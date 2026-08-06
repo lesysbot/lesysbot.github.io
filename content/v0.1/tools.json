@@ -319,7 +319,7 @@
         }
       ],
       "notes": [
-        "Needs the monitoring stack running — it reads the dashboard and its data from your local Grafana. Start it with monitoring/scripts/start.sh (or start.ps1).",
+        "Needs the monitoring stack running — it reads the dashboard and its data from your local Grafana. Start it with dashboard/scripts/start.sh (or start.ps1).",
         "The snapshot is a frozen copy: the data is baked into the published dashboard, so viewers never reach back to your Prometheus and see nothing beyond the window you captured.",
         "The link is genuinely public — anyone who has it can open it. Snapshots expire after the time you chose (1h by default), and delete_snapshot removes them from both Grafana and raintank.",
         "raintank's CDN may keep serving a deleted snapshot for up to an hour afterwards.",

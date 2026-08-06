@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Import guide markdown from a local checkout of the core LeSysBot repo.
+ * Import guide markdown and root-level static files from a local checkout of
+ * the core LeSysBot repo.
  *
  *   node scripts/import-docs.js ../lesysbot v0.1
  *
@@ -117,6 +118,37 @@ const GUIDES = {
  * for the site, so it is maintained here by hand rather than imported. */
 const KEEP = new Set(['overview', 'security', 'monitoring']);
 
+/** [source in the core repo, name at the site root] — copied verbatim into
+ * content/static/, which src/build.js publishes at the site root.
+ *
+ * These are canonical *upstream*: install.sh and install.ps1 are what
+ * shellcheck, PSScriptAnalyzer and the installer end-to-end job run against, so
+ * editing the copy here would silently ship an unlinted installer to everyone
+ * who runs `curl -fsSL https://lesysbot.github.io/install.sh | sh`. */
+const STATIC_FILES = [
+  ['scripts/install.sh', 'install.sh'],
+  ['scripts/install.ps1', 'install.ps1'],
+  ['catalog.json', 'catalog.json'],
+];
+
+function importStatic(coreRepo) {
+  const outDir = path.resolve('content', 'static');
+  fs.mkdirSync(outDir, { recursive: true });
+  let copied = 0;
+  for (const [src, name] of STATIC_FILES) {
+    const srcFile = path.resolve(coreRepo, src);
+    if (!fs.existsSync(srcFile)) {
+      console.warn(`  ! missing upstream: ${src}`);
+      continue;
+    }
+    const dest = path.join(outDir, name);
+    fs.copyFileSync(srcFile, dest);
+    if (name.endsWith('.sh')) fs.chmodSync(dest, 0o755);
+    copied += 1;
+  }
+  console.log(`✓ synced ${copied} static files into content/static/`);
+}
+
 function main() {
   const [coreRepo = '../lesysbot', versionId = 'v0.1'] = process.argv.slice(2);
   const srcDir = path.resolve(coreRepo, 'docs');
@@ -161,6 +193,7 @@ function main() {
   }
 
   console.log(`✓ imported ${imported} guides into content/${versionId}/guides/`);
+  importStatic(coreRepo);
 }
 
 main();

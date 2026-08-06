@@ -2,7 +2,7 @@
 title: System monitoring
 description: The Prometheus + Grafana dashboard every install sets up — CPU, memory, disk, network, temperatures, and GPU as time series, on Linux, macOS, and Windows.
 section: Keep it running
-source: monitoring/README.md
+source: dashboard/README.md
 ---
 
 Sometimes you want more than a one-off "what's the temperature?" — you want to
@@ -14,7 +14,7 @@ Grafana dashboard.
 
 **You probably already have it.** It is a standard part of LeSysBot, not an
 add-on: `lesysbot setup` — the wizard the installer runs — copies the stack into
-`~/.lesysbot/monitoring`, asks which Grafana login to use, and starts it. A
+`~/.lesysbot/dashboard`, asks which Grafana login to use, and starts it. A
 normal install leaves Grafana on **http://localhost:3000**, and `lesysbot` links
 to it from the status screen.
 
@@ -45,12 +45,12 @@ at a native [Grafana download](https://grafana.com/grafana/download) and explain
 how to connect it, mentioning the one-command Docker stack only if Docker happens
 to be running. LeSysBot finds Grafana on `localhost:3000` either way.
 
-Set `LESYSBOT_SKIP_MONITORING` before running setup to skip the whole step —
+Set `LESYSBOT_SKIP_DASHBOARD` before running setup to skip the whole step —
 useful for unattended installs.
 
 ## Starting and stopping it by hand
 
-From `~/.lesysbot/monitoring` (or the `monitoring/` folder of a checkout):
+From `~/.lesysbot/dashboard` (or the `dashboard/` folder of a checkout):
 
 ```bash
 ./scripts/install-macos.sh   # macOS — Homebrew, no Docker needed
@@ -153,8 +153,8 @@ Coverage follows what each OS exposes without `sudo`, and that varies a lot:
 
 ### Keeping it current
 
-Re-running the wizard from a checkout (`bash scripts/install.sh`) refreshes the
-stack's scripts and dashboards in `~/.lesysbot/monitoring`, while never touching
+Re-running setup (`lesysbot setup`, or the installer) refreshes the
+stack's scripts and dashboards in `~/.lesysbot/dashboard`, while never touching
 the two things you own: `.env` (ports and Grafana login) and `prometheus/` (any
 scrape targets you added). Re-run your OS's start script afterwards so the
 dashboard is rebuilt for the current hardware.
@@ -196,9 +196,9 @@ process family, not a listener bolted onto LeSysBot. Because it binds only to
 deliberately publish Grafana, put it behind a reverse proxy with TLS rather than
 moving the bind off loopback. And change the Grafana password from `admin` before
 you do — the wizard is the easy place to set it, or `GRAFANA_ADMIN_PASSWORD` in
-`~/.lesysbot/monitoring/.env`.
+`~/.lesysbot/dashboard/.env`.
 
 The full reference — every port, the `.env` overrides, how the dashboards are
 generated, and a troubleshooting list — lives in
-[`monitoring/README.md`](https://github.com/lesysbot/lesysbot/blob/main/monitoring/README.md)
+[`dashboard/README.md`](https://github.com/lesysbot/lesysbot/blob/main/dashboard/README.md)
 in the core repo.
