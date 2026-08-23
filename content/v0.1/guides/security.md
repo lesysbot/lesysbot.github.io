@@ -82,9 +82,9 @@ neither is reachable from your network:
   construction (the host is not configurable, only the port), it rejects requests
   whose `Host` header isn't localhost (blocking DNS-rebinding), and it has no
   login: anyone who can open it *on the machine* can change your config, so treat
-  it exactly like shell access. It also displays your real `config.yaml`, secrets
-  included — keep tokens in environment variables if that matters to you. Don't
-  forward its port.
+  it exactly like shell access. It shows your real `config.yaml`, but every token
+  and API key in it is masked down to its last four characters, so the page you
+  leave open — or screenshot — carries no credential. Don't forward its port.
 - The [monitoring stack](monitoring.md) — Prometheus, Grafana, and the exporters,
   a separate set of containers the installer sets up. Every port binds
   `127.0.0.1`. Grafana starts with the login you chose during setup, which

@@ -19,8 +19,8 @@
       "path": "tools",
       "platform": "all",
       "accent": "amber",
-      "description": "The official collection — capability-shaped, not OS-shaped. Each package carries its per-OS variants (ping -c vs ping -n, hwmon vs SMC vs WMI), so one install covers Linux, macOS, and Windows. The repo also ships Grafana dashboard packages (network-traffic, gpu-detail) that install the same way.",
-      "install": "lesysbot install lesysbot/lesysbot-packages-official"
+      "description": "The official collection — capability-shaped, not OS-shaped. Each package carries its per-OS variants (ping -c vs ping -n, hwmon vs SMC vs WMI), so one install covers Linux, macOS, and Windows. The repo also ships Grafana dashboard packages (cpu-detail, memory-detail, storage, network-traffic, thermals, gpu-nvidia, gpu-apple) that install the same way.",
+      "install": "lesysbot install official"
     }
   ],
   "packages": [

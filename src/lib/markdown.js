@@ -11,15 +11,35 @@
 import { Marked } from 'marked';
 import { highlight, normalizeLang, escapeHtml } from './highlight.js';
 
+/**
+ * Heading → anchor id, matching GitHub's rules so the *same* markdown links
+ * work in a repo and here.
+ *
+ * The entity pass is not cosmetic: heading text arrives already HTML-escaped,
+ * so `what's` is `what&#39;s` by the time it gets here. Strip punctuation first
+ * and the digits survive — "Browsing what's out there" slugs to
+ * `browsing-what39s-out-there`, which no hand-written `#browsing-whats-out-there`
+ * link can hit. Decoding first drops the apostrophe with the rest of the
+ * punctuation, exactly as GitHub does.
+ */
 export function slugify(text) {
   return String(text)
     .toLowerCase()
     .replace(/<[^>]*>/g, '')
+    .replace(/&(?:#(\d+)|#x([0-9a-f]+)|(\w+));/g, (m, dec, hex, name) => {
+      if (dec) return String.fromCodePoint(Number(dec));
+      if (hex) return String.fromCodePoint(parseInt(hex, 16));
+      return { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' }[name] ?? m;
+    })
     .replace(/[^\w\s-]/g, '')
     .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/\s/g, '-');
 }
+// Note the last two steps: GitHub replaces each whitespace character with a
+// hyphen and does *not* collapse the runs. "Configuration & paths" loses the
+// `&` and keeps both surrounding spaces, so the id is `configuration--paths`
+// with two hyphens — collapsing them here broke every hand-written `§` link in
+// architecture.md, which was authored against GitHub's rendering.
 
 /**
  * Repo files that are a guide here under a different path. The core docs link

@@ -179,16 +179,16 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
         'One command. It gets Python and Ollama ready, pulls a model, and configures everything — no questions asked.',
         'curl -fsSL https://lesysbot.github.io/install.sh | sh',
       ],
-      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot chat'],
       [
-        'Open the control panel',
-        'Settings, tools and health in a browser. The service keeps it online.',
-        'http://127.0.0.1:8700',
+        'Check it worked',
+        'Run on its own it prints a health screen and exits — model, tools, service, and your control-panel link.',
+        'lesysbot',
       ],
+      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot chat'],
       [
         'Add tools and dashboards',
         'Pull in the official cross-platform collection — one repo, every OS.',
-        'lesysbot install lesysbot/lesysbot-packages-official',
+        'lesysbot install official',
       ],
     ]
       .map(([title, desc, cmd], i) =>
@@ -205,6 +205,11 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
       )
       .join(''),
     '</ol>',
+    `<p class="section-lede">Nothing to sign up for and no prerequisites — the installer finds or fetches a Python, never asks for a password, and leaves a <a href="${v(
+      '/guides/management-ui/',
+    )}">control panel</a> running at <code>http://127.0.0.1:8700</code>. If a step doesn't go as described, <a href="${v(
+      '/guides/troubleshooting/',
+    )}">Troubleshooting</a> is organised by symptom.</p>`,
     '</section>',
 
     '<section class="platforms">',
@@ -235,7 +240,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<p class="feature-note">The installer wires it up and starts it — nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
     '<div class="feature-cmds">',
     '<code>open http://localhost:3000</code>',
-    '<code>~/.lesysbot/monitoring/scripts/start.sh down</code>',
+    '<code>lesysbot dashboard stop</code>',
     '</div>',
     '<p class="feature-note">Then ask the bot for it from anywhere — <code>share_dashboard</code> publishes an expiring public snapshot you can send to someone, and takes it back down when you are done.</p>',
     '<div class="hero-actions">',
@@ -562,7 +567,7 @@ function renderVersionsPage({ site, versions, latest }) {
     '<p class="callout-title">Pinning a tool collection</p>',
     '<p>Site versions track LeSysBot releases. Tool packages carry their own version in their README frontmatter, and you can pin an install to any git ref:</p>',
     '<figure class="code-block"><pre><code class="lang-shell">lesysbot install lesysbot/lesysbot-packages-official@v2.0.0</code></pre></figure>',
-    '<p>Installed packages are recorded in <code>tools.lock.json</code> with the package version and the exact commit SHA, so you can always tell what is running.</p>',
+    '<p>Installed packages are recorded in <code>lesysbot.lock.json</code> with the package version and the exact commit SHA, so you can always tell what is running.</p>',
     '</section>',
   ].join('');
 }

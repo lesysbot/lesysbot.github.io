@@ -248,7 +248,7 @@ llm:
 mcp:
   tools_dir: "./tools"       # relative → next to this config file
   hot_reload: true           # pick up tool edits without a restart
-  lock_file: tools.lock.json    # where installed packages came from
+  lock_file: lesysbot.lock.json    # where installed packages came from
   state_file: tool_state.json   # which tools are disabled
 
 # ── Behaviour ─────────────────────────────────────────────────────────────────
@@ -269,7 +269,7 @@ logging:
   backup_count: 7            # how many rotated files to keep
 
 # ── Control panel (served by the service, always on) ──────────────────────────
-webui:
+management:
   port: 8700                 # always bound to 127.0.0.1; only the port is settable
 ```
 

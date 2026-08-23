@@ -75,11 +75,17 @@ const GUIDES = {
     description:
       'Turn a Python function or a shell command into something LeSysBot can do, in about a minute.',
   },
-  'installing-dashboards': {
-    title: 'Install dashboards',
+  'dashboards': {
+    title: 'Your dashboard',
     section: 'Give it new abilities',
     description:
-      'Add Grafana dashboards with the same install command as tools — where they land, and when one is withheld.',
+      'LeSysBot has one Grafana dashboard. Install, update, modify or reset it — from a GitHub link, like a tool.',
+  },
+  'writing-dashboards': {
+    title: 'Write a dashboard',
+    section: 'Give it new abilities',
+    description:
+      'Build a page of graphs and publish it so anyone can install it — two files, no Python, nothing to register.',
   },
   'sharing-tools': {
     title: 'Share your tools',

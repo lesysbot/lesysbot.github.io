@@ -22,8 +22,9 @@
     "title": "Give it new abilities",
     "items": [
       "installing-tools",
-      "installing-dashboards",
+      "dashboards",
       "writing-tools",
+      "writing-dashboards",
       "sharing-tools",
       "claude-code"
     ]

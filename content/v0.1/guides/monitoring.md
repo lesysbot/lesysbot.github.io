@@ -1,16 +1,21 @@
 ---
 title: System monitoring
-description: The Prometheus + Grafana dashboard every install sets up — CPU, memory, disk, network, temperatures, and GPU as time series, on Linux, macOS, and Windows.
+description: The Prometheus + Grafana stack every install sets up — CPU, memory, disk and network as time series, on Linux, macOS, and Windows.
 section: Keep it running
 source: dashboard/README.md
 ---
 
 Sometimes you want more than a one-off "what's the temperature?" — you want to
-watch a machine over time: the CPU climbing under a build, the GPU heating up,
-a disk filling. That is what the monitoring stack is for. It records **CPU,
-memory, disk, network (per interface, so Ethernet and Wifi are separate),
-temperatures, and NVIDIA GPU** as time series and draws them on a ready-made
-Grafana dashboard.
+watch a machine over time: the CPU climbing under a build, a disk filling.
+That is what the monitoring stack is for. It records **CPU, memory, disk and
+network (per interface, so Ethernet and Wifi are separate)** as time series and
+draws them on a ready-made Grafana dashboard.
+
+**LeSysBot keeps exactly one dashboard**, at
+**http://localhost:3000/d/lesysbot** — an address that never changes. The one
+you start with is deliberately basic, and you swap it for one built for your
+hardware with the same command tools use. See
+[Your dashboard](dashboards.md).
 
 **You probably already have it.** It is a standard part of LeSysBot, not an
 add-on: `lesysbot setup` — the wizard the installer runs — copies the stack into
@@ -50,14 +55,30 @@ useful for unattended installs.
 
 ## Starting and stopping it by hand
 
-From `~/.lesysbot/dashboard` (or the `dashboard/` folder of a checkout):
+```bash
+lesysbot dashboard start    # bring the stack up
+lesysbot dashboard stop     # and take it down again
+lesysbot dashboard current  # which dashboard is installed, and can it render here
+lesysbot dashboard reset    # go back to the default one
+```
+
+That is the whole interface on every OS — it runs the stack's own script for
+you, from wherever it happens to be installed. Then open
+**http://localhost:3000/d/lesysbot**; `lesysbot` on its own always prints the
+real link (the stack moves to `3001` if something already owns `3000`).
+
+<details>
+<summary><b>Running the scripts directly</b></summary>
+
+They live in `~/.lesysbot/dashboard` (or the `dashboard/` folder of a checkout),
+and each inspects the machine — chip, sensors, GPU — before doing anything:
 
 ```bash
+./scripts/start.sh           # Linux, and macOS on the Docker path — up
+./scripts/start.sh down      # stop it again
+
 ./scripts/install-macos.sh   # macOS — Homebrew, no Docker needed
 ./scripts/install-macos.sh down
-
-./scripts/start.sh           # Linux — up
-./scripts/start.sh down      # stop it again
 ```
 
 ```powershell
@@ -65,9 +86,11 @@ From `~/.lesysbot/dashboard` (or the `dashboard/` folder of a checkout):
 .\scripts\start.ps1 down
 ```
 
-One command, either way: each script inspects the machine — chip, sensors, GPU —
-and does the right thing. Then open **http://localhost:3000**. The dashboard is
-in the **LeSysBot** folder.
+`lesysbot dashboard start` runs `start.sh` / `start.ps1`. A Mac set up the
+Homebrew way is the one case that differs: those services run under
+`brew services`, so use `install-macos.sh` there.
+
+</details>
 
 macOS has its own script because it doesn't need Docker at all: it installs
 Grafana, Prometheus and the host exporter with Homebrew and runs them under
@@ -95,9 +118,17 @@ A single **System Overview** dashboard, titled for the machine it was built for 
 - **Disk** — space used per filesystem, read/write throughput
 - **Network** — receive and transmit per interface; the interface name tells
   Ethernet from Wifi
-- **Temperatures** — whichever sensors your machine actually has (see below)
-- **GPU** — NVIDIA utilization, memory, temperature and power draw, or Apple GPU
-  utilization and memory on a Mac
+
+**Temperatures and GPU are deliberately not in it.** They depend on hardware
+your machine may not have, and there is no one-size-fits-all dashboard — a panel
+querying a sensor you don't own is indistinguishable from a broken one. Install
+a dashboard built for your hardware instead:
+
+```bash
+lesysbot search --kind dashboard
+lesysbot install official --only thermals   # replaces the default
+lesysbot dashboard reset                    # and back again
+```
 
 ## It is built for your machine
 
