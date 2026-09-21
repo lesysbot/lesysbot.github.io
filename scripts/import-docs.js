@@ -24,7 +24,12 @@ const GUIDES = {
   'getting-started': {
     title: 'Getting started',
     section: 'Start here',
-    description: 'Install it, say hello, and open the control panel — about five minutes.',
+    description: 'Install it, chat with it, and open the control panel — about five minutes.',
+  },
+  install: {
+    title: 'Install & uninstall',
+    section: 'Start here',
+    description: 'Installer options, other ways to install, upgrading, and removing it.',
   },
   models: {
     title: 'Choosing a model',
