@@ -11,22 +11,19 @@
 import { Marked } from 'marked';
 import { highlight, normalizeLang, escapeHtml } from './highlight.js';
 
+/** Heading ids, using GitHub's rule — each space becomes a hyphen and runs are
+ * kept — so an anchor written against the core repo (`#7-configuration--paths`
+ * for "7. Configuration & paths") works on this site too. */
 export function slugify(text) {
   return String(text)
     .toLowerCase()
     .replace(/<[^>]*>/g, '')
+    // Headings arrive HTML-escaped; drop entities whole, or "&" would slug as "amp".
+    .replace(/&(?:[a-z]+\d*|#x?[0-9a-f]+);/gi, '')
     .replace(/[^\w\s-]/g, '')
     .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/\s/g, '-');
 }
-
-/**
- * Repo files that are a guide here under a different path. The core docs link
- * to `../dashboard/README.md` because that is where the stack lives in the
- * repo; on the site it is the `monitoring` guide, so keep the reader here.
- */
-const REPO_PAGE_ALIASES = new Map([['dashboard/README.md', 'monitoring']]);
 
 /**
  * Source docs link to files by repo-relative path. Map those onto the site
@@ -52,12 +49,6 @@ function rewriteHref(href, ctx) {
   }
 
   const repoPath = clean.replace(/^(\.\.\/)+/, '');
-
-  // A repo path that is a guide here under another name (see the alias map).
-  const aliased = REPO_PAGE_ALIASES.get(repoPath);
-  if (aliased && ctx.guideSlugs.has(aliased)) {
-    return `${ctx.versionBase}/guides/${aliased}/${anchor}`;
-  }
 
   // Everything else — source files, CONTRIBUTING, skills — lives on GitHub.
   return `https://github.com/${ctx.repo}/blob/${ctx.ref}/${repoPath}${anchor}`;

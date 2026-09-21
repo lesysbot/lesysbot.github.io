@@ -1,0 +1,6 @@
+{
+  "sharing-tools": "writing-tools#share-it",
+  "claude-code": "writing-tools#let-claude-code-write-it",
+  "installing-dashboards": "dashboards#add-more-dashboards",
+  "monitoring": "dashboards"
+}

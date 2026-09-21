@@ -1,36 +1,19 @@
 [
   {
-    "title": "Introduction",
-    "items": ["overview"]
-  },
-  {
     "title": "Start here",
-    "items": ["getting-started", "models"]
+    "items": ["overview", "getting-started", "install", "models"]
   },
   {
-    "title": "Everyday use",
-    "items": [
-      "usage",
-      "adapters",
-      "management-ui",
-      "configuration",
-      "security",
-      "troubleshooting"
-    ]
+    "title": "Use it",
+    "items": ["usage", "adapters", "management-ui", "dashboards", "configuration"]
   },
   {
-    "title": "Give it new abilities",
-    "items": [
-      "installing-tools",
-      "installing-dashboards",
-      "writing-tools",
-      "sharing-tools",
-      "claude-code"
-    ]
+    "title": "Extend it",
+    "items": ["installing-tools", "writing-tools"]
   },
   {
-    "title": "Keep it running",
-    "items": ["service", "monitoring"]
+    "title": "Run it",
+    "items": ["service", "security", "troubleshooting"]
   },
   {
     "title": "Under the hood",

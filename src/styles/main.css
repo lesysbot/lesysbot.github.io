@@ -503,24 +503,6 @@
     @apply mb-1.5 block font-mono text-[0.72rem] text-brand-600 dark:text-brand-400;
   }
 
-  .start-grid {
-    @apply mt-20 grid gap-4 sm:grid-cols-3;
-  }
-  .start-card {
-    @apply flex flex-col rounded-card border border-slate-200 p-5 transition;
-    @apply hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg hover:shadow-brand-500/5;
-    @apply dark:border-slate-800 dark:hover:border-brand-500/50 dark:hover:shadow-black/30;
-  }
-  .start-card-title {
-    @apply text-base;
-  }
-  .start-card-body {
-    @apply mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400;
-  }
-  .start-card-cta {
-    @apply mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 dark:text-brand-400;
-  }
-
   .quickstart {
     @apply mt-24;
   }

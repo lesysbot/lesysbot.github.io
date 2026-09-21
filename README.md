@@ -21,7 +21,9 @@ npm run serve      # → http://localhost:4173/
 
 `npm run dev` rebuilds HTML and CSS on change while serving. Run
 `npm run build && npm run check` before pushing: a push to `main` deploys, and
-the deploy stops at the first check that fails.
+the deploy stops at the first check that fails. `check` verifies the root files
+and every internal link — including that each `#anchor` is really an id on the
+page it points at.
 
 ## How it is put together
 
@@ -35,6 +37,7 @@ content/
     catalog.json         what `lesysbot search --refresh` fetches
   v0.1/
     nav.json             sidebar order
+    redirects.json       old slug → current page, for guides that moved
     tools.json           the tool catalog — every package and tool
     guides/*.md          guide pages, frontmatter + markdown
 src/
@@ -45,7 +48,7 @@ src/
 scripts/
   import-docs.js         pull guide markdown from a local core-repo checkout
   release.js             cut a new documentation version
-  check-links.js         fail the build on a broken internal link
+  check-links.js         fail the build on a broken internal link or anchor
   serve.js               local preview under the real base path
 ```
 
@@ -105,9 +108,8 @@ To pull in upstream guide changes afterwards:
 node scripts/import-docs.js ../lesysbot v0.2
 ```
 
-`overview.md`, `security.md`, and `monitoring.md` are authored in this repo and
-are never overwritten by an import — they're in the `KEEP` set at the top of
-`import-docs.js`. Everything else is imported verbatim from the core repo's
+`overview.md` is the only guide authored here — it's the `KEEP` set at the top
+of `import-docs.js`. Everything else is imported verbatim from the core repo's
 `docs/`, so **fix guide prose upstream, not here.**
 
 When the core repo gains a guide, add it to the `GUIDES` map in
@@ -115,10 +117,21 @@ When the core repo gains a guide, add it to the `GUIDES` map in
 to) and list its slug in `content/<version>/nav.json`. Both are needed: the map
 decides what gets imported, the nav file decides the order and grouping.
 
-Guides push technical detail into `<details><summary>` blocks so the main flow
-stays short. Those are styled in `src/styles/main.css` under `.prose details`;
-markdown inside them is parsed normally as long as a blank line follows the
-`<summary>`.
+When a guide is removed or renamed upstream, add its old slug to
+`content/<version>/redirects.json`:
+
+```json
+{ "sharing-tools": "writing-tools#share-it" }
+```
+
+The build turns each entry into a forwarding page at the old URL, so links
+people already have keep working. It fails loudly if the target doesn't exist,
+or if the old slug is still a guide.
+
+Guides keep optional how-to (another install method, a by-hand setup) in
+`<details><summary>` blocks so the main flow stays short. Those are styled in
+`src/styles/main.css` under `.prose details`; markdown inside them is parsed
+normally as long as a blank line follows the `<summary>`.
 
 ## Documenting a tool
 
