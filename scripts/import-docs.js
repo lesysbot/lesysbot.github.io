@@ -24,93 +24,72 @@ const GUIDES = {
   'getting-started': {
     title: 'Getting started',
     section: 'Start here',
-    description:
-      'From nothing to a working bot in about five minutes — install it, chat with it, write your first tool.',
+    description: 'Install it, say hello, and open the control panel — about five minutes.',
   },
   models: {
     title: 'Choosing a model',
     section: 'Start here',
-    description:
-      'Which local model to run on the hardware you have, and how to point LeSysBot at it.',
+    description: 'Which model fits your GPU, and how to switch.',
   },
   usage: {
     title: 'Everyday use',
-    section: 'Everyday use',
-    description:
-      'Asking in words versus running a tool directly, confirmations, memory, and turning tools on and off.',
+    section: 'Use it',
+    description: 'Asking in words, running tools yourself, and confirmations.',
   },
   adapters: {
     title: 'Telegram & Discord',
-    section: 'Everyday use',
-    description:
-      'Reach the bot from your phone or your workspace — full token and app setup for both.',
+    section: 'Use it',
+    description: 'Chat with your machine from your phone.',
   },
   'management-ui': {
     title: 'Control panel',
-    section: 'Everyday use',
-    description:
-      'The always-on web page at http://127.0.0.1:8700 — settings, tools, and health, reachable from your machine only.',
+    section: 'Use it',
+    description: 'Settings and tools in your browser, at http://127.0.0.1:8700.',
+  },
+  dashboards: {
+    title: 'Dashboards',
+    section: 'Use it',
+    description: 'Graphs of your machine over time in Grafana — and how to share them.',
   },
   configuration: {
     title: 'Settings',
-    section: 'Everyday use',
-    description:
-      'Where your settings live, the ones you will actually change, and the full config.yaml reference.',
-  },
-  troubleshooting: {
-    title: 'Troubleshooting',
-    section: 'Everyday use',
-    description:
-      'Symptoms and fixes: the model unreachable, tools missing, service problems, Telegram and Discord setup.',
+    section: 'Use it',
+    description: 'Where settings live, the ones you will change, and the full reference.',
   },
   'installing-tools': {
     title: 'Install tools',
-    section: 'Give it new abilities',
-    description:
-      'Add tools from any GitHub repo with one command — pinning, updating, and what you are trusting.',
+    section: 'Extend it',
+    description: 'Add tools and dashboards from GitHub with one command.',
   },
   'writing-tools': {
     title: 'Write a tool',
-    section: 'Give it new abilities',
-    description:
-      'Turn a Python function or a shell command into something LeSysBot can do, in about a minute.',
-  },
-  'installing-dashboards': {
-    title: 'Install dashboards',
-    section: 'Give it new abilities',
-    description:
-      'Add Grafana dashboards with the same install command as tools — where they land, and when one is withheld.',
-  },
-  'sharing-tools': {
-    title: 'Share your tools',
-    section: 'Give it new abilities',
-    description:
-      'Publish your tools so other people can install them, and version them sensibly.',
-  },
-  'claude-code': {
-    title: 'Write tools with Claude Code',
-    section: 'Give it new abilities',
-    description:
-      'Use the lesysbot-tool-dev plugin to let an AI assistant scaffold tool packages for you.',
+    section: 'Extend it',
+    description: 'Make your own tool in a minute, share it, or let Claude Code write it.',
   },
   service: {
-    title: 'Run as a service',
-    section: 'Keep it running',
-    description:
-      'The background service every install gets — it keeps the control panel online, answers Telegram and Discord, and writes the logs.',
+    title: 'Background service',
+    section: 'Run it',
+    description: 'Start, stop, and read the logs of the service that keeps LeSysBot running.',
+  },
+  security: {
+    title: 'Security',
+    section: 'Run it',
+    description: 'Who can use your bot, what a tool can do, and what is exposed.',
+  },
+  troubleshooting: {
+    title: 'Troubleshooting',
+    section: 'Run it',
+    description: 'Common problems and how to fix them.',
   },
   architecture: {
     title: 'How it works',
     section: 'Under the hood',
-    description:
-      'The life of a message, layer by layer — the technical page, for people modifying the code.',
+    description: 'The code, layer by layer — for contributors.',
   },
 };
 
-/** Authored in this repo — never clobbered by an import.
- * `monitoring` is derived from the core repo's dashboard/README.md but tuned
- * for the site, so it is maintained here by hand rather than imported. */
-const KEEP = new Set(['overview', 'security', 'monitoring']);
+/** Authored in this repo — never clobbered by an import. */
+const KEEP = new Set(['overview']);
 
 /** [source in the core repo, name at the site root] — copied verbatim into
  * content/static/, which src/build.js publishes at the site root.

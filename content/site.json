@@ -1,7 +1,7 @@
 {
   "title": "LeSysBot Docs",
-  "tagline": "A local AI assistant for the Linux machine you own — chat with it over the CLI, Telegram, or Discord, and extend it with tools you drop into a folder.",
-  "description": "Documentation for LeSysBot, the Linux-only local AI assistant, and its bundled tools.",
+  "tagline": "Chat with your own Linux machine — from the terminal, Telegram or Discord. The model runs on your hardware.",
+  "description": "Documentation for LeSysBot, the local AI assistant for Linux machines you own.",
   "base": "",
   "url": "https://lesysbot.github.io",
   "owner": "lesysbot",

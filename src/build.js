@@ -33,6 +33,27 @@ function write(relPath, contents) {
   fs.writeFileSync(full, contents);
 }
 
+/** A page that forwards to *target*. Used for the root and for renamed guides;
+ * with no *canonical* it is kept out of search results. */
+function redirectPage(target, title, canonical = null) {
+  const meta = canonical
+    ? `<link rel="canonical" href="${escapeHtml(canonical)}">`
+    : '<meta name="robots" content="noindex">';
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(title)}</title>
+${meta}
+<meta http-equiv="refresh" content="0; url=${escapeHtml(target)}">
+<script>location.replace(${JSON.stringify(target)});</script>
+</head>
+<body>
+<p>Redirecting to <a href="${escapeHtml(target)}">${escapeHtml(target)}</a>.</p>
+</body>
+</html>`;
+}
+
 /* --------------------------------------------------------------------- */
 /* Content loading                                                        */
 /* --------------------------------------------------------------------- */
@@ -96,27 +117,6 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
   const v = (p) => `${base}/${urlId}${p}`;
   const totalTools = catalog.packages.reduce((n, p) => n + p.tools.length, 0);
 
-  const startCards = [
-    {
-      title: 'Install it',
-      body: 'One command, no questions. It sorts out Python, Ollama and a model, then configures itself.',
-      href: v('/guides/getting-started/'),
-      cta: 'Getting started',
-    },
-    {
-      title: 'See what it can do',
-      body: `${catalog.packages.length} packages and ${totalTools} tools — disk usage, temperatures, network checks, powering the machine down, sharing a dashboard.`,
-      href: v('/tools/'),
-      cta: 'Tool reference',
-    },
-    {
-      title: 'Teach it something new',
-      body: 'A folder with a README and a tool.py is a tool. Drop it in and it works — no restart, no plugin API.',
-      href: v('/guides/writing-tools/'),
-      cta: 'Write a tool',
-    },
-  ];
-
   const journey = sections.map((section) => ({
     title: section.title,
     items: section.guides.map((g) => ({
@@ -133,7 +133,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     `<span class="hero-badge">Version ${escapeHtml(version.label)}</span>`,
     '<span class="hero-badge hero-badge-os">Linux</span>',
     '<h1 class="hero-title">Chat with the machine you own.</h1>',
-    `<p class="hero-lede">${escapeHtml(site.tagline)} The model runs on your own hardware, so the machine it controls and the model reading your messages are both yours.</p>`,
+    `<p class="hero-lede">${escapeHtml(site.tagline)}</p>`,
     '<div class="hero-actions">',
     `<a href="${v('/guides/getting-started/')}" class="btn btn-primary">Get started ${icon(
       'arrowRight',
@@ -157,40 +157,22 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '</div>',
     '</section>',
 
-    '<section class="start-grid">',
-    startCards
-      .map((c) =>
-        [
-          `<a href="${escapeHtml(c.href)}" class="start-card">`,
-          `<h2 class="start-card-title">${escapeHtml(c.title)}</h2>`,
-          `<p class="start-card-body">${escapeHtml(c.body)}</p>`,
-          `<span class="start-card-cta">${escapeHtml(c.cta)} ${icon('arrowRight', 'h-3.5 w-3.5')}</span>`,
-          '</a>',
-        ].join(''),
-      )
-      .join(''),
-    '</section>',
-
     '<section class="quickstart">',
-    '<h2 class="section-title">Four steps to a working bot</h2>',
+    '<h2 class="section-title">From nothing to a working bot</h2>',
     '<ol class="steps">',
     [
       [
         'Install it',
-        'One command. It gets Python and Ollama ready, pulls a model, and configures everything — no questions asked.',
+        'One command, no questions. It sets up Python, Ollama and a model for you.',
         'curl -fsSL https://lesysbot.github.io/install.sh | sh',
       ],
-      ['Say hello', 'Talk to it in the terminal before wiring up a chat app.', 'lesysbot chat'],
+      ['Say hello', 'Chat in your terminal.', 'lesysbot chat'],
       [
         'Open the control panel',
-        'Settings, tools and health in a browser. The service keeps it online.',
+        'Settings, tools and health, in your browser.',
         'http://127.0.0.1:8700',
       ],
-      [
-        'Add tools and dashboards',
-        'Fifteen tools ship in the box. Browse the marketplace for more, or install straight from any GitHub repo.',
-        'lesysbot search',
-      ],
+      ['Add more tools', 'Fifteen come with it. Install more from any GitHub repo.', 'lesysbot search'],
     ]
       .map(([title, desc, cmd], i) =>
         [
@@ -210,7 +192,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
 
     '<section class="platforms">',
     '<h2 class="section-title">Everything is in the box</h2>',
-    `<p class="section-lede">All ${catalog.packages.length} packages ship inside the LeSysBot wheel — ${totalTools} tools working the moment the installer finishes, with nothing to pin and nothing else to clone. They read the kernel directly (hwmon, thermal zones, <code>/proc</code>) and none of them needs root.</p>`,
+    `<p class="section-lede">All ${catalog.packages.length} packages come with LeSysBot — ${totalTools} tools that work the moment the installer finishes. None of them needs root.</p>`,
     '<div class="platform-grid">',
     catalog.packages
       .map((pkg) =>
@@ -229,15 +211,15 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<section class="feature">',
     '<div class="feature-copy">',
     '<h2 class="section-title">Watch the machine over time</h2>',
-    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. Every install sets up a Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built from node_exporter.</p>',
-    '<p class="feature-note">The installer wires it up and starts it — nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
+    '<p class="section-lede">"How hot is it?" only tells you about right now. Every install also sets up Grafana, recording CPU, memory, disk, network, temperatures and GPU as graphs over time.</p>',
+    '<p class="feature-note">The installer starts it for you. Everything stays on <code>127.0.0.1</code>, and none of it needs sudo.</p>',
     '<div class="feature-cmds">',
     '<code>open http://localhost:3000</code>',
-    '<code>~/.lesysbot/dashboard/scripts/start.sh down</code>',
+    '<code>lesysbot dashboard stop</code>',
     '</div>',
-    '<p class="feature-note">Then ask the bot for it from anywhere — <code>share_dashboard</code> publishes an expiring public snapshot you can send to someone, and takes it back down when you are done.</p>',
+    '<p class="feature-note">Ask the bot to share it and you get a link that expires — handy for sending someone a snapshot without giving them access.</p>',
     '<div class="hero-actions">',
-    `<a href="${v('/guides/monitoring/')}" class="btn btn-primary">System monitoring ${icon(
+    `<a href="${v('/guides/dashboards/')}" class="btn btn-primary">Dashboards ${icon(
       'arrowRight',
       'h-4 w-4',
     )}</a>`,
@@ -423,6 +405,24 @@ function buildVersion({ site, version, versions, urlId }) {
     });
   });
 
+  /* Redirects for merged or renamed guides ----------------------------
+   * content/<version>/redirects.json maps an old slug to "slug" or
+   * "slug#anchor", so links to a page that was folded into another keep
+   * landing on the right section instead of a 404. */
+  const redirectsFile = path.join(versionDir, 'redirects.json');
+  const redirects = fs.existsSync(redirectsFile) ? readJson(redirectsFile) : {};
+  for (const [from, to] of Object.entries(redirects)) {
+    const [slug, hash = ''] = to.split('#');
+    if (!guideSlugs.has(slug)) {
+      throw new Error(`redirects.json: "${from}" points at unknown guide "${slug}"`);
+    }
+    if (guideSlugs.has(from)) {
+      throw new Error(`redirects.json: "${from}" is still a guide — remove the redirect`);
+    }
+    const target = `${versionBase}/guides/${slug}/${hash ? `#${hash}` : ''}`;
+    write(`${urlId}/guides/${from}/index.html`, redirectPage(target, 'Page moved'));
+  }
+
   /* Tool catalog ------------------------------------------------------ */
   const { body: catalogBody } = renderCatalog({
     site: { ...site, base },
@@ -572,22 +572,7 @@ function buildSiteLevel({ site, versions, latest, latestData }) {
   const base = site.base;
 
   /* Root redirect ----------------------------------------------------- */
-  write(
-    'index.html',
-    `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>LeSysBot Docs</title>
-<link rel="canonical" href="${site.url}/latest/">
-<meta http-equiv="refresh" content="0; url=${base}/latest/">
-<script>location.replace(${JSON.stringify(`${base}/latest/`)});</script>
-</head>
-<body>
-<p>Redirecting to <a href="${base}/latest/">the latest documentation</a>.</p>
-</body>
-</html>`,
-  );
+  write('index.html', redirectPage(`${base}/latest/`, 'LeSysBot Docs', `${site.url}/latest/`));
 
   /* Versions index ---------------------------------------------------- */
   const navForVersions = [
