@@ -26,9 +26,11 @@ Because the layers are independent, the interesting question — "can it do X?" 
 
 ## The decisions worth knowing up front
 
+**It runs on Linux, and only on Linux.** Any distribution with `systemd` and Python 3.11+; nothing is branched per-OS and there is no macOS or Windows build. Tools read the kernel directly — `/sys/class/hwmon`, `/sys/class/thermal`, `/proc` — which is the reason the readings are honest and the reason they don't travel.
+
 **It runs against a local model by default.** The stock configuration points at Ollama on `localhost:11434`. Your messages, and the output of every tool call, stay on your hardware. You can point it at OpenAI instead by changing one URL — but then the machine's temperatures and disk usage travel to someone else's server, and that should be a decision you make deliberately rather than a default you inherit.
 
-**An install leaves three things running.** A background service (systemd, launchd, or Task Scheduler — whichever your OS uses), the [control panel](management-ui.md) it serves at `http://127.0.0.1:8700`, and a [Grafana dashboard](monitoring.md) of the machine's CPU, memory, disk, network, and GPU. All of them bind to localhost only. Chat is the fourth thing, and the only one that reaches off the machine — which is why the allow-list below matters. Running `lesysbot` with no arguments prints the health of all four and exits without starting anything.
+**An install leaves three things running.** A `systemd --user` service, the [control panel](management-ui.md) it serves at `http://127.0.0.1:8700`, and a [Grafana dashboard](monitoring.md) of the machine's CPU, memory, disk, network, and GPU. All of them bind to localhost only. Chat is the fourth thing, and the only one that reaches off the machine — which is why the allow-list below matters. Running `lesysbot` with no arguments prints the health of all four and exits without starting anything.
 
 **Destructive tools ask first.** Anything that powers the machine down declares a confirmation string, and LeSysBot will not run it until you answer. The power tools go further and schedule the shutdown a minute out, so the reply reaches you before the network drops and you still have a window to cancel it.
 
@@ -40,7 +42,7 @@ Because the layers are independent, the interesting question — "can it do X?" 
 
 ## What it is not
 
-It is not a fleet manager — one install talks to one machine. It is not a general-purpose coding agent; the tools are deliberately small and single-purpose. And it is not a hosted service: there is no account, no server of ours in the path, and nothing to sign up for.
+It is not cross-platform — there is no macOS or Windows build, and tools no longer declare which OS they support. It is not a fleet manager: one install talks to one machine. It is not a general-purpose coding agent; the tools are deliberately small and single-purpose. And it is not a hosted service: there is no account, no server of ours in the path, and nothing to sign up for.
 
 ## Where to go next
 

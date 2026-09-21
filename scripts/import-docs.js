@@ -99,12 +99,6 @@ const GUIDES = {
     description:
       'The background service every install gets — it keeps the control panel online, answers Telegram and Discord, and writes the logs.',
   },
-  'building-windows-exe': {
-    title: 'Build a Windows .exe',
-    section: 'Keep it running',
-    description:
-      'Package LeSysBot into a standalone lesysbot.exe with PyInstaller, for people without Python.',
-  },
   architecture: {
     title: 'How it works',
     section: 'Under the hood',
@@ -121,13 +115,12 @@ const KEEP = new Set(['overview', 'security', 'monitoring']);
 /** [source in the core repo, name at the site root] — copied verbatim into
  * content/static/, which src/build.js publishes at the site root.
  *
- * These are canonical *upstream*: install.sh and install.ps1 are what
- * shellcheck, PSScriptAnalyzer and the installer end-to-end job run against, so
- * editing the copy here would silently ship an unlinted installer to everyone
- * who runs `curl -fsSL https://lesysbot.github.io/install.sh | sh`. */
+ * These are canonical *upstream*: install.sh is what shellcheck and the
+ * installer end-to-end job run against, so editing the copy here would
+ * silently ship an unlinted installer to everyone who runs
+ * `curl -fsSL https://lesysbot.github.io/install.sh | sh`. */
 const STATIC_FILES = [
   ['scripts/install.sh', 'install.sh'],
-  ['scripts/install.ps1', 'install.ps1'],
   ['catalog.json', 'catalog.json'],
 ];
 

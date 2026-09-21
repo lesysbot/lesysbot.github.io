@@ -131,6 +131,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<div class="hero-copy">',
     `<img src="${base}/assets/wordmark.svg" alt="LeSysBot" class="hero-wordmark" width="152" height="32">`,
     `<span class="hero-badge">Version ${escapeHtml(version.label)}</span>`,
+    '<span class="hero-badge hero-badge-os">Linux</span>',
     '<h1 class="hero-title">Chat with the machine you own.</h1>',
     `<p class="hero-lede">${escapeHtml(site.tagline)} The model runs on your own hardware, so the machine it controls and the model reading your messages are both yours.</p>`,
     '<div class="hero-actions">',
@@ -187,8 +188,8 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
       ],
       [
         'Add tools and dashboards',
-        'Pull in the official cross-platform collection — one repo, every OS.',
-        'lesysbot install lesysbot/lesysbot-packages-official',
+        'Fifteen tools ship in the box. Browse the marketplace for more, or install straight from any GitHub repo.',
+        'lesysbot search',
       ],
     ]
       .map(([title, desc, cmd], i) =>
@@ -208,22 +209,19 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '</section>',
 
     '<section class="platforms">',
-    '<h2 class="section-title">Tools for every platform</h2>',
-    '<p class="section-lede">The bundled set works everywhere. Beyond that, each OS gets a collection built on its own interfaces — hwmon sensors on Linux, pmset and the SMC on macOS, WMI thermal zones on Windows. None of them needs root.</p>',
+    '<h2 class="section-title">Everything is in the box</h2>',
+    `<p class="section-lede">All ${catalog.packages.length} packages ship inside the LeSysBot wheel — ${totalTools} tools working the moment the installer finishes, with nothing to pin and nothing else to clone. They read the kernel directly (hwmon, thermal zones, <code>/proc</code>) and none of them needs root.</p>`,
     '<div class="platform-grid">',
-    catalog.collections
-      .map((c) => {
-        const items = catalog.packages.filter((p) => p.collection === c.id);
-        const count = items.reduce((n, p) => n + p.tools.length, 0);
-        return [
-          `<a href="${v(`/tools/#${escapeHtml(c.id)}`)}" class="platform-card">`,
-          `<span class="collection-dot collection-${escapeHtml(c.id)}"></span>`,
-          `<p class="platform-name">${escapeHtml(c.name)}</p>`,
-          `<p class="platform-count">${items.length} packages · ${count} tools</p>`,
-          `<p class="platform-list">${items.map((p) => escapeHtml(p.name)).join(', ')}</p>`,
+    catalog.packages
+      .map((pkg) =>
+        [
+          `<a href="${v(`/tools/${escapeHtml(pkg.collection)}/${escapeHtml(pkg.slug)}/`)}" class="platform-card">`,
+          `<p class="platform-name">${escapeHtml(pkg.name)}</p>`,
+          `<p class="platform-count">${pkg.tools.length} ${pkg.tools.length === 1 ? 'tool' : 'tools'}</p>`,
+          `<p class="platform-list">${escapeHtml(pkg.summary)}</p>`,
           '</a>',
-        ].join('');
-      })
+        ].join(''),
+      )
       .join(''),
     '</div>',
     '</section>',
@@ -231,11 +229,11 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
     '<section class="feature">',
     '<div class="feature-copy">',
     '<h2 class="section-title">Watch the machine over time</h2>',
-    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. Every install sets up a Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built for the OS you are on.</p>',
+    '<p class="section-lede">A one-off "how hot is it?" only tells you about now. Every install sets up a Prometheus + Grafana stack that records CPU, memory, disk, network — Ethernet and Wifi separately — temperatures and NVIDIA GPU as time series, on a dashboard built from node_exporter.</p>',
     '<p class="feature-note">The installer wires it up and starts it — nothing to configure. Everything binds to <code>127.0.0.1</code>, and none of it needs sudo.</p>',
     '<div class="feature-cmds">',
     '<code>open http://localhost:3000</code>',
-    '<code>~/.lesysbot/monitoring/scripts/start.sh down</code>',
+    '<code>~/.lesysbot/dashboard/scripts/start.sh down</code>',
     '</div>',
     '<p class="feature-note">Then ask the bot for it from anywhere — <code>share_dashboard</code> publishes an expiring public snapshot you can send to someone, and takes it back down when you are done.</p>',
     '<div class="hero-actions">',
@@ -327,11 +325,14 @@ function buildVersion({ site, version, versions, urlId }) {
     {
       title: 'Tool reference',
       items: [
-        { label: 'All tools', href: `${versionBase}/tools/` },
-        ...catalog.collections.map((c) => ({
-          label: c.name,
-          href: `${versionBase}/tools/#${c.id}`,
-          badge: String(catalog.packages.filter((p) => p.collection === c.id).length),
+        {
+          label: 'All tools',
+          href: `${versionBase}/tools/`,
+          badge: String(catalog.packages.length),
+        },
+        ...catalog.packages.map((pkg) => ({
+          label: pkg.name,
+          href: `${versionBase}/tools/${pkg.collection}/${pkg.slug}/`,
         })),
       ],
     },
@@ -437,7 +438,7 @@ function buildVersion({ site, version, versions, urlId }) {
       versions,
       urlId,
       title: 'Tool reference',
-      description: `Every tool LeSysBot can call in version ${version.label} — ${catalog.packages.length} packages across the bundled set and the official cross-platform collection.`,
+      description: `Every tool LeSysBot can call in version ${version.label} — ${catalog.packages.length} bundled packages, available as soon as the installer finishes.`,
       body: catalogBody,
       nav,
       currentPath: `${versionBase}/tools/`,
@@ -559,9 +560,9 @@ function renderVersionsPage({ site, versions, latest }) {
     '</div>',
     `<div class="version-rows">${rows}</div>`,
     '<section class="callout callout-info mt-10">',
-    '<p class="callout-title">Pinning a tool collection</p>',
+    '<p class="callout-title">Pinning a tool package</p>',
     '<p>Site versions track LeSysBot releases. Tool packages carry their own version in their README frontmatter, and you can pin an install to any git ref:</p>',
-    '<figure class="code-block"><pre><code class="lang-shell">lesysbot install lesysbot/lesysbot-packages-official@v2.0.0</code></pre></figure>',
+    '<figure class="code-block"><pre><code class="lang-shell">lesysbot install acme/lesysbot-tools@v1.2.0</code></pre></figure>',
     '<p>Installed packages are recorded in <code>tools.lock.json</code> with the package version and the exact commit SHA, so you can always tell what is running.</p>',
     '</section>',
   ].join('');
@@ -667,11 +668,10 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
   write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
 
   /* Everything in content/static/ is published verbatim at the site root.
-     Three things need a root URL and can get one no other way:
+     Two things need a root URL and can get one no other way:
 
        catalog.json   what `lesysbot search --refresh` fetches
        install.sh     what `curl -fsSL <site>/install.sh | sh` runs
-       install.ps1    the same for `irm <site>/install.ps1 | iex`
 
      and a CNAME file would belong here too the day this moves to a custom
      domain — src/assets/ is copied to /assets/, where Pages ignores it.

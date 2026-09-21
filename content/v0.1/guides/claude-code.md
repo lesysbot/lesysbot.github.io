@@ -6,11 +6,11 @@ source: docs/claude-code.md
 ---
 LeSysBot ships a [Claude Code](https://code.claude.com/docs) plugin —
 **`lesysbot-tool-dev`** — so an AI assistant can scaffold correct tool packages
-for you in *any* repo: the official tool collections, your own tools repo, or
+for you in *any* repo: the core LeSysBot checkout, your own tools repo, or
 a folder destined for `~/.lesysbot/tools/`. The plugin carries an `add-tool`
 skill that encodes the package conventions (README frontmatter, `@tool` /
-`CLITool`, typing, confirmation, cross-platform gating) so Claude gets them
-right without you pasting docs into the chat.
+`CLITool`, typing, confirmation, requirement gating) so Claude gets them right
+without you pasting docs into the chat.
 
 This repo is also the plugin **marketplace**: the catalog lives in
 [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json) and the
@@ -18,14 +18,24 @@ plugin itself in [`claude-plugin/lesysbot-tool-dev/`](../claude-plugin/lesysbot-
 Improve the skill here, push, and every installed copy can pull the update —
 one source of truth, no per-repo drift.
 
-## 1. The official packages repo — zero setup
+## 1. Commit it to your tools repo — zero setup for everyone who clones it
 
-The official package-collection repo
-([lesysbot-packages-official](https://github.com/lesysbot/lesysbot-packages-official))
-commits a `.claude/settings.json` that references this marketplace. Clone one,
-open Claude Code inside it, and trust the folder when asked — Claude Code then
-prompts you to install the `lesysbot` marketplace and enables `lesysbot-tool-dev`
-automatically. After that, just ask: *"add a tool that checks whether a
+Drop this in your repo as `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "lesysbot": {
+      "source": { "source": "github", "repo": "lesysbot/lesysbot" }
+    }
+  },
+  "enabledPlugins": { "lesysbot-tool-dev@lesysbot": true }
+}
+```
+
+Anyone who clones the repo, opens Claude Code inside it and trusts the folder is
+then prompted to install the `lesysbot` marketplace, and `lesysbot-tool-dev` is
+enabled automatically. After that, just ask: *"add a tool that checks whether a
 systemd unit is running"*.
 
 ## 2. Manual install — any project

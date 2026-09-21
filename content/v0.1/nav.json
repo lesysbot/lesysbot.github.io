@@ -30,7 +30,7 @@
   },
   {
     "title": "Keep it running",
-    "items": ["service", "monitoring", "building-windows-exe"]
+    "items": ["service", "monitoring"]
   },
   {
     "title": "Under the hood",

@@ -1,8 +1,7 @@
 # lesysbot-docs
 
-The documentation site for [LeSysBot](https://github.com/lesysbot/lesysbot) and its
-official cross-platform package collection,
-[lesysbot-packages-official](https://github.com/lesysbot/lesysbot-packages-official).
+The documentation site for [LeSysBot](https://github.com/lesysbot/lesysbot), the
+Linux-only local AI assistant, and the tool packages bundled with it.
 
 **Live at <https://lesysbot.github.io/>**
 
@@ -89,7 +88,7 @@ version's home page where it does not — so switching never lands on a 404.
 When LeSysBot tags a release:
 
 ```bash
-node scripts/release.js v0.2 --label 0.2.0 --ref v0.2.0 --notes "Windows service support."
+node scripts/release.js v0.2 --label 0.2.0 --ref v0.2.0 --notes "Adapter plugins."
 ```
 
 That snapshots `content/v0.1/` into `content/v0.2/`, marks 0.1 archived, and
@@ -125,20 +124,19 @@ the sidebar counts, and the search index all update together:
 
 ```jsonc
 {
-  "slug": "battery",
-  "name": "battery",
-  "collection": "packages",       // core | packages
+  "slug": "network",
+  "name": "network",
+  "collection": "core",           // the one collection: everything is bundled
   "version": "1.0.0",             // from the package's README frontmatter
-  "summary": "Battery charge, power source, and time remaining.",
-  "platforms": ["macos"],
-  "requires": ["pmset"],          // binaries that must be on PATH
+  "summary": "Ping, DNS lookup, and traceroute.",
+  "requires": ["ping", "nslookup", "traceroute"],  // binaries on PATH
   "deps": [],                     // pip packages
   "tools": [
     {
-      "name": "battery",
+      "name": "ping",
       "kind": "cli",              // cli | python
-      "command": "pmset -g batt", // shown when kind is cli
-      "summary": "Report charge percentage and time remaining.",
+      "command": "ping -c 3 {host}",  // shown when kind is cli
+      "summary": "Send three ICMP echo requests to a host.",
       "params": [],
       "confirm": false,
       "privileged": false

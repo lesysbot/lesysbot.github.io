@@ -6,21 +6,9 @@
       "short": "Bundled with LeSysBot",
       "repo": "lesysbot/lesysbot",
       "path": "tools",
-      "platform": "all",
       "accent": "sky",
-      "description": "Ships inside the LeSysBot package itself. These are available the moment you finish the installer — nothing to install, nothing to pin. They stay deliberately dependency-light so a fresh install is useful on any OS.",
+      "description": "Every tool ships inside the LeSysBot package itself — available the moment the installer finishes, with nothing to install and nothing to pin. They stay deliberately dependency-light, and each tool is gated on its own binary rather than on the machine it finds itself on.",
       "install": null
-    },
-    {
-      "id": "packages",
-      "name": "Official packages",
-      "short": "Official cross-platform collection",
-      "repo": "lesysbot/lesysbot-packages-official",
-      "path": "tools",
-      "platform": "all",
-      "accent": "amber",
-      "description": "The official collection — capability-shaped, not OS-shaped. Each package carries its per-OS variants (ping -c vs ping -n, hwmon vs SMC vs WMI), so one install covers Linux, macOS, and Windows. The repo also ships Grafana dashboard packages (network-traffic, gpu-detail) that install the same way.",
-      "install": "lesysbot install lesysbot/lesysbot-packages-official"
     }
   ],
   "packages": [
@@ -29,11 +17,6 @@
       "name": "system-info",
       "collection": "core",
       "summary": "Basic machine information and free disk space.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -55,7 +38,7 @@
         }
       ],
       "notes": [
-        "Pure Python and standard library only — works on every supported OS with no extra install."
+        "Pure Python and standard library only — nothing extra to install."
       ]
     },
     {
@@ -64,11 +47,6 @@
       "collection": "core",
       "version": "1.0.0",
       "summary": "Current date, time, and timezone information.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -98,11 +76,6 @@
       "name": "power",
       "collection": "core",
       "summary": "Reboot or power off the machine, scheduled a minute out and cancellable.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [],
       "danger": true,
@@ -137,60 +110,101 @@
       ],
       "notes": [
         "The one-minute delay is deliberate: it gives the chat reply time to reach you before the machine goes down, and it leaves a window to run cancel_shutdown if you change your mind.",
-        "The right command is selected per OS. On systemd Linux the shutdown is scheduled through logind and polkit, so it runs as your normal user — no sudo, no setup.",
+        "The shutdown is scheduled with shutdown(8). On systemd distributions that goes through logind under the same polkit rules as systemctl poweroff, so it runs as your normal user — no sudo, no setup.",
         "About ten seconds before the machine actually goes down, LeSysBot pushes a separate heads-up message, so you know the cancellation window has closed."
       ]
     },
     {
-      "slug": "cpu-temp",
-      "name": "cpu-temp",
+      "slug": "temperature",
+      "name": "temperature",
       "collection": "core",
-      "summary": "CPU temperature from Linux thermal sensors.",
-      "platforms": [
-        "linux"
-      ],
+      "version": "1.0.0",
+      "summary": "CPU and GPU temperatures, straight from the kernel.",
       "requires": [],
       "deps": [],
       "tools": [
         {
-          "name": "cpu_temp",
+          "name": "temperature",
           "kind": "python",
-          "summary": "Report current CPU temperature — the hottest sensor plus a per-sensor breakdown.",
+          "summary": "Report every CPU and GPU temperature this machine exposes, grouped by chip.",
           "params": [],
           "confirm": false,
           "privileged": false
         }
       ],
       "notes": [
-        "Reads Linux /sys thermal sensors directly, so there is nothing to install.",
-        "On Linux the official Linux collection's temperature package is a superset of this one — it adds GPU readings and a wider set of sensor chips."
+        "CPU readings — and AMD, Intel and nouveau GPU readings — come from the kernel's hwmon interface at /sys/class/hwmon, so there is no external binary and no pip dependency.",
+        "NVIDIA's proprietary driver does not publish temperatures through hwmon, so nvidia-smi is queried as well whenever it is on PATH.",
+        "Boards that expose the CPU only as a thermal zone rather than an hwmon chip (common on ARM single-board computers) are covered by a /sys/class/thermal fallback, consulted only when hwmon turned up no CPU reading.",
+        "This package replaces the separate cpu-temp and gpu-temp packages — one call now answers “how hot is it?” for both."
       ]
     },
     {
-      "slug": "gpu-temp",
-      "name": "gpu-temp",
+      "slug": "network",
+      "name": "network",
       "collection": "core",
-      "summary": "NVIDIA GPU temperature via nvidia-smi.",
-      "platforms": [
-        "linux",
-        "windows"
-      ],
+      "version": "1.0.0",
+      "summary": "Ping, DNS lookup, and traceroute.",
       "requires": [
-        "nvidia-smi"
+        "ping",
+        "nslookup",
+        "traceroute"
       ],
       "deps": [],
       "tools": [
         {
-          "name": "gpu_temp",
-          "kind": "python",
-          "summary": "Report the current temperature of each NVIDIA GPU in the machine.",
-          "params": [],
+          "name": "ping",
+          "kind": "cli",
+          "command": "ping -c 3 {host}",
+          "timeout": "15s",
+          "summary": "Send three ICMP echo requests to a host and report the replies.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to ping."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "dns_lookup",
+          "kind": "cli",
+          "command": "nslookup {domain}",
+          "summary": "Resolve a domain name and report the answering nameserver.",
+          "params": [
+            {
+              "name": "domain",
+              "type": "str",
+              "required": true,
+              "description": "Domain name to resolve."
+            }
+          ],
+          "confirm": false,
+          "privileged": false
+        },
+        {
+          "name": "traceroute",
+          "kind": "cli",
+          "command": "traceroute -m 15 {host}",
+          "timeout": "60s",
+          "summary": "Trace the network path to a host, up to 15 hops.",
+          "params": [
+            {
+              "name": "host",
+              "type": "str",
+              "required": true,
+              "description": "Hostname or IP address to trace."
+            }
+          ],
           "confirm": false,
           "privileged": false
         }
       ],
       "notes": [
-        "Requires the NVIDIA driver's nvidia-smi to be on PATH. AMD and Intel GPUs are not covered here — on Linux, use the Linux collection's temperature package, which reads amdgpu, radeon, nouveau, i915, and xe through hwmon."
+        "Each tool is gated independently on its own binary, so a box without traceroute installed still gets working ping and dns_lookup — the gated one stays listed and explains itself."
       ]
     },
     {
@@ -198,11 +212,6 @@
       "name": "speedtest",
       "collection": "core",
       "summary": "Measure internet download speed and latency.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -233,11 +242,6 @@
       "name": "web",
       "collection": "core",
       "summary": "Fetch a URL and return its text content.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [
         "httpx"
@@ -270,11 +274,6 @@
       "collection": "core",
       "version": "1.1.0",
       "summary": "Publish the Grafana system dashboard as an expiring public link, then list or delete your shares.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
       "requires": [],
       "deps": [],
       "tools": [
@@ -319,7 +318,7 @@
         }
       ],
       "notes": [
-        "Needs the monitoring stack running — it reads the dashboard and its data from your local Grafana. Start it with dashboard/scripts/start.sh (or start.ps1).",
+        "Needs the monitoring stack running — it reads the dashboard and its data from your local Grafana. Start it with dashboard/scripts/start.sh.",
         "The snapshot is a frozen copy: the data is baked into the published dashboard, so viewers never reach back to your Prometheus and see nothing beyond the window you captured.",
         "The link is genuinely public — anyone who has it can open it. Snapshots expire after the time you chose (1h by default), and delete_snapshot removes them from both Grafana and raintank.",
         "raintank's CDN may keep serving a deleted snapshot for up to an hour afterwards.",
@@ -338,172 +337,6 @@
           "fix": "Let the stack run for a few minutes so the exporters have something to report, then share again.",
           "verify": "docker compose ps"
         }
-      ]
-    },
-    {
-      "slug": "network",
-      "name": "network",
-      "collection": "packages",
-      "version": "2.0.0",
-      "summary": "Ping, DNS lookup, and traceroute on every OS.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
-      "requires": [
-        "ping",
-        "nslookup"
-      ],
-      "deps": [],
-      "tools": [
-        {
-          "name": "ping",
-          "kind": "cli",
-          "command": "ping -c 3 {host} (Unix) · ping -n 3 {host} (Windows)",
-          "timeout": "15s",
-          "summary": "Send three ICMP echo requests to a host and report the replies.",
-          "params": [
-            {
-              "name": "host",
-              "type": "str",
-              "required": true,
-              "description": "Hostname or IP address to ping."
-            }
-          ],
-          "confirm": false,
-          "privileged": false
-        },
-        {
-          "name": "dns_lookup",
-          "kind": "cli",
-          "command": "nslookup {domain}",
-          "summary": "Resolve a domain name and report the answering nameserver.",
-          "params": [
-            {
-              "name": "domain",
-              "type": "str",
-              "required": true,
-              "description": "Domain name to resolve."
-            }
-          ],
-          "confirm": false,
-          "privileged": false
-        },
-        {
-          "name": "traceroute",
-          "kind": "cli",
-          "command": "traceroute -m 15 {host} (Unix) · tracert -h 15 -w 1000 {host} (Windows)",
-          "timeout": "120s",
-          "summary": "Trace the network path to a host, up to 15 hops.",
-          "params": [
-            {
-              "name": "host",
-              "type": "str",
-              "required": true,
-              "description": "Hostname or IP address to trace."
-            }
-          ],
-          "confirm": false,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "One package for every OS: each tool carries its per-OS command variants, and traceroute requires the binary this OS actually uses (traceroute on Unix, tracert on Windows).",
-        "Each tool is gated independently on its own binary, so a machine without traceroute still gets working ping and dns_lookup."
-      ]
-    },
-    {
-      "slug": "temperature",
-      "name": "temperature",
-      "collection": "packages",
-      "version": "3.0.0",
-      "summary": "CPU and GPU temperatures on Linux, macOS, and Windows.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
-      "requires": [],
-      "deps": [],
-      "tools": [
-        {
-          "name": "temperature",
-          "kind": "python",
-          "summary": "Report every CPU and GPU temperature this machine exposes, choosing the right reader per OS at call time.",
-          "params": [],
-          "confirm": false,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "Dispatches per OS: kernel hwmon on Linux, the SMC via osx-cpu-temp on macOS (brew install osx-cpu-temp, Intel Macs), ACPI thermal zones via WMI on Windows; nvidia-smi is queried wherever it is on PATH.",
-        "Apple Silicon exposes no die temperature to unprivileged userspace, and nothing in this collection uses sudo — on M-series Macs the tool says so instead of inventing a number."
-      ]
-    },
-    {
-      "slug": "battery",
-      "name": "battery",
-      "collection": "packages",
-      "version": "1.0.0",
-      "summary": "Battery charge, power source, and time remaining.",
-      "platforms": [
-        "macos"
-      ],
-      "requires": [
-        "pmset"
-      ],
-      "deps": [],
-      "tools": [
-        {
-          "name": "battery",
-          "kind": "cli",
-          "command": "pmset -g batt",
-          "summary": "Report charge percentage, whether the Mac is on AC or battery, and the estimated time remaining.",
-          "params": [],
-          "confirm": false,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "macOS-only: a bare collection install skips it elsewhere (the OS gate is immutable); --only battery or --all overrides.",
-        "Needs no root and no confirmation. On a desktop Mac it reports that there are no batteries rather than failing."
-      ]
-    },
-    {
-      "slug": "speedtest",
-      "name": "speedtest",
-      "collection": "packages",
-      "version": "1.1.0",
-      "summary": "Measure current internet download speed and latency.",
-      "platforms": [
-        "linux",
-        "macos",
-        "windows"
-      ],
-      "requires": [],
-      "deps": [],
-      "tools": [
-        {
-          "name": "speedtest",
-          "kind": "python",
-          "summary": "Download a test payload from Cloudflare and report throughput and latency.",
-          "params": [
-            {
-              "name": "size_mb",
-              "type": "float",
-              "required": false,
-              "default": "10.0",
-              "description": "Size of the test download in megabytes. Larger samples are more accurate on fast links; smaller ones finish sooner on slow ones."
-            }
-          ],
-          "confirm": false,
-          "privileged": false
-        }
-      ],
-      "notes": [
-        "Marked tier: extra — it runs everywhere but deliberately moves tens of megabytes per call, so a bare collection install skips it; --only speedtest or --all installs it.",
-        "Uses Cloudflare's public speed-test endpoints over the standard library: no binary, no pip dependency, just outbound HTTPS."
       ]
     }
   ]

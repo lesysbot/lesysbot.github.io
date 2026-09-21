@@ -3,15 +3,10 @@
  */
 
 import { escapeHtml, highlight } from './highlight.js';
-import { icon, platformBadges } from './layout.js';
+import { icon } from './layout.js';
 
 export function packageHref(base, versionId, pkg) {
   return `${base}/${versionId}/tools/${pkg.collection}/${pkg.slug}/`;
-}
-
-function installCommand(pkg, collection) {
-  if (collection.id === 'core') return null;
-  return `lesysbot tools install ${collection.repo}/${collection.path}/${pkg.slug}`;
 }
 
 function codeBlock(code, lang = 'shell') {
@@ -39,8 +34,6 @@ function catalogCard(pkg, collection, base, versionId) {
 
   return [
     `<a href="${escapeHtml(href)}" class="tool-card" data-tool-card`,
-    ` data-collection="${escapeHtml(pkg.collection)}"`,
-    ` data-platforms="${escapeHtml(pkg.platforms.join(' '))}"`,
     ` data-search="${escapeHtml(
       [pkg.name, pkg.summary, ...toolNames, ...(pkg.requires || [])]
         .join(' ')
@@ -48,9 +41,6 @@ function catalogCard(pkg, collection, base, versionId) {
     )}">`,
     '<div class="tool-card-head">',
     `<span class="tool-card-name">${escapeHtml(pkg.name)}</span>`,
-    `<span class="collection-dot collection-${escapeHtml(pkg.collection)}" title="${escapeHtml(
-      collection.short,
-    )}"></span>`,
     '</div>',
     `<p class="tool-card-summary">${escapeHtml(pkg.summary)}</p>`,
     '<div class="tool-card-tools">',
@@ -59,9 +49,11 @@ function catalogCard(pkg, collection, base, versionId) {
       .join(''),
     '</div>',
     '<div class="tool-card-foot">',
-    platformBadges(pkg.platforms),
+    pkg.requires && pkg.requires.length
+      ? chip(`needs ${pkg.requires.join(', ')}`, 'muted')
+      : '',
     needsConfirm ? chip('confirms', 'warn') : '',
-    pkg.deps && pkg.deps.length ? chip(`needs ${pkg.deps.join(', ')}`, 'muted') : '',
+    pkg.deps && pkg.deps.length ? chip(`pip ${pkg.deps.join(', ')}`, 'muted') : '',
     '</div>',
     '</a>',
   ].join('');
@@ -74,51 +66,19 @@ export function renderCatalog({ site, version, catalog }) {
 
   const totalTools = packages.reduce((n, p) => n + p.tools.length, 0);
 
-  const filterButtons = [
-    '<button type="button" class="filter-chip filter-chip-active" data-filter="all">All<span class="filter-count">' +
-      packages.length +
-      '</span></button>',
-    ...collections.map(
-      (c) =>
-        `<button type="button" class="filter-chip" data-filter="${escapeHtml(
-          c.id,
-        )}"><span class="collection-dot collection-${escapeHtml(
-          c.id,
-        )}"></span>${escapeHtml(c.name)}<span class="filter-count">${
-          packages.filter((p) => p.collection === c.id).length
-        }</span></button>`,
-    ),
+  const grid = [
+    '<div class="tool-grid">',
+    packages
+      .map((p) => catalogCard(p, byId.get(p.collection), base, version.id))
+      .join(''),
+    '</div>',
   ].join('');
-
-  const groups = collections
-    .map((collection) => {
-      const items = packages.filter((p) => p.collection === collection.id);
-      if (!items.length) return '';
-      return [
-        `<section class="catalog-group" data-group="${escapeHtml(collection.id)}">`,
-        '<div class="catalog-group-head">',
-        `<h2 id="${escapeHtml(collection.id)}" class="catalog-group-title">`,
-        `<span class="collection-dot collection-${escapeHtml(collection.id)}"></span>`,
-        `${escapeHtml(collection.name)}`,
-        '</h2>',
-        `<p class="catalog-group-desc">${escapeHtml(collection.description)}</p>`,
-        collection.install
-          ? `<div class="catalog-group-install">${codeBlock(collection.install)}</div>`
-          : '<p class="catalog-group-note">Included with LeSysBot — nothing to install.</p>',
-        '</div>',
-        '<div class="tool-grid">',
-        items.map((p) => catalogCard(p, collection, base, version.id)).join(''),
-        '</div>',
-        '</section>',
-      ].join('');
-    })
-    .join('');
 
   const body = [
     '<div class="page-header">',
     '<p class="eyebrow">Reference</p>',
     '<h1 class="page-title">Tool reference</h1>',
-    `<p class="page-lede">Every tool LeSysBot can call, across the bundled set and the official cross-platform collection — ${packages.length} packages exposing ${totalTools} tools. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
+    `<p class="page-lede">Every tool LeSysBot can call — ${packages.length} packages exposing ${totalTools} tools, all bundled with the package and available as soon as the installer finishes. Each page documents the parameters, the command actually run, and whether it asks you to confirm first.</p>`,
     '</div>',
 
     '<div class="catalog-controls">',
@@ -128,19 +88,14 @@ export function renderCatalog({ site, version, catalog }) {
     )}</span><input type="search" class="catalog-search-input" data-catalog-search placeholder="Filter ${
       packages.length
     } packages by name, tool, or requirement…" autocomplete="off"></div>`,
-    `<div class="filter-row">${filterButtons}</div>`,
     '</div>',
 
     '<p class="catalog-empty" data-catalog-empty hidden>No packages match that filter.</p>',
-    groups,
+    grid,
 
     '<section class="callout callout-info mt-14">',
-    '<p class="callout-title">One package per capability, every OS</p>',
-    '<p>Packages in the official collection are capability-shaped, not OS-shaped: the <a href="' +
-      escapeHtml(base) +
-      '/' +
-      escapeHtml(version.id) +
-      '/tools/packages/network/"><code>network</code> package</a> carries <code>ping&nbsp;-c</code>/<code>ping&nbsp;-n</code> and <code>traceroute</code>/<code>tracert</code> as per-OS variants of the same tools, and <code>temperature</code> picks the right reader (hwmon, SMC, or WMI) at call time. Install once; the right variant runs wherever it lands.</p>',
+    '<p class="callout-title">A listed tool can still be unavailable</p>',
+    '<p>A package declares the programs it needs on <code>PATH</code>. If one is missing, the tool is still registered — it shows in <code>/help</code> and the model still knows about it — but calling it returns a one-line explanation instead of failing. Each tool is gated on its own binary, so a package never becomes all-or-nothing.</p>',
     '</section>',
   ].join('');
 
@@ -219,17 +174,11 @@ function renderToolEntry(tool, pkg) {
 
 export function renderPackagePage({ site, version, pkg, collection }) {
   const base = site.base;
-  const install = installCommand(pkg, collection);
   const repoUrl = `https://github.com/${collection.repo}`;
-  const sourceUrl =
-    collection.id === 'core'
-      ? `${repoUrl}/tree/${version.ref}/tools/${pkg.slug}`
-      : `${repoUrl}/tree/main/${collection.path}/${pkg.slug}`;
+  const sourceUrl = `${repoUrl}/tree/${version.ref}/tools/${pkg.slug}`;
 
   const meta = [
-    ['Collection', `<a href="${escapeHtml(repoUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(collection.short)}</a>`],
     ['Package version', pkg.version ? `<code>${escapeHtml(pkg.version)}</code>` : '<span class="dash">not declared</span>'],
-    ['Platforms', platformBadges(pkg.platforms)],
     [
       'Requires on PATH',
       pkg.requires && pkg.requires.length
@@ -246,9 +195,7 @@ export function renderPackagePage({ site, version, pkg, collection }) {
 
   const body = [
     '<div class="page-header">',
-    `<p class="eyebrow"><span class="collection-dot collection-${escapeHtml(
-      pkg.collection,
-    )}"></span>${escapeHtml(collection.short)}</p>`,
+    `<p class="eyebrow">${escapeHtml(collection.short)}</p>`,
     `<h1 class="page-title"><code class="title-code">${escapeHtml(pkg.name)}</code></h1>`,
     `<p class="page-lede">${escapeHtml(pkg.summary)}</p>`,
     pkg.danger
@@ -267,22 +214,14 @@ export function renderPackagePage({ site, version, pkg, collection }) {
       .join(''),
     '</div>',
 
-    install
-      ? [
-          '<section class="section">',
-          '<h2 id="install" class="heading-anchor">Install<a href="#install" class="anchor-link" aria-label="Link to this section">#</a></h2>',
-          `<p>Install just this package:</p>`,
-          codeBlock(install),
-          `<p>Or take the whole ${escapeHtml(collection.name)} collection at once:</p>`,
-          codeBlock(collection.install),
-          '</section>',
-        ].join('')
-      : [
-          '<section class="section">',
-          '<h2 id="install" class="heading-anchor">Install<a href="#install" class="anchor-link" aria-label="Link to this section">#</a></h2>',
-          '<p>Nothing to do — this package ships inside LeSysBot and is available as soon as the installer finishes.</p>',
-          '</section>',
-        ].join(''),
+    [
+      '<section class="section">',
+      '<h2 id="install" class="heading-anchor">Install<a href="#install" class="anchor-link" aria-label="Link to this section">#</a></h2>',
+      '<p>Nothing to do — this package ships inside LeSysBot and is available as soon as the installer finishes.</p>',
+      `<p>To copy it somewhere else, or pin it into another machine's tools dir:</p>`,
+      codeBlock(`lesysbot install ${collection.repo}/tools/${pkg.slug}`),
+      '</section>',
+    ].join(''),
 
     '<section class="section">',
     `<h2 id="tools" class="heading-anchor">Tools<a href="#tools" class="anchor-link" aria-label="Link to this section">#</a></h2>`,
@@ -330,7 +269,7 @@ export function renderPackagePage({ site, version, pkg, collection }) {
     `<p>Every package is a folder holding a <code>README.md</code> and a <code>tool.py</code>. Read this one on GitHub: <a href="${escapeHtml(
       sourceUrl,
     )}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-      `${collection.repo}/${collection.id === 'core' ? 'tools' : collection.path}/${pkg.slug}`,
+      `${collection.repo}/tools/${pkg.slug}`,
     )}</a>.</p>`,
     `<p>To write your own, see <a href="${escapeHtml(base)}/${escapeHtml(
       version.id,

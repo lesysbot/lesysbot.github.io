@@ -8,7 +8,7 @@
       "released": "2026-07-20",
       "status": "current",
       "ref": "main",
-      "notes": "First documented release. Cross-platform core, guided installer, and the official cross-platform package collection."
+      "notes": "First documented release. Linux-only core, guided installer, and fifteen tools bundled in the package."
     }
   ]
 }

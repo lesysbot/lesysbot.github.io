@@ -163,46 +163,22 @@
   /* ------------------------------------------------------------------ */
 
   const catalogSearch = $('[data-catalog-search]');
-  const filterChips = $$('[data-filter]');
 
-  if (catalogSearch || filterChips.length) {
+  if (catalogSearch) {
     const cards = $$('[data-tool-card]');
-    const groups = $$('[data-group]');
     const empty = $('[data-catalog-empty]');
-    let activeFilter = 'all';
 
-    function apply() {
-      const query = (catalogSearch ? catalogSearch.value : '').trim().toLowerCase();
+    catalogSearch.addEventListener('input', () => {
+      const query = catalogSearch.value.trim().toLowerCase();
       let shown = 0;
 
       cards.forEach((card) => {
-        const matchesFilter =
-          activeFilter === 'all' || card.dataset.collection === activeFilter;
-        const matchesQuery = !query || card.dataset.search.includes(query);
-        const visible = matchesFilter && matchesQuery;
+        const visible = !query || card.dataset.search.includes(query);
         card.hidden = !visible;
         if (visible) shown += 1;
       });
 
-      // Hide a collection heading entirely when nothing under it survives.
-      groups.forEach((group) => {
-        const anyVisible = $$('[data-tool-card]', group).some((c) => !c.hidden);
-        group.hidden = !anyVisible;
-      });
-
       if (empty) empty.hidden = shown > 0;
-    }
-
-    if (catalogSearch) catalogSearch.addEventListener('input', apply);
-
-    filterChips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        activeFilter = chip.dataset.filter;
-        filterChips.forEach((c) =>
-          c.classList.toggle('filter-chip-active', c === chip),
-        );
-        apply();
-      });
     });
   }
 

@@ -38,28 +38,6 @@ export function icon(name, cls = 'h-4 w-4') {
   return svg.replace('<svg ', `<svg class="${cls}" `);
 }
 
-const PLATFORM_LABEL = {
-  linux: 'Linux',
-  macos: 'macOS',
-  windows: 'Windows',
-};
-
-export function platformBadges(platforms = []) {
-  const all = ['linux', 'macos', 'windows'];
-  const isEvery = all.every((p) => platforms.includes(p));
-  if (isEvery) {
-    return '<span class="badge badge-platform" title="Runs on Linux, macOS and Windows">All platforms</span>';
-  }
-  return platforms
-    .map(
-      (p) =>
-        `<span class="badge badge-platform badge-${escapeHtml(p)}">${
-          PLATFORM_LABEL[p] || escapeHtml(p)
-        }</span>`,
-    )
-    .join('');
-}
-
 /** Renders the sidebar tree. `nav` is [{ title, items: [{label, href, badge}] }]. */
 function renderSidebar(nav, currentPath) {
   return nav
@@ -345,7 +323,7 @@ export function layout(o) {
       ${brandMark(asset('/assets/logo.svg'), 'h-6 w-6')}
       <div>
         <p class="footer-name">LeSysBot</p>
-        <p class="footer-tagline">A local AI assistant for the machine you own.</p>
+        <p class="footer-tagline">A local AI assistant for the Linux machine you own.</p>
       </div>
     </div>
     <div class="footer-cols">
@@ -358,7 +336,6 @@ export function layout(o) {
       <div>
         <p class="footer-col-title">Repositories</p>
         <a href="https://github.com/${escapeHtml(site.repos.core)}" target="_blank" rel="noopener noreferrer">lesysbot</a>
-        <a href="https://github.com/${escapeHtml(site.repos.packages)}" target="_blank" rel="noopener noreferrer">packages-official</a>
       </div>
       <div>
         <p class="footer-col-title">This site</p>

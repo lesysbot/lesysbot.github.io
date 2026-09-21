@@ -1,6 +1,6 @@
 ---
 title: System monitoring
-description: The Prometheus + Grafana dashboard every install sets up — CPU, memory, disk, network, temperatures, and GPU as time series, on Linux, macOS, and Windows.
+description: The Prometheus + Grafana dashboard every install sets up — CPU, memory, disk, network, temperatures, and GPU as time series.
 section: Keep it running
 source: dashboard/README.md
 ---
@@ -19,31 +19,21 @@ normal install leaves Grafana on **http://localhost:3000**, and `lesysbot` links
 to it from the status screen.
 
 Everything it exposes binds to `127.0.0.1` only — nothing appears on your LAN —
-and none of it needs `sudo` or admin rights. It runs as its own processes beside
-LeSysBot rather than inside it: containers on Linux and Windows, Homebrew
-services on macOS.
+and none of it needs `sudo`. It runs as its own containers on the host network,
+beside LeSysBot rather than inside it.
 
 ## What the installer did
 
 The wizard asks two things and handles the rest:
 
-- **How to start it.** On Linux, if Docker is ready it offers to bring the stack
-  up right there. If Docker isn't installed or the daemon isn't running, it
-  prints the exact commands to fix that — no `sudo` prompts mid-install — and you
-  can start the stack later.
+- **How to start it.** If Docker is ready it offers to bring the stack up right
+  there. If Docker isn't installed or the daemon isn't running, it prints the
+  exact commands to fix that — no `sudo` prompts mid-install — and you can start
+  the stack later.
 - **Which Grafana login LeSysBot should use.** Defaults to `admin` / `admin`; the
   password is typed masked. It is saved to `~/.lesysbot/grafana.env` (readable
   only by you) and applied to the bundled Grafana's first boot, which is how the
   status screen and the `share-dashboard` tool authenticate later.
-
-Neither **macOS** nor **Windows** requires Docker Desktop. On macOS the installer
-uses Homebrew and does the whole thing for you — Grafana, Prometheus and the host
-exporter, running under `brew services`. It asks one extra question there:
-whether to install a small helper for CPU/GPU die temperature, defaulting to no
-(see [Temperatures, honestly](#temperatures-honestly)). On Windows it points you
-at a native [Grafana download](https://grafana.com/grafana/download) and explains
-how to connect it, mentioning the one-command Docker stack only if Docker happens
-to be running. LeSysBot finds Grafana on `localhost:3000` either way.
 
 Set `LESYSBOT_SKIP_DASHBOARD` before running setup to skip the whole step —
 useful for unattended installs.
@@ -53,110 +43,110 @@ useful for unattended installs.
 From `~/.lesysbot/dashboard` (or the `dashboard/` folder of a checkout):
 
 ```bash
-./scripts/install-macos.sh   # macOS — Homebrew, no Docker needed
-./scripts/install-macos.sh down
-
-./scripts/start.sh           # Linux — up
+./scripts/start.sh           # up
 ./scripts/start.sh down      # stop it again
 ```
 
-```powershell
-.\scripts\start.ps1          # Windows (PowerShell)
-.\scripts\start.ps1 down
-```
+One command: the script inspects the machine — sensors, GPU — and does the right
+thing. Then open **http://localhost:3000**. The dashboard is in the **LeSysBot**
+folder.
 
-One command, either way: each script inspects the machine — chip, sensors, GPU —
-and does the right thing. Then open **http://localhost:3000**. The dashboard is
-in the **LeSysBot** folder.
-
-macOS has its own script because it doesn't need Docker at all: it installs
-Grafana, Prometheus and the host exporter with Homebrew and runs them under
-`brew services`, so they come back after a reboot. On Linux and Windows the
-bundled stack needs **Docker with Compose v2**:
+The stack needs **Docker with Compose v2**:
 
 ```bash
 docker compose version      # should print "v2.x"; if not, install Docker first
 ```
 
-Install it if missing — Docker Desktop on
-[Windows](https://docs.docker.com/desktop/install/windows-install/) or
-[macOS](https://docs.docker.com/desktop/install/mac-install/), or
-[Docker Engine](https://docs.docker.com/engine/install/) on Linux. Prometheus,
-Grafana, and the metric exporters all download and configure themselves the
-first time you start the stack — there is nothing else to install or wire up.
+Install [Docker Engine](https://docs.docker.com/engine/install/) for your distro
+if it is missing, then add yourself to the group so it runs without `sudo`:
+
+```bash
+sudo usermod -aG docker $USER      # then log back in
+```
+
+Prometheus, Grafana, and the metric exporters all download and configure
+themselves the first time you start the stack — there is nothing else to install
+or wire up.
 
 ## What you get
 
-A single **System Overview** dashboard, titled for the machine it was built for —
-*Linux*, *macOS (Apple Silicon)*, *Windows*. It shows:
+A single **System Overview — Linux** dashboard, fed by `node_exporter` (plus
+`nvidia_gpu_exporter` when you have an NVIDIA card). It shows:
 
 - **CPU** — busy percentage, per-mode usage, load average, core count
 - **Memory** — used, cached, available, and swap
 - **Disk** — space used per filesystem, read/write throughput
 - **Network** — receive and transmit per interface; the interface name tells
-  Ethernet from Wifi
+  Ethernet from Wifi (`eno1`/`eth0` vs `wlp*`/`wlan0`)
 - **Temperatures** — whichever sensors your machine actually has (see below)
-- **GPU** — NVIDIA utilization, memory, temperature and power draw, or Apple GPU
-  utilization and memory on a Mac
+- **GPU** — NVIDIA utilization, memory, temperature and power draw
+
+Use the **Host** dropdown at the top to filter when more than one machine
+reports. Two more dashboards — **Network Traffic** and **GPU Detail** — ship
+alongside it and install the same way as a tool; see
+[Install dashboards](installing-dashboards.md).
 
 ## It is built for your machine
 
 An empty panel and a broken panel look identical. So rather than shipping one
-dashboard with every panel for every platform and letting the misses render
-blank, **each start script checks what the host can actually report and leaves
-out the rest**. After that, an empty panel means something is genuinely wrong —
-which is the whole point.
+dashboard with every panel and letting the misses render blank, **the start
+script checks what the host can actually report and leaves out the rest**. After
+that, an empty panel means something is genuinely wrong — which is the whole
+point.
 
-What gets checked:
+What gets probed:
 
-| Your OS | Checked | Effect |
-|---|---|---|
-| **Linux** | which sensor chips the kernel has bound (`/sys/class/hwmon`), ACPI thermal zones, `nvidia-smi` | CPU, disk and AMD-GPU temperature panels appear only when a chip can answer them |
-| **macOS** | Apple Silicon or Intel, `nvidia-smi` | Intel adds CPU throttling panels; the NVIDIA row is left out, since no macOS NVIDIA driver has existed since Mojave |
-| **Windows** | whether the running exporter *actually serves* ACPI thermal zones, `nvidia-smi` | the temperature row appears only if your firmware publishes anything — common on laptops, rare on desktops |
+| Probed | How |
+|---|---|
+| CPU, disk and AMD-GPU temperature sensors | chip names in `/sys/class/hwmon/*/name` |
+| ACPI thermal zones | `/sys/class/thermal/thermal_zone0` |
+| NVIDIA | `nvidia-smi` on `PATH` |
 
 GPU metrics key on **`nvidia-smi`, never on the card**: the exporter works by
 shelling out to it, so a GPU without a driver can't be read by anything. When the
 hardware is there but the tool isn't, the script says so and names what to
 install rather than quietly dropping the row.
 
-Each script also prints **optional add-ons** at the end — things that would fill
-in more panels, like the exact `modprobe` for a missing Linux sensor driver, or a
-temperature helper on macOS. They are suggestions, never errors, and never run
-for you.
+The script also prints **optional add-ons** at the end — things that would fill
+in more panels, like the exact `modprobe` for a missing sensor driver. They are
+suggestions, never errors, and never run for you. That advice is skipped inside a
+VM, where there are no sensors to expose in the first place.
 
-Some things still decide themselves at runtime, as before: Linux runs everything
-on the host network bound to localhost (so it reads the real network interfaces,
-and sidesteps the firewall rule that blocks a container from reaching the host),
-and picks a containerised GPU exporter when the NVIDIA container toolkit is
-present or a native one when it isn't. Windows runs Prometheus and Grafana in
-Docker Desktop with the host exporter native, reached over
-`host.docker.internal`, because Docker Desktop's VM can't see the real host.
+Everything runs on the host network bound to localhost, so the exporters read the
+real network interfaces and sidestep the firewall rule that blocks a container
+from reaching the host. The GPU exporter picks itself: a containerised one when
+the [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+is present, a small native one when it isn't. You don't choose.
 
-### Temperatures, honestly
+The committed portable dashboard (`system-overview.json`) remains the fallback —
+you get it when the host has no `python3`, or when you run `docker compose` by
+hand. It asks for every sensor family a Linux box might have, so panels your
+machine can't fill show up empty, which is exactly the ambiguity the probe
+removes.
 
-Coverage follows what each OS exposes without `sudo`, and that varies a lot:
+### Temperature sensor coverage
 
-- **Linux** is the richest — CPU package and per-core, NVMe/SATA disks, chipset
-  and Wifi radio, AMD GPU. If a driver simply isn't loaded, the start script
-  prints the `modprobe` that would fix it.
-- **macOS** gives you battery temperature and full Apple GPU utilization and
-  memory out of the box. **CPU and GPU die temperature need a small helper** —
-  Apple publishes those only through a private framework or root-only
-  `powermetrics`, and LeSysBot never uses `sudo`. The macOS installer offers to
-  install one (defaulting to no); or run
-  `brew install vladkens/tap/macmon` yourself and the tiles fill within 15
-  seconds.
-- **Windows** shows ACPI thermal zones when the firmware provides them. There is
-  no per-component CPU or disk sensor on Windows without a tool like
-  LibreHardwareMonitor.
+The exporters only surface what the kernel exposes, and no `sudo` is used:
+
+| Sensor | Source |
+|---|---|
+| **CPU** (package + cores) | `coretemp` (Intel) / `k10temp` (AMD) / `cpu_thermal` (ARM) hwmon chips |
+| **Disk** (NVMe/SATA) | `nvme` / `drivetemp` hwmon chips |
+| **GPU** (NVIDIA) | `nvidia_gpu_exporter` → `nvidia-smi` |
+| **GPU** (AMD) | `amdgpu` hwmon chip — no exporter needed |
+| **ACPI / chipset / Wifi radio** | `/sys/class/thermal` zones |
+
+All of it comes through `node_exporter`'s `hwmon` and `thermal_zone` collectors,
+except the NVIDIA row. If a driver simply isn't loaded, `start.sh` tells you the
+exact `modprobe` that would fix it — `coretemp`/`k10temp` for CPU, `drivetemp`
+for SATA disks; NVMe needs nothing.
 
 ### Keeping it current
 
 Re-running setup (`lesysbot setup`, or the installer) refreshes the
 stack's scripts and dashboards in `~/.lesysbot/dashboard`, while never touching
 the two things you own: `.env` (ports and Grafana login) and `prometheus/` (any
-scrape targets you added). Re-run your OS's start script afterwards so the
+scrape targets you added). Re-run `./scripts/start.sh` afterwards so the
 dashboard is rebuilt for the current hardware.
 
 ## Sharing a snapshot from chat

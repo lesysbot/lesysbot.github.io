@@ -2,7 +2,7 @@
  * A small build-time syntax highlighter.
  *
  * Scope is intentionally narrow: the languages that actually appear in these
- * docs (shell, yaml, python, json, powershell, ini). Strings and comments are
+ * docs (shell, yaml, python, json, ini). Strings and comments are
  * consumed first so keywords inside them are never re-highlighted, which is
  * the failure mode naive regex highlighters have.
  */
@@ -18,10 +18,6 @@ const KEYWORDS = {
     'case', 'do', 'done', 'elif', 'else', 'esac', 'fi', 'for', 'function',
     'if', 'in', 'then', 'until', 'while', 'export', 'local', 'return', 'source',
   ],
-  powershell: [
-    'if', 'else', 'elseif', 'foreach', 'function', 'param', 'process', 'return',
-    'switch', 'try', 'catch', 'finally', 'while', 'begin', 'end',
-  ],
 };
 
 const ALIASES = {
@@ -29,7 +25,6 @@ const ALIASES = {
   py: 'python', python: 'python',
   yml: 'yaml', yaml: 'yaml',
   json: 'json',
-  ps1: 'powershell', powershell: 'powershell', pwsh: 'powershell',
   ini: 'ini', toml: 'ini', cfg: 'ini',
   text: 'text', txt: 'text', '': 'text',
 };
@@ -109,17 +104,6 @@ const HIGHLIGHTERS = {
       ...STRING_RULES,
       keywordRule('python'),
       [/^\b[A-Za-z_]\w*(?=\()/, 'fn'],
-      NUMBER_RULE,
-    ]),
-
-  powershell: (code) =>
-    tokenize(code, [
-      [/^#[^\n]*/, 'com'],
-      ...STRING_RULES,
-      [/^\$[A-Za-z_][\w:]*/, 'var'],
-      [/^-[A-Za-z][\w-]*/, 'flag'],
-      keywordRule('powershell'),
-      [/^\b[A-Z][a-z]+-[A-Z]\w+/, 'fn'],
       NUMBER_RULE,
     ]),
 
