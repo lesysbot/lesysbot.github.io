@@ -38,11 +38,7 @@ jobs:
       # the site would look perfectly fine and `curl … | sh` would 404 for
       # everyone.
       - name: Root files really shipped
-        run: |
-          test -s dist/install.sh
-          test -s dist/install.ps1
-          test -s dist/catalog.json
-          head -1 dist/install.sh | grep -qx '#!/bin/sh'
+        run: npm run check:root
 
       - name: Check for broken internal links
         run: node scripts/check-links.js

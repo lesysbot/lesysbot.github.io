@@ -7,6 +7,8 @@
   "scripts": {
     "build": "node src/build.js && npm run css",
     "css": "tailwindcss -i src/styles/main.css -o dist/assets/site.css --minify",
+    "check": "npm run check:root && node scripts/check-links.js",
+    "check:root": "test -s dist/install.sh && test -s dist/catalog.json && head -1 dist/install.sh | grep -qx '#!/bin/sh'",
     "dev": "node src/build.js && concurrently \"npm:watch:*\"",
     "watch:html": "node src/build.js --watch",
     "watch:css": "tailwindcss -i src/styles/main.css -o dist/assets/site.css --watch",
