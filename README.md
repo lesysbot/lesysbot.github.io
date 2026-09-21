@@ -15,10 +15,13 @@ switcher.
 ```bash
 npm install
 npm run build      # → dist/
+npm run check      # the same gates the deploy runs: root files + internal links
 npm run serve      # → http://localhost:4173/
 ```
 
-`npm run dev` rebuilds HTML and CSS on change while serving.
+`npm run dev` rebuilds HTML and CSS on change while serving. Run
+`npm run build && npm run check` before pushing: a push to `main` deploys, and
+the deploy stops at the first check that fails.
 
 ## How it is put together
 
@@ -26,9 +29,10 @@ npm run serve      # → http://localhost:4173/
 content/
   site.json              site name, base path, repo URLs
   versions.json          every published version; which one is "latest"
-  catalog.json           the marketplace catalog, published at /catalog.json —
-                         a copy of the core repo's catalog.json, kept in step
-                         by its tests/test_catalog.py
+  static/                published verbatim at the site root, synced from the
+                         core repo by scripts/import-docs.js — never edit here
+    install.sh           what `curl -fsSL …/install.sh | sh` runs
+    catalog.json         what `lesysbot search --refresh` fetches
   v0.1/
     nav.json             sidebar order
     tools.json           the tool catalog — every package and tool
