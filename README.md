@@ -34,7 +34,6 @@ content/
   static/                published verbatim at the site root, synced from the
                          core repo by scripts/import-docs.js — never edit here
     install.sh           what `curl -fsSL …/install.sh | sh` runs
-    catalog.json         what `lesysbot search --refresh` fetches
   v0.1/
     nav.json             sidebar order
     redirects.json       old slug → current page, for guides that moved

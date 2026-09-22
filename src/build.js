@@ -172,7 +172,7 @@ function renderVersionHome({ site, version, urlId, sections, catalog }) {
         'Settings, tools and health, in your browser.',
         'http://127.0.0.1:8700',
       ],
-      ['Add more tools', 'Fifteen come with it. Install more from any GitHub repo.', 'lesysbot search'],
+      ['Add more tools', 'Fifteen come with it. A tool is a folder — drop one in.', 'lesysbot install ./my-tool'],
     ]
       .map(([title, desc, cmd], i) =>
         [
@@ -653,16 +653,15 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
   write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
 
   /* Everything in content/static/ is published verbatim at the site root.
-     Two things need a root URL and can get one no other way:
+     One thing needs a root URL and can get one no other way:
 
-       catalog.json   what `lesysbot search --refresh` fetches
        install.sh     what `curl -fsSL <site>/install.sh | sh` runs
 
      and a CNAME file would belong here too the day this moves to a custom
      domain — src/assets/ is copied to /assets/, where Pages ignores it.
-     All of them are synced from the core repo by scripts/import-docs.js and
-     committed, so the build never needs that checkout. `.nojekyll` below is
-     what stops Pages filtering them out. */
+     It is synced from the core repo by scripts/import-docs.js and committed, so
+     the build never needs that checkout. `.nojekyll` below is what stops Pages
+     filtering it out. */
   const staticDir = path.join(CONTENT, 'static');
   if (fs.existsSync(staticDir)) {
     for (const entry of fs.readdirSync(staticDir, { withFileTypes: true })) {

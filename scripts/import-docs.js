@@ -64,7 +64,7 @@ const GUIDES = {
   'installing-tools': {
     title: 'Install tools',
     section: 'Extend it',
-    description: 'Add tools and dashboards from GitHub with one command.',
+    description: 'A tool is a folder — copy one in, or install it from a path or GitHub.',
   },
   'writing-tools': {
     title: 'Write a tool',
@@ -105,7 +105,6 @@ const KEEP = new Set(['overview']);
  * `curl -fsSL https://lesysbot.github.io/install.sh | sh`. */
 const STATIC_FILES = [
   ['scripts/install.sh', 'install.sh'],
-  ['catalog.json', 'catalog.json'],
 ];
 
 function importStatic(coreRepo) {
